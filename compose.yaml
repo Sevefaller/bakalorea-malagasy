@@ -1,0 +1,118 @@
+name: bakalorea
+x-app: &app
+  image: bakalorea-backend:local
+  pull_policy: never
+  environment: &env
+    APP_NAME: Bakalorea
+    APP_ENV: production
+    APP_KEY: ${APP_KEY:?Run node scripts/init.mjs}
+    APP_DEBUG: 'false'
+    LOG_CHANNEL: stderr
+    LOG_LEVEL: warning
+    DB_CONNECTION: pgsql
+    DB_HOST: postgres
+    DB_PORT: 5432
+    DB_DATABASE: bakalorea
+    DB_USERNAME: bakalorea
+    DB_PASSWORD: ${DB_PASSWORD:?Run node scripts/init.mjs}
+    REDIS_CLIENT: predis
+    REDIS_HOST: redis
+    CACHE_STORE: redis
+    SESSION_DRIVER: redis
+    QUEUE_CONNECTION: sync
+    BROADCAST_CONNECTION: reverb
+    REVERB_APP_ID: ${REVERB_APP_ID}
+    REVERB_APP_KEY: ${REVERB_APP_KEY}
+    REVERB_APP_SECRET: ${REVERB_APP_SECRET}
+    REVERB_HOST: reverb
+    REVERB_PORT: 8080
+    REVERB_SCHEME: http
+    REVERB_PUBLIC_HOST: ${REVERB_PUBLIC_HOST:-}
+    REVERB_PUBLIC_PORT: ${REVERB_PUBLIC_PORT:-8088}
+    REVERB_PUBLIC_SCHEME: ${REVERB_PUBLIC_SCHEME:-http}
+    REVERB_ALLOWED_ORIGINS: ${REVERB_ALLOWED_ORIGINS:-localhost,127.0.0.1}
+    REVERB_APP_ACCEPT_CLIENT_EVENTS_FROM: none
+  restart: unless-stopped
+  logging: &logging
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: '3'
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: bakalorea
+      POSTGRES_USER: bakalorea
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U bakalorea -d bakalorea']
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+    logging: *logging
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes: [redis_data:/data]
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+    logging: *logging
+  migrate:
+    <<: *app
+    command: php artisan migrate --force
+    restart: 'no'
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+  backend:
+    <<: *app
+    build:
+      context: .
+      dockerfile: infra/backend.Dockerfile
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: ['CMD', 'php', 'artisan', 'game:health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  reverb:
+    <<: *app
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: ['CMD', 'php', '-r', '$$s=@fsockopen("127.0.0.1",8080); exit($$s?0:1);']
+      interval: 20s
+      timeout: 5s
+      retries: 3
+  scheduler:
+    <<: *app
+    command: php artisan schedule:work
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+  caddy:
+    build:
+      context: .
+      dockerfile: infra/caddy.Dockerfile
+    ports: ['${HTTP_PORT:-8088}:80', '${HTTPS_PORT:-8443}:443']
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    volumes: [caddy_data:/data, caddy_config:/config]
+    depends_on:
+      backend: {condition: service_started}
+      reverb: {condition: service_started}
+    restart: unless-stopped
+    logging: *logging
+volumes:
+  postgres_data:
+  redis_data:
+  caddy_data:
+  caddy_config:

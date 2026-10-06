@@ -1,0 +1,1 @@
+{"name":"bakalorea","private":true,"scripts":{"start":"node scripts/dev.mjs","docker":"node scripts/docker.mjs","setup":"node scripts/init.mjs","build":"npm --prefix frontend run build"}}

@@ -1,0 +1,6 @@
+{
+  "name": "bakalorea-malagasy", "private": true, "version": "1.0.0", "type": "module",
+  "scripts": { "dev": "vite --host 0.0.0.0", "build": "vue-tsc -b && vite build", "test:e2e": "playwright test" },
+  "dependencies": { "vue": "^3.5.13", "vue-router": "^4.5.0", "vue-i18n": "^11.1.0", "pinia": "^3.0.1", "laravel-echo": "^2.0.0", "pusher-js": "^8.4.0", "lucide-vue-next": "^0.468.0" },
+  "devDependencies": { "@vitejs/plugin-vue": "^5.2.1", "vite": "^6.2.0", "typescript": "~5.7.2", "vue-tsc": "^2.2.4", "@playwright/test": "^1.51.0", "@types/node": "^22.13.0" }
+}

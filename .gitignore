@@ -1,0 +1,12 @@
+/.tools/
+/.npm-cache/
+/artifacts/
+/backend/.env
+/backend/vendor/
+/backend/database/*.sqlite*
+/backend/storage/logs/*
+/backend/storage/framework/cache/data/*
+/frontend/node_modules/
+/frontend/dist/
+/.env
+/.runtime/
