@@ -50,3 +50,27 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline-color:#65a99b
 .chat-form input:focus{border-color:#489f92;box-shadow:0 0 0 3px #e7f2ef}
 .chat-form .primary{min-height:43px;padding:9px 15px}
 @media(max-width:600px){footer{flex-wrap:wrap;justify-content:center;text-align:center}.developer-credit{order:3;width:100%}.chat-form .primary span{display:none}.chat-form .primary{width:45px;padding:9px}.judging-chat{padding:18px}}
+
+.judging-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,270px);grid-template-areas:"round round" "heading heading" "banner banner" "answers chat" "actions actions";column-gap:16px;align-content:start}
+.judging-layout>.round-title{grid-area:round}
+.judging-layout>.judging-heading{grid-area:heading}
+.judging-layout>.stop-banner{grid-area:banner}
+.judging-layout>.answer-cards{grid-area:answers;min-width:0;max-height:min(68vh,650px);overflow-y:auto;overscroll-behavior:contain;gap:9px;padding:2px 5px 2px 0}
+.judging-layout>.judging-chat{grid-area:chat;position:sticky;top:12px;align-self:start;display:flex;flex-direction:column;height:min(68vh,650px);min-height:240px;margin-top:0;padding:16px}
+.judging-layout>.judging-actions{grid-area:actions}
+.judging-layout .judgment-card{padding:12px 14px}
+.judging-layout .judgment-top{gap:7px}
+.judging-layout .judgment-top .avatar-small{width:29px;height:29px;font-size:.67rem}
+.judging-layout .judgment-top>strong{font-size:.78rem}
+.judging-layout .revealed-answer{font-size:1.08rem;margin:8px 0 10px}
+.judging-layout .vote-buttons{gap:5px}
+.judging-layout .vote{padding:7px 4px;font-size:.7rem;gap:4px;min-width:0}
+.judging-layout .vote svg{width:15px;height:15px;flex-shrink:0}
+.judging-layout .vote-counts{margin-top:8px;gap:13px;font-size:.7rem}
+.judging-layout .own-answer,.judging-layout .invalid-reason{font-size:.72rem}
+.judging-layout .tie-box{margin-top:9px}
+.judging-layout .chat-messages{flex:1;min-height:0;max-height:none}
+.judging-layout .chat-form .primary{width:44px;min-width:44px;padding:9px}
+.judging-layout .chat-form .primary span{display:none}
+@media(max-width:1000px){.judging-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"round" "heading" "banner" "chat" "answers" "actions";row-gap:14px}.judging-layout>.judging-chat{position:static;height:210px;min-height:0}.judging-layout>.answer-cards{max-height:55vh}.judging-layout>.judging-heading,.judging-layout>.stop-banner{margin-bottom:0}}
+@media(max-width:460px){.judging-layout>.judging-chat{height:200px}.judging-layout .vote{font-size:.68rem}}
