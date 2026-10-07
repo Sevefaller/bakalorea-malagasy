@@ -12,7 +12,7 @@ const nickname = ref(localStorage.getItem('bakalorea.nickname') || ''), roomName
 const target = ref(200), duration = ref(15), antiCheat = ref('normal'), letters = ref('ABDEFGHIJKLMNOPRSTV'), noRepeat = ref(true), uniquePoints = ref(10), duplicatePoints = ref(5)
 const copied = ref(false), now = ref(0), draft = ref(''), savedState = ref(''), answerInput = ref<HTMLInputElement>(), revision = ref(0)
 const installPrompt = ref<any>(null), showHistory = ref(false)
-let clock: ReturnType<typeof setInterval>, saveTimer: ReturnType<typeof setTimeout> | undefined, lastBeep = -1, away = false, activeSave = 0
+let clock: ReturnType<typeof setInterval>, lastBeep = -1, away = false, activeSave = 0
 const categories = [ { code: 'male_name', icon: UserRound, color: 'purple' }, { code: 'female_name', icon: UserRound, color: 'pink' }, { code: 'plant', icon: Leaf, color: 'green' }, { code: 'fruit', icon: Apple, color: 'orange' }, { code: 'malagasy_artist', icon: Mic2, color: 'pink' }, { code: 'international_artist', icon: Music2, color: 'purple' }, { code: 'malagasy_place', icon: MapPin, color: 'orange' }, { code: 'international_place', icon: Globe2, color: 'blue' },
   ...[
   'animal',
@@ -86,8 +86,8 @@ const initials = (name: string) => name.slice(0, 2).toUpperCase()
 const reasonLabel = (reason: string) => t(({ empty: 'emptyReason', letter: 'letterReason', strict: 'strictReason' } as Record<string,string>)[reason] || 'invalid')
 
 watch(locale, value => { localStorage.setItem('bakalorea.locale', value); document.documentElement.lang = value })
-watch(() => round.value?.id, async () => { clearTimeout(saveTimer); draft.value = round.value?.own_answer || ''; revision.value = round.value?.own_revision || 0; savedState.value = draft.value ? 'saved' : ''; lastBeep = -1; away = false; if (spinning.value) playSound('spin'); await nextTick() })
-watch(answering, async value => { if (value) { await nextTick(); answerInput.value?.focus(); if(document.hidden || !document.hasFocus()) reportAway(true) } else clearTimeout(saveTimer) })
+watch(() => round.value?.id, async () => { draft.value = round.value?.own_answer || ''; revision.value = round.value?.own_revision || 0; savedState.value = draft.value ? 'saved' : ''; lastBeep = -1; away = false; if (spinning.value) playSound('spin'); await nextTick() })
+watch(answering, async value => { if (value) { await nextTick(); answerInput.value?.focus(); if(document.hidden || !document.hasFocus()) reportAway(true) } })
 watch(seconds, value => { if (answering.value && value <= 5 && value !== lastBeep) { lastBeep = value; playSound('tick') } if (value === 0 && round.value?.status === 'answering') { playSound('stop'); store.refresh() } })
 watch(() => g.value?.status, value => { if (value === 'finished') playSound('win') })
 
@@ -96,9 +96,8 @@ async function enter() {
   const ok = await store.enter(mode.value, { nickname: nickname.value.trim(), locale: locale.value, code: roomCode.value.trim(), name: roomName.value.trim() || t('roomPlaceholder'), target_score: Number(target.value), answer_duration: Number(duration.value), anti_cheat_mode: antiCheat.value, letters: letters.value.toUpperCase().replace(/[^A-Z]/g, ''), no_repeat: noRepeat.value, unique_points: Number(uniquePoints.value), duplicate_points: Number(duplicatePoints.value) })
   if (ok) router.push(`/salle/${store.code}`)
 }
-function changedAnswer() { savedState.value = 'saving'; clearTimeout(saveTimer); saveTimer = setTimeout(saveAnswer, 400) }
+function changedAnswer() { savedState.value = '' }
 async function saveAnswer() {
-  clearTimeout(saveTimer)
   if (!round.value || !answering.value || !round.value.participating) return
   const id = round.value.id, thisRevision = ++revision.value, value = draft.value
   activeSave = thisRevision; savedState.value = 'saving'
@@ -127,7 +126,7 @@ onMounted(async () => {
   if (store.token) { await store.resume(); if (!store.terminal) router.replace(`/salle/${store.code}`) }
   else if (route.params.code) { roomCode.value = String(route.params.code); mode.value = 'join'; router.replace('/') }
 })
-onUnmounted(() => { clearInterval(clock); clearTimeout(saveTimer); store.stop(); document.removeEventListener('visibilitychange', onVisibility); window.removeEventListener('blur', onBlur); window.removeEventListener('focus', onFocus); window.removeEventListener('beforeinstallprompt', captureInstall) })
+onUnmounted(() => { clearInterval(clock); store.stop(); document.removeEventListener('visibilitychange', onVisibility); window.removeEventListener('blur', onBlur); window.removeEventListener('focus', onFocus); window.removeEventListener('beforeinstallprompt', captureInstall) })
 </script>
 
 <template>
@@ -199,7 +198,7 @@ onUnmounted(() => { clearInterval(clock); clearTimeout(saveTimer); store.stop();
               <div class="play-top"><h2>{{ t(spinning ? 'getReady' : seconds === 0 ? 'stop' : 'yourTurn') }}</h2><div v-if="!spinning" class="timer" role="timer" :aria-label="t('duration')"><Timer :size="20"/><strong>{{ seconds }}</strong><span>s</span></div></div>
               <div class="letter-stage"><p>{{ t(spinning ? 'spin' : 'startsWith') }}</p><div :class="['letter-tile', { spinning }]" data-testid="letter">{{ spinning ? spinLetter : round.letter }}</div><h2>{{ t(`category.${round.category}`) }}</h2></div>
               <div class="time-track"><div :style="{ width: `${spinning ? 100 : seconds / g.answer_duration * 100}%` }"></div></div>
-              <form v-if="round.participating" @submit.prevent="saveAnswer"><label class="field">{{ t('answer') }}<div class="answer-field"><input ref="answerInput" v-model="draft" :disabled="!answering || store.replaced" :placeholder="t('answerPlaceholder')" maxlength="120" autocomplete="off" autocorrect="off" autocapitalize="off" :spellcheck="false" data-testid="answer" @input="changedAnswer"><button class="icon-button" :disabled="!answering" :aria-label="t('save')" type="submit"><Check :size="22"/></button></div></label><div class="answer-status" aria-live="polite"><span v-if="savedState" :class="{ danger: savedState === 'notSaved' }"><CheckCircle2 v-if="savedState === 'saved'" :size="15"/>{{ t(savedState) }}</span><span v-else><LockKeyhole :size="14"/>{{ t('privateAnswer') }}</span></div></form><p v-else>{{ t('spectating') }}</p>
+              <form v-if="round.participating" @submit.prevent="saveAnswer"><label class="field">{{ t('answer') }}<div class="answer-field"><input ref="answerInput" v-model="draft" :disabled="!answering || store.replaced" :placeholder="t('answerPlaceholder')" maxlength="120" autocomplete="off" autocorrect="off" autocapitalize="off" :spellcheck="false" data-testid="answer" @input="changedAnswer"><button class="icon-button" :disabled="!answering" :aria-label="t('save')" type="submit"><Check :size="22"/></button></div></label><div class="answer-status" aria-live="polite"><span v-if="savedState" :class="{ danger: savedState === 'notSaved' }"><CheckCircle2 v-if="savedState === 'saved'" :size="15"/>{{ t(savedState) }}</span><span v-else><LockKeyhole :size="14"/>{{ t(draft ? 'pressEnter' : 'privateAnswer') }}</span></div></form><p v-else>{{ t('spectating') }}</p>
               <p class="focus-hint"><ShieldCheck :size="15"/>{{ t('stayFocused') }}</p>
             </div>
 

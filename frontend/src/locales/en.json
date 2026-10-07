@@ -76,6 +76,7 @@
   "saving": "Saving…",
   "notSaved": "Answer not saved. Try again before STOP.",
   "privateAnswer": "Your answer stays secret until STOP.",
+  "pressEnter": "Press Enter to save your answer.",
   "stop": "STOP!",
   "stopText": "Answers are locked. Time to judge!",
   "judging": "Mitsara",

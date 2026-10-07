@@ -76,6 +76,7 @@
   "saving": "Enregistrement…",
   "notSaved": "Réponse non enregistrée. Réessaie avant STOP.",
   "privateAnswer": "Ta réponse reste secrète jusqu’à STOP.",
+  "pressEnter": "Appuie sur Entrée pour enregistrer ta réponse.",
   "stop": "STOP !",
   "stopText": "Les réponses sont verrouillées. Place au jugement !",
   "judging": "Mitsara",
