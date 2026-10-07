@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
-import { Activity, ArrowLeft, Gamepad2, LockKeyhole, LogOut, RefreshCw, ShieldCheck, Trash2, Trophy, Users, X } from 'lucide-vue-next'
+import { Activity, ArrowLeft, Eye, EyeOff, Gamepad2, LockKeyhole, LogOut, RefreshCw, ShieldCheck, Trash2, Trophy, Users, X } from 'lucide-vue-next'
 
 interface GameSummary {
   id: number; code: string; name: string; status: string; created_at: string; can_delete: boolean
@@ -15,6 +15,7 @@ interface Dashboard {
 }
 
 const username = ref(''), password = ref(''), authenticated = ref(false)
+const showPassword = ref(false)
 const busy = ref(false), loading = ref(false), error = ref(''), dashboard = ref<Dashboard | null>(null)
 type GameFilter = 'all' | 'finished' | 'lobby' | 'stale'
 const csrf = ref(''), filter = ref<GameFilter>('all'), page = ref(1), deleting = ref(false), notice = ref('')
@@ -52,7 +53,7 @@ async function login() {
   busy.value = true; error.value = ''
   try {
     const result = await api('login', 'POST', { username: username.value.trim(), password: password.value })
-    username.value = result.username; csrf.value = result.csrf; password.value = ''; authenticated.value = true
+    username.value = result.username; csrf.value = result.csrf; password.value = ''; showPassword.value = false; authenticated.value = true
     await refresh()
   } catch (cause) {
     error.value = cause instanceof Error && cause.message === '429' ? 'Trop de tentatives. Réessayez dans une minute.'
@@ -131,7 +132,7 @@ async function deleteAllFinished() {
 async function logout() {
   try {
     await api('logout', 'POST')
-    authenticated.value = false; dashboard.value = null; password.value = ''; csrf.value = ''; error.value = ''; notice.value = ''; closePlayers(); clearPlayers()
+    authenticated.value = false; dashboard.value = null; password.value = ''; showPassword.value = false; csrf.value = ''; error.value = ''; notice.value = ''; closePlayers(); clearPlayers()
   } catch { error.value = 'Impossible de se déconnecter. Réessayez.' }
 }
 const dateLabel = (value: string) => new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(value))
@@ -154,7 +155,7 @@ onMounted(async () => {
       <p class="admin-subtitle">Connectez-vous pour suivre l’activité des parties.</p>
       <form @submit.prevent="login">
         <label>Utilisateur<input v-model="username" required autocomplete="username" placeholder="Utilisateur"></label>
-        <label>Mot de passe<input v-model="password" required type="password" autocomplete="current-password" placeholder="Mot de passe"></label>
+        <div class="admin-password-field"><label for="admin-password">Mot de passe</label><div class="admin-password-input"><input id="admin-password" v-model="password" required :type="showPassword ? 'text' : 'password'" autocomplete="current-password" placeholder="Mot de passe"><button type="button" :aria-label="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'" :aria-pressed="showPassword" @click="showPassword = !showPassword"><EyeOff v-if="showPassword" :size="19"/><Eye v-else :size="19"/></button></div></div>
         <p v-if="error" class="admin-error" role="alert">{{ error }}</p>
         <button type="submit" class="primary full" :disabled="busy"><LockKeyhole :size="17"/>{{ busy ? 'Connexion…' : 'Se connecter' }}</button>
       </form>
@@ -196,6 +197,7 @@ onMounted(async () => {
 .admin-login{max-width:430px;margin:70px auto;padding:35px}.admin-symbol{width:50px;height:50px;display:grid;place-items:center;background:#e8f4ee;color:#2e8a7d;border-radius:13px;margin-bottom:20px}
 .admin-eyebrow{color:#2e8a7d;text-transform:uppercase;letter-spacing:1.4px;font-size:.72rem;font-weight:800}.admin-login h1,.admin-heading h1{font-size:clamp(1.8rem,3vw,2.4rem);margin:7px 0}.admin-subtitle{color:#68767b;font-size:.9rem}
 .admin-login form{display:grid;gap:17px;margin-top:27px}.admin-login label{display:grid;gap:8px;font-size:.82rem;font-weight:700}.admin-login input{width:100%;height:48px;border:1px solid #dce2e7;border-radius:9px;padding:0 13px;outline:0}.admin-login input:focus{border-color:#2e8a7d;box-shadow:0 0 0 3px #e7f2ef}.admin-error{color:#b54848;background:#fff0ee;border-radius:8px;padding:10px 12px;font-size:.82rem}
+.admin-password-field{display:grid;gap:8px}.admin-password-input{position:relative}.admin-password-input input{padding-right:49px}.admin-password-input button{position:absolute;right:5px;top:5px;width:38px;height:38px;display:grid;place-items:center;border:0;border-radius:7px;background:transparent;color:#718086}.admin-password-input button:hover{color:#2e8a7d;background:#edf5f3}
 .admin-content{padding-top:42px}.admin-heading{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:30px}.admin-actions{display:flex;gap:10px;align-items:center}.admin-actions button{display:inline-flex;align-items:center;gap:7px}.admin-logout{border:0;background:none;color:#66747d;padding:9px;font-size:.82rem}.admin-logout:hover{color:#2e8a7d}
 .admin-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:24px 0}.admin-stat{display:flex;flex-direction:column;gap:10px;padding:20px;color:#2e8a7d}.admin-stat span{color:#66747d;font-size:.8rem}.admin-stat strong{color:#131720;font-size:1.7rem;font-weight:800}
 .admin-retention{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:19px 23px;margin-bottom:16px}.admin-retention h2{font-size:.98rem}.admin-retention p{color:#68767b;font-size:.78rem;margin-top:5px}.admin-retention form{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.78rem;font-weight:700}.admin-retention input{width:75px;border:1px solid #dce2e7;border-radius:8px;padding:8px;font:inherit}.admin-retention .secondary{min-height:36px;font-size:.78rem;padding:7px 11px}
