@@ -17,10 +17,39 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Debug GitHub OIDC claims
-        uses: github/actions-oidc-debugger@main
-        with:
-          audience: sts.amazonaws.com
+      - name: Show GitHub OIDC claims
+        shell: bash
+        run: |
+          TOKEN_RESPONSE=$(curl -sS \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com")
+
+          TOKEN=$(echo "$TOKEN_RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['value'])")
+
+          PAYLOAD=$(echo "$TOKEN" | cut -d '.' -f2)
+
+          python3 - "$PAYLOAD" <<'PY'
+          import sys
+          import json
+          import base64
+
+          payload = sys.argv[1]
+          payload += "=" * (-len(payload) % 4)
+
+          data = json.loads(base64.urlsafe_b64decode(payload))
+
+          print("OIDC subject:")
+          print(data.get("sub"))
+
+          print("OIDC audience:")
+          print(data.get("aud"))
+
+          print("Repository:")
+          print(data.get("repository"))
+
+          print("Ref:")
+          print(data.get("ref"))
+          PY
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
@@ -29,6 +58,7 @@ jobs:
           aws-region: eu-north-1
 
       - name: Create deployment archive
+        shell: bash
         run: |
           zip -r bakalorea-aws.zip . \
             -x ".git/*" \
@@ -40,11 +70,13 @@ jobs:
             -x ".env.aws"
 
       - name: Upload archive to S3
+        shell: bash
         run: |
           aws s3 cp bakalorea-aws.zip \
             s3://bakalorea-prod-storage-5lowozadiq3h/releases/bakalorea-aws.zip
 
       - name: Deploy on EC2 with SSM
+        shell: bash
         run: |
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "i-01212aa95e08908e8" \
@@ -52,7 +84,9 @@ jobs:
             --parameters 'commands=[
               "set -e",
               "sudo -i bash -c \"aws s3 cp s3://bakalorea-prod-storage-5lowozadiq3h/releases/bakalorea-aws.zip /tmp/bakalorea-aws.zip\"",
-              "sudo -i bash -c \"unzip -o /tmp/bakalorea-aws.zip -d /opt/bakalorea\"",
+              "sudo -i bash -c \"rm -rf /tmp/bakalorea-release && mkdir -p /tmp/bakalorea-release\"",
+              "sudo -i bash -c \"unzip -o /tmp/bakalorea-aws.zip -d /tmp/bakalorea-release\"",
+              "sudo -i bash -c \"cp -a /tmp/bakalorea-release/. /opt/bakalorea/\"",
               "sudo -i bash -c \"cd /opt/bakalorea && bash deploy/aws/deploy.sh 13.51.54.229\""
             ]' \
             --query "Command.CommandId" \
@@ -66,4 +100,9 @@ jobs:
 
           aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" \
-            --instance-id "i-01212aa95e08908e8"
+            --instance-id "i-01212aa95e08908e8" \
+            --query '{
+              Status:Status,
+              StandardOutput:StandardOutputContent,
+              StandardError:StandardErrorContent
+            }'
