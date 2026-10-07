@@ -2,11 +2,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\{Game, GamePlayer};
-use Carbon\Carbon;
+use App\Services\{GameCleanup, RetentionPolicy};
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{Cache, DB, Hash};
+use Illuminate\Support\Facades\{Cache, Hash};
 
 class AdminController extends Controller {
+    public function __construct(private GameCleanup $cleanup, private RetentionPolicy $retention) {}
     private function cookie(Request $request, string $value, int $minutes) {
         return cookie(config('admin.cookie'), $value, $minutes, '/', null,
             $request->isSecure() || (bool) config('session.secure'), true, false, 'lax');
@@ -25,32 +26,10 @@ class AdminController extends Controller {
 
     private function authorized(Request $request): bool { return $this->session($request) !== null; }
 
-    private function authorizeDelete(Request $request): void {
+    private function authorizeWrite(Request $request): void {
         $session = $this->session($request);
         abort_unless($session, 401);
         abort_unless(hash_equals($session['csrf'], (string) $request->header('X-Admin-CSRF')), 403);
-    }
-
-    private function canDelete(Game $game, ?string $startedAt = null): bool {
-        if (in_array($game->status, ['lobby', 'finished'], true)) return true;
-        if ($game->status !== 'playing') return false;
-        $startedAt ??= $game->rounds()->oldest('started_at')->value('started_at');
-        return $startedAt !== null && Carbon::parse($startedAt)->lt(now()->subHours(3));
-    }
-
-    private function removeGame(Game $game): void {
-        Cache::lock('game:'.$game->id, 15)->block(5, function () use ($game) {
-            DB::transaction(function () use ($game) {
-                $locked = Game::whereKey($game->id)->lockForUpdate()->first();
-                if (!$locked) return;
-                abort_unless($this->canDelete($locked), 409, 'game_not_deletable');
-                foreach ($locked->players()->get() as $player) $player->tokens()->delete();
-                // Rounds own answers, votes, comments and anti-cheat events through database cascades.
-                $locked->rounds()->delete();
-                $locked->players()->delete();
-                $locked->delete();
-            });
-        });
     }
 
     public function login(Request $request) {
@@ -78,17 +57,19 @@ class AdminController extends Controller {
 
     public function dashboard(Request $request) {
         abort_unless($this->authorized($request), 401);
+        $request->validate(['page' => 'sometimes|integer|min:1|max:1000000']);
         $filter = $request->query('filter', 'all');
         abort_unless(in_array($filter, ['all', 'finished', 'lobby', 'stale'], true), 422);
-        $games = Game::query()
+        $pagination = Game::query()
             ->when($filter === 'finished', fn ($query) => $query->where('status', 'finished'))
             ->when($filter === 'lobby', fn ($query) => $query->where('status', 'lobby'))
             ->when($filter === 'stale', fn ($query) => $query->where('status', 'playing')->whereHas('rounds', fn ($rounds) => $rounds->where('number', 1)->where('started_at', '<', now()->subHours(3))))
             ->withMin('rounds as first_round_started_at', 'started_at')->withCount([
             'players', 'rounds',
             'players as online_players_count' => fn ($query) => $query->whereNull('left_at')->where('last_seen_at', '>=', now()->subSeconds(45)),
-        ])->latest()->limit(50)->get(['id', 'code', 'name', 'status', 'created_at'])
-            ->each(fn (Game $game) => $game->setAttribute('can_delete', $this->canDelete($game, $game->first_round_started_at)));
+        ])->orderByDesc('created_at')->orderByDesc('id')->paginate(20, ['id', 'code', 'name', 'status', 'created_at']);
+        $games = $pagination->getCollection()
+            ->each(fn (Game $game) => $game->setAttribute('can_delete', $this->cleanup->canDelete($game, $game->first_round_started_at)));
         return response()->json([
             'totals' => [
                 'games' => Game::count(),
@@ -98,12 +79,18 @@ class AdminController extends Controller {
                 'online_players' => GamePlayer::whereNull('left_at')->where('last_seen_at', '>=', now()->subSeconds(45))->count(),
             ],
             'games' => $games,
+            'pagination' => [
+                'page' => $pagination->currentPage(),
+                'pages' => $pagination->lastPage(),
+                'total' => $pagination->total(),
+            ],
+            'finished_retention_days' => $this->retention->days(),
         ])->header('Cache-Control', 'no-store');
     }
 
     public function destroyGame(Request $request, Game $game) {
-        $this->authorizeDelete($request);
-        $this->removeGame($game);
+        $this->authorizeWrite($request);
+        $this->cleanup->remove($game);
         return response()->json(['deleted' => 1])->header('Cache-Control', 'no-store');
     }
 
@@ -121,17 +108,24 @@ class AdminController extends Controller {
     }
 
     public function destroyFinished(Request $request) {
-        $this->authorizeDelete($request);
+        $this->authorizeWrite($request);
         $ids = Game::where('status', 'finished')->orderBy('id')->limit(50)->pluck('id');
         $deleted = 0;
         foreach ($ids as $id) {
             $game = Game::find($id);
-            if ($game) { $this->removeGame($game); $deleted++; }
+            if ($game && $this->cleanup->remove($game)) $deleted++;
         }
         return response()->json([
             'deleted' => $deleted,
             'remaining' => Game::where('status', 'finished')->count(),
         ])->header('Cache-Control', 'no-store');
+    }
+
+    public function updateRetention(Request $request) {
+        $this->authorizeWrite($request);
+        $days = (int) $request->validate(['days' => 'required|integer|min:0|max:3650'])['days'];
+        $this->retention->setDays($days);
+        return response()->json(['finished_retention_days' => $days])->header('Cache-Control', 'no-store');
     }
 
     public function logout(Request $request) {

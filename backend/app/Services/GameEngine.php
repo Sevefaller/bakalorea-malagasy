@@ -94,13 +94,17 @@ class GameEngine {
         $this->notify($answer->round->game,'VoteUpdated');
     }
 
-    public function comment(Round $round, GamePlayer $player, string $body): void {
-        $this->locked($round->game, function () use ($round,$player,$body) {
+    public function comment(Round $round, GamePlayer $player, string $body, string $clientId): array {
+        $result = $this->locked($round->game, function () use ($round,$player,$body,$clientId) {
             $round->refresh();
+            $existing = DB::table('round_comments')->where('round_id',$round->id)->where('player_id',$player->id)->where('client_id',$clientId)->first();
+            if ($existing) return ['id'=>$existing->id,'created'=>false];
             abort_unless($round->status === 'judging',409,'not_judging');
-            DB::table('round_comments')->insert(['round_id'=>$round->id,'player_id'=>$player->id,'body'=>$body,'created_at'=>now()]);
+            $id = DB::table('round_comments')->insertGetId(['round_id'=>$round->id,'player_id'=>$player->id,'client_id'=>$clientId,'body'=>$body,'created_at'=>now()]);
+            return ['id'=>$id,'created'=>true];
         });
-        $this->notify($round->game,'CommentAdded');
+        if ($result['created']) $this->notify($round->game,'CommentAdded');
+        return $result;
     }
 
     public function referee(Game $game, Answer $answer): ?int {
@@ -188,7 +192,7 @@ class GameEngine {
             if ($round) {
                 $own = $round->answers()->where('player_id',$player->id)->first();
                 $data['round'] = ['id'=>$round->id,'number'=>$round->number,'category'=>DB::table('categories')->where('id',$round->category_id)->value('code'),'letter'=>$round->letter,'status'=>$round->status,'started_at'=>$round->started_at->getTimestampMs(),'answer_deadline'=>$round->answer_deadline->getTimestampMs(),'own_answer'=>$own?->answer ?? '','own_revision'=>$own?->revision ?? 0,'participating'=>(bool)$own,'ready'=>$round->status === 'judging' && $this->ready($round)];
-                if ($round->status === 'judging') $data['round']['comments'] = DB::table('round_comments')->where('round_id',$round->id)->orderByDesc('id')->limit(100)->get(['id','player_id','body','created_at'])->reverse()->values();
+                if ($round->status === 'judging') $data['round']['comments'] = DB::table('round_comments')->where('round_id',$round->id)->orderByDesc('id')->limit(100)->get(['id','player_id','client_id','body','created_at'])->reverse()->values();
                 if ($round->status !== 'answering') $data['round']['answers'] = $round->answers()->get()->map(function ($a) use ($game,$player) {
                     $referee = $this->referee($game,$a);
                     $decision = $a->tie_decision;

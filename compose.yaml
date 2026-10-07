@@ -32,6 +32,7 @@ x-app: &app
     REVERB_PUBLIC_SCHEME: ${REVERB_PUBLIC_SCHEME:-http}
     REVERB_ALLOWED_ORIGINS: ${REVERB_ALLOWED_ORIGINS:-localhost,127.0.0.1}
     REVERB_APP_ACCEPT_CLIENT_EVENTS_FROM: none
+    ADMIN_FINISHED_RETENTION_DAYS: ${ADMIN_FINISHED_RETENTION_DAYS:-30}
   restart: unless-stopped
   logging: &logging
     driver: json-file

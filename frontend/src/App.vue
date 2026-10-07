@@ -13,6 +13,8 @@ const target = ref(200), duration = ref(15), antiCheat = ref('normal'), letters 
 const durationOptions = [{ seconds: 10, key: 'speed' }, { seconds: 15, key: 'normal' }, { seconds: 30, key: 'relax' }]
 const copied = ref(false), now = ref(0), draft = ref(''), savedState = ref(''), answerInput = ref<HTMLInputElement>(), revision = ref(0)
 const installPrompt = ref<any>(null), showHistory = ref(false), commentDraft = ref(''), sendingComment = ref(false), chatMessages = ref<HTMLElement>()
+type PendingComment = { id: string; roundId: number; body: string; status: 'sending' | 'sent' | 'failed' }
+const pendingComment = ref<PendingComment | null>(null)
 const showMission = ref(false), categoryView = ref('popular')
 const roomNotice = ref('')
 const waitingMusic = ref(false)
@@ -107,13 +109,13 @@ const initials = (name: string) => name.slice(0, 2).toUpperCase()
 const reasonLabel = (reason: string) => t(({ empty: 'emptyReason', letter: 'letterReason', strict: 'strictReason' } as Record<string,string>)[reason] || 'invalid')
 
 watch(locale, value => { localStorage.setItem('bakalorea.locale', value); document.documentElement.lang = value })
-watch(() => round.value?.id, async () => { draft.value = round.value?.own_answer || ''; commentDraft.value = ''; revision.value = round.value?.own_revision || 0; savedState.value = draft.value ? 'saved' : ''; lastBeep = -1; away = false; if (spinning.value) { await unlockSound(); playSound('start') } await nextTick() })
+watch(() => round.value?.id, async () => { draft.value = round.value?.own_answer || ''; commentDraft.value = ''; pendingComment.value = null; revision.value = round.value?.own_revision || 0; savedState.value = draft.value ? 'saved' : ''; lastBeep = -1; away = false; if (spinning.value) { await unlockSound(); playSound('start') } await nextTick() })
 watch(answering, async value => { if (value) { await nextTick(); answerInput.value?.focus(); if(document.hidden || !document.hasFocus()) reportAway(true) } })
 watch(seconds, value => { if (answering.value && value <= 5 && value !== lastBeep) { lastBeep = value; playSound('tick') } if (value === 0 && round.value?.status === 'answering') { playSound('stop'); store.refresh() } })
 watch(() => g.value?.status, value => { if (value === 'lobby' && soundOn.value) waitingMusic.value = true; else if (value !== 'lobby') waitingMusic.value = false; if (value === 'finished') playSound('win') })
 watch(() => g.value?.code, (code, previous) => { if (code && code !== previous && g.value?.status === 'lobby') waitingMusic.value = soundOn.value })
 watch(soundOn, value => { if (!value) waitingMusic.value = false })
-watch(() => round.value?.comments?.at(-1)?.id, async () => { await nextTick(); if (chatMessages.value) chatMessages.value.scrollTop = chatMessages.value.scrollHeight })
+watch(() => round.value?.comments?.at(-1)?.id, async () => { if (pendingComment.value && round.value?.comments?.some(comment => comment.client_id === pendingComment.value?.id)) pendingComment.value = null; await nextTick(); if (chatMessages.value) chatMessages.value.scrollTop = chatMessages.value.scrollHeight })
 watch(() => g.value?.players, (players, previous) => {
   if (!players || !previous) return
   for (const player of players) {
@@ -142,16 +144,32 @@ async function saveAnswer() {
 }
 async function start() { await unlockSound(); if (g.value) await store.action(`/games/${g.value.id}/rounds/start`) }
 async function sendComment() {
-  const body = commentDraft.value.trim(), roundId = round.value?.id
-  if (!body || !roundId || sendingComment.value || store.disconnected) return
+  const roundId = round.value?.id
+  if (!roundId || sendingComment.value || store.disconnected || round.value?.status !== 'judging') return
+  let message = pendingComment.value
+  if (message?.status === 'sent') return
+  if (!message) {
+    const body = commentDraft.value.trim()
+    if (!body) return
+    message = { id: crypto.randomUUID(), roundId, body, status: 'sending' }
+    pendingComment.value = message
+    commentDraft.value = ''
+  }
+  if (message.roundId !== roundId) return
+  message.status = 'sending'
   sendingComment.value = true
   try {
-    await store.request(`/rounds/${roundId}/comments`, 'POST', { body })
+    await store.request(`/rounds/${roundId}/comments`, 'POST', { body: message.body, client_id: message.id }, true)
     store.error = ''
-    if (round.value?.id === roundId && commentDraft.value.trim() === body) commentDraft.value = ''
+    if (pendingComment.value?.id === message.id) pendingComment.value.status = 'sent'
     await store.refresh()
-  } catch { /* The request already displays the error. Keep the draft for retry. */ }
+  } catch { if (pendingComment.value?.id === message.id) pendingComment.value.status = 'failed' }
   finally { sendingComment.value = false }
+}
+function editFailedComment() {
+  if (pendingComment.value?.status !== 'failed') return
+  commentDraft.value = pendingComment.value.body
+  pendingComment.value = null
 }
 async function copyCode() { try { await navigator.clipboard.writeText(store.code); copied.value = true; setTimeout(() => copied.value = false, 2500) } catch { const el = document.querySelector('.room-code'); if(el) { const range = document.createRange(); range.selectNodeContents(el); window.getSelection()?.removeAllRanges(); window.getSelection()?.addRange(range) } } }
 async function leave() { if (g.value && await store.leaveRoom(g.value.id)) { leaveDialog.value?.close(); router.push('/') } }
@@ -246,7 +264,7 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
               <div class="waiting-music-heading"><Music2 :size="20"/><strong>{{ t('waitingMusic') }}</strong></div>
               <button class="secondary waiting-music-button" :disabled="!soundOn" :aria-pressed="waitingMusic" @click="waitingMusic = !waitingMusic"><VolumeX v-if="waitingMusic" :size="17"/><Volume2 v-else :size="17"/>{{ t(waitingMusic ? 'stopWaitingMusic' : 'playWaitingMusic') }}</button>
               <p v-if="!soundOn" class="hint">{{ t('waitingMusicSoundOff') }}</p>
-              <div v-if="waitingMusic" class="waiting-music-player"><iframe :src="waitingMusicEmbed" :title="t('waitingMusic')" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><a :href="waitingMusicUrl" target="_blank" rel="noopener noreferrer">{{ t('openOnYouTube') }} ↗</a></div>
+              <div v-if="waitingMusic" class="waiting-music-player"><iframe :src="waitingMusicEmbed" :title="t('waitingMusic')" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><p class="hint">{{ t('musicAutoplayHint') }}</p><a :href="waitingMusicUrl" target="_blank" rel="noopener noreferrer">{{ t('openOnYouTube') }} ↗</a></div>
             </section>
           </template>
 
@@ -268,7 +286,7 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
               <div class="section-title judging-heading"><div><h1>{{ t('judging') }}<span class="title-dot">.</span></h1><p class="intro">{{ t('judgingText') }}</p><p class="judging-category" data-testid="judging-category">{{ t(`category.${round.category}`) }}</p></div><div class="small-letter" data-testid="judging-letter">{{ round.letter }}</div></div>
               <div class="stop-banner"><LockKeyhole :size="17"/><strong>STOP</strong>{{ t('stopText') }}</div>
               <div class="answer-cards"><article v-for="a in round.answers" :key="a.id" class="card judgment-card"><div class="judgment-top"><span class="avatar avatar-small">{{ initials(playerName(a.player_id)) }}</span><strong>{{ playerName(a.player_id) }}</strong><span v-if="a.player_id === g.me_id" class="pill">{{ t('you') }}</span><span v-if="a.flagged" class="flag" :title="t('flagged')"><Flag :size="17"/><span>{{ t('flagged') }}</span></span></div><h3 class="revealed-answer">{{ a.answer || t('empty') }}</h3><p v-if="a.invalid_reason" class="invalid-reason"><X :size="16"/>{{ reasonLabel(a.invalid_reason) }}</p><template v-else><div v-if="a.player_id !== g.me_id && round.participating" class="vote-buttons"><button v-for="(icon, key) in { valid: Check, invalid: X, uncertain: HelpCircle }" :key="key" :class="['vote', key, { selected: a.my_vote === key }]" :disabled="store.busy || store.disconnected" :aria-pressed="a.my_vote === key" @click="store.action(`/answers/${a.id}/votes`, { vote: key })"><component :is="icon" :size="18"/>{{ t(key) }}</button></div><p v-else class="own-answer"><LockKeyhole :size="14"/>{{ t(round.participating ? 'ownAnswer' : 'spectating') }}</p><div class="vote-counts"><span><Check :size="14"/>{{ a.votes.valid }}</span><span><X :size="14"/>{{ a.votes.invalid }}</span><span><HelpCircle :size="14"/>{{ a.votes.uncertain }}</span></div><div v-if="round.ready && a.votes.tied" class="tie-box"><span>{{ t('tie') }} · {{ t('referee', { name: playerName(a.referee_id) }) }}</span><div v-if="a.referee_id === g.me_id"><button class="secondary small" :class="{ chosen: a.tie_decision === true }" :disabled="store.busy" @click="store.action(`/answers/${a.id}/decision`, { valid: true })">{{ t('valid') }}</button><button class="secondary small" :class="{ chosen: a.tie_decision === false }" :disabled="store.busy" @click="store.action(`/answers/${a.id}/decision`, { valid: false })">{{ t('invalid') }}</button></div><strong v-else-if="a.tie_decision !== null">{{ t(a.tie_decision ? 'valid' : 'invalid') }}</strong></div></template></article></div>
-              <section class="card judging-chat" :aria-label="t('chatTitle')"><h2><MessageCircle :size="19"/>{{ t('chatTitle') }}</h2><div ref="chatMessages" class="chat-messages" role="log" aria-live="polite"><p v-if="!round.comments?.length" class="hint">{{ t('chatEmpty') }}</p><div v-for="comment in round.comments" :key="comment.id" :class="['chat-message', { mine: comment.player_id === g.me_id }]"><strong>{{ playerName(comment.player_id) }}</strong><p>{{ comment.body }}</p></div></div><form class="chat-form" @submit.prevent="sendComment"><label class="sr-only" for="judging-comment">{{ t('chatPlaceholder') }}</label><input id="judging-comment" v-model="commentDraft" :placeholder="t('chatPlaceholder')" maxlength="300" :disabled="sendingComment || store.disconnected" autocomplete="off"><button class="primary" type="submit" :disabled="!commentDraft.trim() || sendingComment || store.disconnected" :aria-label="t('chatSend')"><Send :size="18"/><span>{{ t('chatSend') }}</span></button></form></section>
+              <section class="card judging-chat" :aria-label="t('chatTitle')"><h2><MessageCircle :size="19"/>{{ t('chatTitle') }}</h2><div ref="chatMessages" class="chat-messages" role="log" aria-live="polite"><p v-if="!round.comments?.length && !pendingComment" class="hint">{{ t('chatEmpty') }}</p><div v-for="comment in round.comments" :key="comment.id" :class="['chat-message', { mine: comment.player_id === g.me_id }]"><strong>{{ playerName(comment.player_id) }}</strong><p>{{ comment.body }}</p></div><div v-if="pendingComment?.roundId === round.id" class="chat-message mine pending" role="status"><strong>{{ playerName(g.me_id) }}</strong><p>{{ pendingComment.body }}</p><small>{{ t(pendingComment.status === 'sending' ? 'chatSending' : pendingComment.status === 'sent' ? 'chatSent' : 'chatFailed') }}</small><div v-if="pendingComment.status === 'failed'" class="chat-retry"><button type="button" :disabled="store.disconnected" @click="sendComment">{{ t('chatRetry') }}</button><button type="button" @click="editFailedComment">{{ t('chatEdit') }}</button></div></div></div><form class="chat-form" @submit.prevent="sendComment"><label class="sr-only" for="judging-comment">{{ t('chatPlaceholder') }}</label><input id="judging-comment" v-model="commentDraft" :placeholder="t('chatPlaceholder')" maxlength="300" :disabled="!!pendingComment || store.disconnected" autocomplete="off"><button class="primary" type="submit" :disabled="!commentDraft.trim() || !!pendingComment || store.disconnected" :aria-label="t('chatSend')"><Send :size="18"/><span>{{ t('chatSend') }}</span></button></form></section>
               <div class="judging-actions"><p class="hint">{{ t(!round.ready ? 'votesPending' : ties ? 'tiesPending' : 'waitingResults') }}</p><button v-if="store.isHost" class="primary full" :disabled="store.busy || !round.ready || ties || store.disconnected" @click="store.action(`/rounds/${round.id}/finish-judging`)"><Trophy :size="18"/>{{ t('finishJudging') }}</button></div>
             </template>
 
@@ -293,4 +311,5 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
 
 <style scoped>
 .waiting-music{margin-top:16px;padding:18px 20px}.waiting-music-heading{display:flex;align-items:center;gap:9px;color:var(--accent);margin-bottom:12px;font-size:.9rem}.waiting-music-button{min-height:40px;font-size:.82rem}.waiting-music .hint{margin-top:10px}.waiting-music-player{margin-top:14px}.waiting-music-player iframe{display:block;width:100%;aspect-ratio:16/9;min-height:200px;border:0;border-radius:10px;background:#edf1f0}.waiting-music-player a{display:inline-block;margin-top:9px;color:var(--accent);font-size:.78rem;text-decoration:underline;text-underline-offset:3px}
+.chat-message.pending{border:1px dashed #a9cdbb}.chat-message.pending small{display:block;margin-top:6px;color:#5c8073;font-size:.72rem}.chat-retry{display:flex;gap:12px;margin-top:8px}.chat-retry button{border:0;background:transparent;color:#286e5c;padding:2px 0;font-size:.75rem;font-weight:700;text-decoration:underline;text-underline-offset:2px}.chat-retry button:disabled{opacity:.5}
 </style>
