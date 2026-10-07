@@ -170,4 +170,10 @@ class GameTest extends TestCase {
         $this->postJson('/api/rounds/'.$round->id.'/comments',['body'=>'Too late'],$this->guest)->assertStatus(409);
         $this->getJson('/api/games/'.$this->code,$this->guest)->assertOk()->assertJsonMissingPath('round.comments');
     }
+    public function test_room_polling_does_not_exhaust_the_comment_limit(): void {
+        $round=$this->startRound();
+        $this->stopRound($round);
+        for ($i=0; $i<35; $i++) $this->getJson('/api/games/'.$this->code,$this->host)->assertOk();
+        $this->postJson('/api/rounds/'.$round->id.'/comments',['body'=>'Still here'],$this->host)->assertCreated();
+    }
 }

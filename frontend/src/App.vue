@@ -112,6 +112,7 @@ async function sendComment() {
   sendingComment.value = true
   try {
     await store.request(`/rounds/${roundId}/comments`, 'POST', { body })
+    store.error = ''
     if (round.value?.id === roundId && commentDraft.value.trim() === body) commentDraft.value = ''
     await store.refresh()
   } catch { /* The request already displays the error. Keep the draft for retry. */ }
