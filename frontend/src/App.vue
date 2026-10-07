@@ -77,7 +77,7 @@ onUnmounted(() => { clearInterval(clock); clearTimeout(saveTimer); store.stop();
 <template>
   <div class="app-shell">
     <header class="topbar">
-      <a href="/" class="brand" @click.prevent="inRoom ? null : router.push('/')"><span class="brand-mark">B<span></span></span><span>Bakalorea<small>{{ t('tagline') }}</small></span></a>
+      <a href="/" class="brand brand-illustrated" :aria-label="`Bakalorea · ${t('tagline')}`" @click.prevent="inRoom ? null : router.push('/')"><img class="family-logo" src="/images/bakalorea-family-logo.png" :alt="`Bakalorea · ${t('tagline')}`" width="1440" height="1080" fetchpriority="high"></a>
       <div class="header-actions">
         <button class="text-button rules-link" @click="rulesDialog?.showModal()"><HelpCircle :size="18"/>{{ t('rules') }}</button>
         <button v-if="installPrompt" class="icon-button" :aria-label="t('install')" @click="install"><Download :size="19"/></button>

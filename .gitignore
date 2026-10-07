@@ -10,3 +10,6 @@
 /frontend/dist/
 /.env
 /.runtime/
+/.env.aws*
+/backups/
+/release/

@@ -1,0 +1,18 @@
+# Merge with compose.yaml from the project root using .env.aws.
+x-production-env: &production-env
+  APP_ENV: production
+  APP_DEBUG: 'false'
+  APP_URL: https://${DOMAIN:?Set DOMAIN in .env.aws}
+  SESSION_SECURE_COOKIE: 'true'
+services:
+  backend:
+    environment: *production-env
+  migrate:
+    environment: *production-env
+  reverb:
+    environment: *production-env
+  scheduler:
+    environment: *production-env
+  caddy:
+    environment:
+      SITE_ADDRESS: ${DOMAIN:?Set DOMAIN in .env.aws}

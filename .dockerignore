@@ -1,5 +1,9 @@
 .git
 .env
+.env.*
+!.env.example
+backups
+release
 .tools
 .npm-cache
 .runtime

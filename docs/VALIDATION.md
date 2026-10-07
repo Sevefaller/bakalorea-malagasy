@@ -15,3 +15,9 @@
 - Recette familiale, domaine HTTPS public, sauvegarde automatisée hors serveur et montée en charge avant ouverture publique.
 
 Les tests automatisés n’équivalent pas à une recette familiale. La publication publique n’est pas effectuée sans environnement de destination.
+
+## Mise à jour du 7 octobre 2026
+
+- Thème adapté au [portfolio de Séverin](https://severin-ratiazafy-portfolio.vercel.app/) : palette vert pétrole et gris clair, Inter et Space Grotesk, cartes blanches et bordures fines. Icônes et page hors connexion assorties.
+- Compilation de production réussie ; écran d’accueil contrôlé sur ordinateur et à 390 px, avec changement des trois langues.
+- Les essais d’intégration du 6 octobre à 4 et 8 joueurs ont validé la synchronisation, la confidentialité, les votes simultanés, les doublons et la victoire sur PostgreSQL/Redis.
