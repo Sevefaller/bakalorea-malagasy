@@ -17,6 +17,7 @@ Route::middleware(['auth:sanctum','throttle:240,1'])->group(function () {
         Route::patch('/rounds/{round}/answer',[GameController::class,'answer'])->middleware('throttle:120,1');
         Route::post('/answers/{answer}/votes',[GameController::class,'vote']);
         Route::post('/answers/{answer}/decision',[GameController::class,'decide']);
+        Route::post('/rounds/{round}/comments',[GameController::class,'comment'])->middleware('throttle:30,1');
         Route::post('/rounds/{round}/finish-judging',[GameController::class,'finish']);
         Route::post('/anti-cheat/events',[GameController::class,'antiCheat']);
         Route::get('/games/{code}/scores',[GameController::class,'show']);

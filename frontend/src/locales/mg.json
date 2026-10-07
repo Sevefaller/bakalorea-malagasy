@@ -8,6 +8,7 @@
   "playTogether": "Mahafinaritra ny miara-milalao.",
   "welcome": "Andao hilalao!",
   "intro": "Litera iray, sokajy iray, ary 15 segondra hahitana valiny.",
+  "homeMessage": "Matetika no lazaina fa mampanalavitra ny fianakaviana ny teknolojia ary manolo tsikelikely ny fotoana tena ifampizarana. Noforonina ity lalao ity mba hanao ny mifanohitra amin’izany: hampiasa ny teknolojia ho antony hiarahana indray, hihomehezana, hifanamby, hamoronana fahatsiarovana ary hanamafisana ny fifandraisan’ny fianakaviana sy ny namana.",
   "create": "Hamorona lalao",
   "join": "Hiditra",
   "nickname": "Anaranao",
@@ -125,6 +126,10 @@
   "waitingResults": "Miandry ny mpitarika hampiseho ny vokatra.",
   "noVotes": "Tsy mbola misy vato",
   "footer": "Lalao kely. Fahatsiarovana lehibe.",
+  "chatTitle": "Resaka mandritra ny fitsarana",
+  "chatEmpty": "Mbola tsy misy hafatra. Atombohy ny resaka!",
+  "chatPlaceholder": "Soraty eto ny hevitrao…",
+  "chatSend": "Alefa",
   "leaveFailed": "Tsy afaka miala izao. Andramo indray rehefa tafaverina ny fifandraisana.",
   "category": {
     "male_name": "Anarana lahy",

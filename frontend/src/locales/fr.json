@@ -8,6 +8,7 @@
   "playTogether": "Le plaisir de jouer ensemble.",
   "welcome": "On fait une partie ?",
   "intro": "Une lettre, une catégorie, et 15 secondes pour faire la différence.",
+  "homeMessage": "On dit souvent que la technologie éloigne les familles et remplace peu à peu les vrais moments de partage. Ce jeu a été imaginé pour faire exactement l’inverse : transformer la technologie en un prétexte pour se retrouver, rire ensemble, se challenger, créer des souvenirs et renforcer les liens entre familles et amis.",
   "create": "Créer une partie",
   "join": "Rejoindre",
   "nickname": "Ton pseudo",
@@ -125,6 +126,10 @@
   "waitingResults": "En attente du maître du jeu pour les résultats.",
   "noVotes": "Aucun vote",
   "footer": "Un petit jeu. De grands souvenirs.",
+  "chatTitle": "Discussion pendant le jugement",
+  "chatEmpty": "Aucun message. Lancez la discussion !",
+  "chatPlaceholder": "Écrivez votre commentaire…",
+  "chatSend": "Envoyer",
   "leaveFailed": "Impossible de quitter pour l’instant. Réessaie après la reconnexion.",
   "category": {
     "male_name": "Prénom masculin",

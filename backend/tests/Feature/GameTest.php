@@ -155,4 +155,19 @@ class GameTest extends TestCase {
         $round=$this->startRound();
         foreach($headers as $h) $this->getJson('/api/games/'.$this->code,$h)->assertOk()->assertJsonCount(8,'players')->assertJsonPath('round.letter',$round->letter);
     }
+    public function test_judging_comments_are_shared_only_during_judging(): void {
+        $round=$this->startRound();
+        $this->postJson('/api/rounds/'.$round->id.'/comments',['body'=>'Too early'],$this->host)->assertStatus(409);
+        $this->getJson('/api/games/'.$this->code,$this->guest)->assertOk()->assertJsonMissingPath('round.comments');
+        $this->stopRound($round);
+        $this->postJson('/api/rounds/'.$round->id.'/comments',['body'=>'  Ekena ve?  '],$this->host)->assertCreated();
+        $this->getJson('/api/games/'.$this->code,$this->guest)->assertOk()
+            ->assertJsonPath('round.comments.0.body','Ekena ve?')
+            ->assertJsonPath('round.comments.0.player_id',$this->game->host_id);
+        $this->postJson('/api/rounds/'.$round->id.'/comments',['body'=>'   '],$this->guest)->assertStatus(422);
+        $this->postJson('/api/rounds/'.$round->id.'/comments',['body'=>str_repeat('a',301)],$this->guest)->assertStatus(422);
+        $round->update(['status'=>'finished']);
+        $this->postJson('/api/rounds/'.$round->id.'/comments',['body'=>'Too late'],$this->guest)->assertStatus(409);
+        $this->getJson('/api/games/'.$this->code,$this->guest)->assertOk()->assertJsonMissingPath('round.comments');
+    }
 }

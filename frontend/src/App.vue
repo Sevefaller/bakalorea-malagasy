@@ -2,7 +2,7 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
-import { Users, Plus, KeyRound, ChevronDown, Settings2, Trophy, Timer, ShieldCheck, Check, X, HelpCircle, Copy, Crown, LogOut, Volume2, VolumeX, Globe2, Sparkles, LockKeyhole, Leaf, Apple, MapPin, Mic2, Music2, UserRound, Flag, CheckCircle2, Download, RotateCcw, History, WifiOff } from 'lucide-vue-next'
+import { Users, Plus, KeyRound, ChevronDown, Settings2, Trophy, Timer, ShieldCheck, Check, X, HelpCircle, Copy, Crown, LogOut, Volume2, VolumeX, Globe2, Sparkles, LockKeyhole, Leaf, Apple, MapPin, Mic2, Music2, UserRound, Flag, CheckCircle2, Download, RotateCcw, History, WifiOff, MessageCircle, Send } from 'lucide-vue-next'
 import { useGame } from './store'
 import { soundOn, soundBlocked, toggleSound, unlockSound, playSound } from './sound'
 
@@ -11,7 +11,7 @@ const mode = ref('create'), advanced = ref(false), rulesDialog = ref<HTMLDialogE
 const nickname = ref(localStorage.getItem('bakalorea.nickname') || ''), roomName = ref(''), roomCode = ref('')
 const target = ref(200), duration = ref(15), antiCheat = ref('normal'), letters = ref('ABDEFGHIJKLMNOPRSTV'), noRepeat = ref(true), uniquePoints = ref(10), duplicatePoints = ref(5)
 const copied = ref(false), now = ref(0), draft = ref(''), savedState = ref(''), answerInput = ref<HTMLInputElement>(), revision = ref(0)
-const installPrompt = ref<any>(null), showHistory = ref(false)
+const installPrompt = ref<any>(null), showHistory = ref(false), commentDraft = ref(''), sendingComment = ref(false), chatMessages = ref<HTMLElement>()
 let clock: ReturnType<typeof setInterval>, lastBeep = -1, away = false, activeSave = 0
 const categories = [ { code: 'male_name', icon: UserRound, color: 'purple' }, { code: 'female_name', icon: UserRound, color: 'pink' }, { code: 'plant', icon: Leaf, color: 'green' }, { code: 'fruit', icon: Apple, color: 'orange' }, { code: 'malagasy_artist', icon: Mic2, color: 'pink' }, { code: 'international_artist', icon: Music2, color: 'purple' }, { code: 'malagasy_place', icon: MapPin, color: 'orange' }, { code: 'international_place', icon: Globe2, color: 'blue' },
   ...[
@@ -86,10 +86,11 @@ const initials = (name: string) => name.slice(0, 2).toUpperCase()
 const reasonLabel = (reason: string) => t(({ empty: 'emptyReason', letter: 'letterReason', strict: 'strictReason' } as Record<string,string>)[reason] || 'invalid')
 
 watch(locale, value => { localStorage.setItem('bakalorea.locale', value); document.documentElement.lang = value })
-watch(() => round.value?.id, async () => { draft.value = round.value?.own_answer || ''; revision.value = round.value?.own_revision || 0; savedState.value = draft.value ? 'saved' : ''; lastBeep = -1; away = false; if (spinning.value) playSound('spin'); await nextTick() })
+watch(() => round.value?.id, async () => { draft.value = round.value?.own_answer || ''; commentDraft.value = ''; revision.value = round.value?.own_revision || 0; savedState.value = draft.value ? 'saved' : ''; lastBeep = -1; away = false; if (spinning.value) playSound('spin'); await nextTick() })
 watch(answering, async value => { if (value) { await nextTick(); answerInput.value?.focus(); if(document.hidden || !document.hasFocus()) reportAway(true) } })
 watch(seconds, value => { if (answering.value && value <= 5 && value !== lastBeep) { lastBeep = value; playSound('tick') } if (value === 0 && round.value?.status === 'answering') { playSound('stop'); store.refresh() } })
 watch(() => g.value?.status, value => { if (value === 'finished') playSound('win') })
+watch(() => round.value?.comments?.at(-1)?.id, async () => { await nextTick(); if (chatMessages.value) chatMessages.value.scrollTop = chatMessages.value.scrollHeight })
 
 async function enter() {
   await unlockSound(); localStorage.setItem('bakalorea.nickname', nickname.value.trim())
@@ -105,6 +106,17 @@ async function saveAnswer() {
   catch { if (round.value?.id === id && activeSave === thisRevision) savedState.value = 'notSaved' }
 }
 async function start() { await unlockSound(); if (g.value) await store.action(`/games/${g.value.id}/rounds/start`) }
+async function sendComment() {
+  const body = commentDraft.value.trim(), roundId = round.value?.id
+  if (!body || !roundId || sendingComment.value || store.disconnected) return
+  sendingComment.value = true
+  try {
+    await store.request(`/rounds/${roundId}/comments`, 'POST', { body })
+    if (round.value?.id === roundId && commentDraft.value.trim() === body) commentDraft.value = ''
+    await store.refresh()
+  } catch { /* The request already displays the error. Keep the draft for retry. */ }
+  finally { sendingComment.value = false }
+}
 async function copyCode() { try { await navigator.clipboard.writeText(store.code); copied.value = true; setTimeout(() => copied.value = false, 2500) } catch { const el = document.querySelector('.room-code'); if(el) { const range = document.createRange(); range.selectNodeContents(el); window.getSelection()?.removeAllRanges(); window.getSelection()?.addRange(range) } } }
 async function leave() { if (g.value && await store.action(`/games/${g.value.id}/leave`)) { leaveDialog.value?.close(); store.forget(); router.push('/') } }
 async function newGame() { if(g.value) await store.action(`/games/${g.value.id}/leave`); store.forget(); router.push('/') }
@@ -152,6 +164,7 @@ onUnmounted(() => { clearInterval(clock); store.stop(); document.removeEventList
           <div class="eyebrow"><span class="mini-tiles"><i>B</i><i>A</i><i>K</i></span>{{ t('playTogether') }}</div>
           <h1>{{ t('welcome') }}<span class="heading-spark">✳</span></h1>
           <p class="intro">{{ t('intro') }}</p>
+          <p class="home-message">{{ t('homeMessage') }}</p>
           <div class="card setup-card">
             <div class="tabs" role="tablist"><button id="create-tab" :class="{ active: mode === 'create' }" role="tab" :aria-selected="mode === 'create'" aria-controls="setup-panel" @click="mode = 'create'"><Plus :size="20"/>{{ t('create') }}</button><button id="join-tab" :class="{ active: mode === 'join' }" role="tab" :aria-selected="mode === 'join'" aria-controls="setup-panel" @click="mode = 'join'"><KeyRound :size="19"/>{{ t('join') }}</button></div>
             <form id="setup-panel" role="tabpanel" :aria-labelledby="mode === 'create' ? 'create-tab' : 'join-tab'" @submit.prevent="enter">
@@ -206,6 +219,7 @@ onUnmounted(() => { clearInterval(clock); store.stop(); document.removeEventList
               <div class="section-title judging-heading"><div><h1>{{ t('judging') }}<span class="title-dot">.</span></h1><p class="intro">{{ t('judgingText') }}</p><p class="judging-category" data-testid="judging-category">{{ t(`category.${round.category}`) }}</p></div><div class="small-letter" data-testid="judging-letter">{{ round.letter }}</div></div>
               <div class="stop-banner"><LockKeyhole :size="17"/><strong>STOP</strong>{{ t('stopText') }}</div>
               <div class="answer-cards"><article v-for="a in round.answers" :key="a.id" class="card judgment-card"><div class="judgment-top"><span class="avatar avatar-small">{{ initials(playerName(a.player_id)) }}</span><strong>{{ playerName(a.player_id) }}</strong><span v-if="a.player_id === g.me_id" class="pill">{{ t('you') }}</span><span v-if="a.flagged" class="flag" :title="t('flagged')"><Flag :size="17"/><span>{{ t('flagged') }}</span></span></div><h3 class="revealed-answer">{{ a.answer || t('empty') }}</h3><p v-if="a.invalid_reason" class="invalid-reason"><X :size="16"/>{{ reasonLabel(a.invalid_reason) }}</p><template v-else><div v-if="a.player_id !== g.me_id && round.participating" class="vote-buttons"><button v-for="(icon, key) in { valid: Check, invalid: X, uncertain: HelpCircle }" :key="key" :class="['vote', key, { selected: a.my_vote === key }]" :disabled="store.busy || store.disconnected" :aria-pressed="a.my_vote === key" @click="store.action(`/answers/${a.id}/votes`, { vote: key })"><component :is="icon" :size="18"/>{{ t(key) }}</button></div><p v-else class="own-answer"><LockKeyhole :size="14"/>{{ t('ownAnswer') }}</p><div class="vote-counts"><span><Check :size="14"/>{{ a.votes.valid }}</span><span><X :size="14"/>{{ a.votes.invalid }}</span><span><HelpCircle :size="14"/>{{ a.votes.uncertain }}</span></div><div v-if="round.ready && a.votes.tied" class="tie-box"><span>{{ t('tie') }} · {{ t('referee', { name: playerName(a.referee_id) }) }}</span><div v-if="a.referee_id === g.me_id"><button class="secondary small" :class="{ chosen: a.tie_decision === true }" :disabled="store.busy" @click="store.action(`/answers/${a.id}/decision`, { valid: true })">{{ t('valid') }}</button><button class="secondary small" :class="{ chosen: a.tie_decision === false }" :disabled="store.busy" @click="store.action(`/answers/${a.id}/decision`, { valid: false })">{{ t('invalid') }}</button></div><strong v-else-if="a.tie_decision !== null">{{ t(a.tie_decision ? 'valid' : 'invalid') }}</strong></div></template></article></div>
+              <section class="card judging-chat" :aria-label="t('chatTitle')"><h2><MessageCircle :size="19"/>{{ t('chatTitle') }}</h2><div ref="chatMessages" class="chat-messages" role="log" aria-live="polite"><p v-if="!round.comments?.length" class="hint">{{ t('chatEmpty') }}</p><div v-for="comment in round.comments" :key="comment.id" :class="['chat-message', { mine: comment.player_id === g.me_id }]"><strong>{{ playerName(comment.player_id) }}</strong><p>{{ comment.body }}</p></div></div><form class="chat-form" @submit.prevent="sendComment"><label class="sr-only" for="judging-comment">{{ t('chatPlaceholder') }}</label><input id="judging-comment" v-model="commentDraft" :placeholder="t('chatPlaceholder')" maxlength="300" :disabled="sendingComment || store.disconnected" autocomplete="off"><button class="primary" type="submit" :disabled="!commentDraft.trim() || sendingComment || store.disconnected" :aria-label="t('chatSend')"><Send :size="18"/><span>{{ t('chatSend') }}</span></button></form></section>
               <div class="judging-actions"><p class="hint">{{ t(!round.ready ? 'votesPending' : ties ? 'tiesPending' : 'waitingResults') }}</p><button v-if="store.isHost" class="primary full" :disabled="store.busy || !round.ready || ties || store.disconnected" @click="store.action(`/rounds/${round.id}/finish-judging`)"><Trophy :size="18"/>{{ t('finishJudging') }}</button></div>
             </template>
 
@@ -221,7 +235,7 @@ onUnmounted(() => { clearInterval(clock); store.stop(); document.removeEventList
       <main v-else class="session-screen card"><div class="loader"></div><h2>{{ t('loading') }}</h2><button class="secondary" @click="store.resume">{{ t('retry') }}</button><button class="text-button" @click="store.forget(); router.push('/')">{{ t('backHome') }}</button></main>
     </template>
 
-    <footer><span>BAKALOREA <span class="footer-dot">✳</span> {{ t('footer') }}</span><button class="text-button" @click="rulesDialog?.showModal()">{{ t('rules') }}</button></footer>
+    <footer><span>BAKALOREA <span class="footer-dot">✳</span> {{ t('footer') }}</span><span class="developer-credit">Développer par RATIAZAFY Séverin</span><button class="text-button" @click="rulesDialog?.showModal()">{{ t('rules') }}</button></footer>
     <div v-if="soundBlocked" class="sound-notice" role="status">{{ t('soundBlocked') }}</div>
     <dialog ref="rulesDialog" class="modal"><div class="modal-heading"><h2>{{ t('rulesTitle') }}</h2><button class="icon-button" :aria-label="t('close')" @click="rulesDialog?.close()"><X :size="20"/></button></div><div v-for="n in 3" :key="n" class="modal-rule"><h3>{{ n }}. {{ t(`rule${n}Title`) }}</h3><p>{{ t(`rule${n}`) }}</p></div><p>{{ t('scoring') }}</p><p>{{ t('tieHelp') }}</p><button class="primary full" @click="rulesDialog?.close()">{{ t('close') }}</button></dialog>
     <dialog ref="leaveDialog" class="modal"><h2>{{ t('leaveTitle') }}</h2><p>{{ t('leaveText') }}</p><div class="dialog-actions"><button class="secondary" @click="leaveDialog?.close()">{{ t('cancel') }}</button><button class="primary" :disabled="store.busy" @click="leave">{{ t('leave') }}</button></div></dialog>

@@ -94,6 +94,15 @@ class GameEngine {
         $this->notify($answer->round->game,'VoteUpdated');
     }
 
+    public function comment(Round $round, GamePlayer $player, string $body): void {
+        $this->locked($round->game, function () use ($round,$player,$body) {
+            $round->refresh();
+            abort_unless($round->status === 'judging',409,'not_judging');
+            DB::table('round_comments')->insert(['round_id'=>$round->id,'player_id'=>$player->id,'body'=>$body,'created_at'=>now()]);
+        });
+        $this->notify($round->game,'CommentAdded');
+    }
+
     public function referee(Game $game, Answer $answer): ?int {
         if ($answer->player_id !== $game->host_id) return $game->host_id;
         return GamePlayer::whereIn('id',$answer->round->answers()->pluck('player_id'))->where('id','!=',$answer->player_id)->whereNull('left_at')->where('last_seen_at','>=',now()->subSeconds(45))->orderBy('id')->value('id');
@@ -179,6 +188,7 @@ class GameEngine {
             if ($round) {
                 $own = $round->answers()->where('player_id',$player->id)->first();
                 $data['round'] = ['id'=>$round->id,'number'=>$round->number,'category'=>DB::table('categories')->where('id',$round->category_id)->value('code'),'letter'=>$round->letter,'status'=>$round->status,'started_at'=>$round->started_at->getTimestampMs(),'answer_deadline'=>$round->answer_deadline->getTimestampMs(),'own_answer'=>$own?->answer ?? '','own_revision'=>$own?->revision ?? 0,'participating'=>(bool)$own,'ready'=>$round->status === 'judging' && $this->ready($round)];
+                if ($round->status === 'judging') $data['round']['comments'] = DB::table('round_comments')->where('round_id',$round->id)->orderByDesc('id')->limit(100)->get(['id','player_id','body','created_at'])->reverse()->values();
                 if ($round->status !== 'answering') $data['round']['answers'] = $round->answers()->get()->map(function ($a) use ($game,$player) {
                     $referee = $this->referee($game,$a);
                     $decision = $a->tie_decision;

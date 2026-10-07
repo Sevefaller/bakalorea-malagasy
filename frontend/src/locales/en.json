@@ -8,6 +8,7 @@
   "playTogether": "The joy of playing together.",
   "welcome": "Fancy a game?",
   "intro": "One letter, one category, and 15 seconds to make your mark.",
+  "homeMessage": "People often say technology pulls families apart and gradually replaces real moments together. This game was created to do exactly the opposite: turn technology into a reason to get together, laugh, challenge one another, make memories, and strengthen the bonds between family and friends.",
   "create": "Create a game",
   "join": "Join",
   "nickname": "Your nickname",
@@ -125,6 +126,10 @@
   "waitingResults": "Waiting for the host to show results.",
   "noVotes": "No votes",
   "footer": "A little game. Big memories.",
+  "chatTitle": "Judging chat",
+  "chatEmpty": "No messages yet. Start the conversation!",
+  "chatPlaceholder": "Write a comment…",
+  "chatSend": "Send",
   "leaveFailed": "Unable to leave. Try again once reconnected.",
   "category": {
     "male_name": "Boy’s name",
