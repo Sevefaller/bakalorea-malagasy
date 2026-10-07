@@ -29,7 +29,7 @@ class GameController extends Controller {
     public function join(Request $r,string $code) {
         $identity=$this->identity($r); $game=Game::where('code',strtoupper($code))->firstOrFail();
         $p=$this->engine->locked($game,function (Game $game) use ($identity) {
-            abort_unless($game->status==='lobby',409,'already_started');
+            abort_unless(in_array($game->status,['lobby','playing']),409,'game_finished');
             abort_if($game->players()->whereNull('left_at')->count()>=12,422,'room_full');
             $key=GameEngine::normalize($identity['nickname']);
             abort_if($game->players()->where('nickname_key',$key)->exists(),422,'nickname_taken');
@@ -40,9 +40,13 @@ class GameController extends Controller {
     }
     public function claim(Request $r) {
         $v=$r->validate(['session_id'=>'required|uuid']);
-        abort_if($r->user()->left_at,403,'left_game');
-        if ($r->user()->session_id!==$v['session_id']) Log::notice('Player session replaced',['player_id'=>$r->user()->id]);
-        $r->user()->update(['session_id'=>$v['session_id'],'last_seen_at'=>now()]);
+        $player=$r->user(); $wasAway=(bool)$player->left_at;
+        $this->engine->locked($player->game,function (Game $game) use ($player,$v) {
+            if ($player->left_at) abort_if($game->players()->whereNull('left_at')->count()>=12,422,'room_full');
+            if ($player->session_id!==$v['session_id']) Log::notice('Player session replaced',['player_id'=>$player->id]);
+            $player->update(['session_id'=>$v['session_id'],'last_seen_at'=>now(),'left_at'=>null]);
+        });
+        if ($wasAway) $this->engine->notify($player->game,'PlayerRejoined');
         return response()->json(['ok'=>true]);
     }
     public function show(Request $r,string $code) {
@@ -66,7 +70,7 @@ class GameController extends Controller {
     public function antiCheat(Request $r) { $v=$r->validate(['round_id'=>'required|integer','event'=>'required|in:away,back']); $round=Round::findOrFail($v['round_id']); $this->engine->antiCheat($round,$this->member($r,$round->game),$v['event']); return response()->json(['ok'=>true]); }
     public function leave(Request $r,Game $game) {
         $p=$this->member($r,$game);
-        $this->engine->locked($game,function () use ($p) { $p->update(['left_at'=>now()]); $p->tokens()->delete(); });
+        $this->engine->locked($game,function () use ($p) { $p->update(['left_at'=>now()]); });
         $this->engine->notify($game,'PlayerLeft'); return response()->json(['ok'=>true]);
     }
 }

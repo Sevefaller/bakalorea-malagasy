@@ -176,4 +176,25 @@ class GameTest extends TestCase {
         for ($i=0; $i<35; $i++) $this->getJson('/api/games/'.$this->code,$this->host)->assertOk();
         $this->postJson('/api/rounds/'.$round->id.'/comments',['body'=>'Still here'],$this->host)->assertCreated();
     }
+    public function test_new_player_can_join_an_active_game_and_play_next_round(): void {
+        $round=$this->startRound();
+        $session=(string)Str::uuid();
+        $joined=$this->postJson('/api/games/'.$this->code.'/join',['nickname'=>'Fara','locale'=>'mg','session_id'=>$session])->assertCreated()->json();
+        $headers=['Authorization'=>'Bearer '.$joined['token'],'X-Session-ID'=>$session];
+        $this->getJson('/api/games/'.$this->code,$headers)->assertOk()
+            ->assertJsonCount(3,'players')->assertJsonPath('round.participating',false);
+        $round->update(['status'=>'finished']);
+        $this->postJson('/api/games/'.$this->game->id.'/start',[],$this->host)->assertOk();
+        $this->getJson('/api/games/'.$this->code,$headers)->assertOk()->assertJsonPath('round.participating',true);
+    }
+    public function test_player_can_leave_and_rejoin_with_their_score(): void {
+        $guest=GamePlayer::where('game_id',$this->game->id)->where('nickname','Mialy')->firstOrFail();
+        $guest->update(['score'=>15]);
+        $this->postJson('/api/games/'.$this->game->id.'/leave',[],$this->guest)->assertOk();
+        $this->getJson('/api/games/'.$this->code,$this->guest)->assertForbidden();
+        $this->getJson('/api/games/'.$this->code,$this->host)->assertOk()->assertJsonPath('players.1.left',true);
+        $this->postJson('/api/session/claim',['session_id'=>$this->guest['X-Session-ID']],$this->guest)->assertOk();
+        $this->getJson('/api/games/'.$this->code,$this->guest)->assertOk()
+            ->assertJsonPath('players.1.left',false)->assertJsonPath('players.1.score',15);
+    }
 }
