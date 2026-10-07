@@ -10,8 +10,10 @@ const { t, te, locale } = useI18n(), store = useGame(), router = useRouter(), ro
 const mode = ref('create'), advanced = ref(false), rulesDialog = ref<HTMLDialogElement>(), leaveDialog = ref<HTMLDialogElement>()
 const nickname = ref(localStorage.getItem('bakalorea.nickname') || ''), roomName = ref(''), roomCode = ref('')
 const target = ref(200), duration = ref(15), antiCheat = ref('normal'), letters = ref('ABDEFGHIJKLMNOPRSTV'), noRepeat = ref(true), uniquePoints = ref(10), duplicatePoints = ref(5)
+const durationOptions = [{ seconds: 10, key: 'speed' }, { seconds: 15, key: 'normal' }, { seconds: 30, key: 'relax' }]
 const copied = ref(false), now = ref(0), draft = ref(''), savedState = ref(''), answerInput = ref<HTMLInputElement>(), revision = ref(0)
 const installPrompt = ref<any>(null), showHistory = ref(false), commentDraft = ref(''), sendingComment = ref(false), chatMessages = ref<HTMLElement>()
+const showMission = ref(false), categoryView = ref('popular')
 let clock: ReturnType<typeof setInterval>, lastBeep = -1, away = false, activeSave = 0
 const categories = [ { code: 'male_name', icon: UserRound, color: 'purple' }, { code: 'female_name', icon: UserRound, color: 'pink' }, { code: 'plant', icon: Leaf, color: 'green' }, { code: 'fruit', icon: Apple, color: 'orange' }, { code: 'malagasy_artist', icon: Mic2, color: 'pink' }, { code: 'international_artist', icon: Music2, color: 'purple' }, { code: 'malagasy_place', icon: MapPin, color: 'orange' }, { code: 'international_place', icon: Globe2, color: 'blue' },
   ...[
@@ -70,6 +72,21 @@ const categories = [ { code: 'male_name', icon: UserRound, color: 'purple' }, { 
   'gift_idea'
   ].map((code, index) => ({ code, icon: Sparkles, color: ['green', 'blue', 'orange', 'purple', 'pink'][index % 5] }))
 ]
+const popularCategoryCodes = ['male_name', 'female_name', 'fruit', 'animal', 'malagasy_place', 'malagasy_artist']
+const categoryGroups = [
+  { id: 'names', codes: ['male_name', 'female_name'] },
+  { id: 'places', codes: ['malagasy_place', 'international_place', 'country', 'capital_city', 'city', 'island', 'mountain', 'river', 'sea'] },
+  { id: 'food', codes: ['fruit', 'vegetable', 'food', 'drink', 'sweet_thing', 'cold_thing', 'hot_thing', 'fragrant_thing'] },
+  { id: 'nature', codes: ['plant', 'animal', 'bird', 'fish', 'sea_animal', 'domestic_animal', 'wild_animal'] },
+  { id: 'culture', codes: ['malagasy_artist', 'international_artist', 'movie', 'actor', 'singer', 'music_group', 'song', 'book', 'writer', 'cartoon'] },
+  { id: 'things', codes: ['household_item', 'furniture', 'clothing', 'footwear', 'vehicle', 'car_brand', 'color', 'school_item', 'kitchen_item', 'bedroom_item', 'office_item', 'electronic_device', 'phone_brand', 'big_thing', 'small_thing', 'round_thing', 'street_thing', 'school_thing', 'market_thing', 'beach_thing'] },
+  { id: 'fun', codes: ['profession', 'sport', 'adjective', 'verb', 'gift_idea'] }
+]
+const visibleCategories = computed(() => {
+  if (categoryView.value === 'all') return categories
+  const codes = categoryView.value === 'popular' ? popularCategoryCodes : categoryGroups.find(group => group.id === categoryView.value)?.codes || []
+  return codes.map(code => categories.find(category => category.code === code)).filter((category): category is typeof categories[number] => !!category)
+})
 const g = computed(() => store.game), round = computed(() => g.value?.round)
 const inRoom = computed(() => route.path.startsWith('/salle/') && !!store.token)
 const spinning = computed(() => round.value?.status === 'answering' && now.value < round.value.started_at)
@@ -94,7 +111,7 @@ watch(() => round.value?.comments?.at(-1)?.id, async () => { await nextTick(); i
 
 async function enter() {
   await unlockSound(); localStorage.setItem('bakalorea.nickname', nickname.value.trim())
-  const ok = await store.enter(mode.value, { nickname: nickname.value.trim(), locale: locale.value, code: roomCode.value.trim(), name: roomName.value.trim() || t('roomPlaceholder'), target_score: Number(target.value), answer_duration: Number(duration.value), anti_cheat_mode: antiCheat.value, letters: letters.value.toUpperCase().replace(/[^A-Z]/g, ''), no_repeat: noRepeat.value, unique_points: Number(uniquePoints.value), duplicate_points: Number(duplicatePoints.value) })
+  const ok = await store.enter(mode.value, { nickname: nickname.value.trim(), locale: locale.value, code: roomCode.value.trim(), name: roomName.value.trim() || t('defaultRoomName'), target_score: Number(target.value), answer_duration: Number(duration.value), anti_cheat_mode: antiCheat.value, letters: letters.value.toUpperCase().replace(/[^A-Z]/g, ''), no_repeat: noRepeat.value, unique_points: Number(uniquePoints.value), duplicate_points: Number(duplicatePoints.value) })
   if (ok) router.push(`/salle/${store.code}`)
 }
 function changedAnswer() { savedState.value = '' }
@@ -150,7 +167,7 @@ onUnmounted(() => { clearInterval(clock); store.stop(); document.removeEventList
         <button class="text-button rules-link" @click="rulesDialog?.showModal()"><HelpCircle :size="18"/>{{ t('rules') }}</button>
         <button v-if="installPrompt" class="icon-button" :aria-label="t('install')" @click="install"><Download :size="19"/></button>
         <button class="icon-button" :aria-label="t('sound')" :aria-pressed="soundOn" @click="toggleSound"><Volume2 v-if="soundOn" :size="20"/><VolumeX v-else :size="20"/></button>
-        <label class="language-picker"><Globe2 :size="17"/><span class="sr-only">{{ t('language') }}</span><select v-model="locale"><option value="mg">MG</option><option value="fr">FR</option><option value="en">EN</option></select></label>
+        <div class="language-picker" role="group" :aria-label="t('language')"><Globe2 :size="17"/><button v-for="code in ['mg', 'fr', 'en']" :key="code" type="button" :class="{ active: locale === code }" :aria-pressed="locale === code" @click="locale = code">{{ code.toUpperCase() }}</button></div>
       </div>
     </header>
 
@@ -164,8 +181,9 @@ onUnmounted(() => { clearInterval(clock); store.stop(); document.removeEventList
         <section class="home-main">
           <div class="eyebrow"><span class="mini-tiles"><i>B</i><i>A</i><i>K</i></span>{{ t('playTogether') }}</div>
           <h1>{{ t('welcome') }}<span class="heading-spark">✳</span></h1>
-          <p class="intro">{{ t('intro') }}</p>
-          <p class="home-message">{{ t('homeMessage') }}</p>
+          <p class="intro home-intro">{{ t('intro') }}</p>
+          <button type="button" class="mission-toggle" :aria-expanded="showMission" aria-controls="home-mission" @click="showMission = !showMission">{{ t(showMission ? 'readLess' : 'readMore') }}<ChevronDown :size="15" :class="{ flipped: showMission }"/></button>
+          <p v-show="showMission" id="home-mission" class="home-message">{{ t('homeMessage') }}</p>
           <div class="card setup-card">
             <div class="tabs" role="tablist"><button id="create-tab" :class="{ active: mode === 'create' }" role="tab" :aria-selected="mode === 'create'" aria-controls="setup-panel" @click="mode = 'create'"><Plus :size="20"/>{{ t('create') }}</button><button id="join-tab" :class="{ active: mode === 'join' }" role="tab" :aria-selected="mode === 'join'" aria-controls="setup-panel" @click="mode = 'join'"><KeyRound :size="19"/>{{ t('join') }}</button></div>
             <form id="setup-panel" role="tabpanel" :aria-labelledby="mode === 'create' ? 'create-tab' : 'join-tab'" @submit.prevent="enter">
@@ -173,7 +191,7 @@ onUnmounted(() => { clearInterval(clock); store.stop(); document.removeEventList
               <label v-if="mode === 'create'" class="field">{{ t('roomName') }}<input v-model="roomName" maxlength="60" :placeholder="t('roomPlaceholder')"></label>
               <label v-else class="field">{{ t('code') }}<input v-model="roomCode" class="code-input" required pattern="[a-zA-Z0-9]{6}" maxlength="6" :placeholder="t('codePlaceholder')" autocomplete="off" autocapitalize="characters" data-testid="join-code"></label>
               <template v-if="mode === 'create'">
-                <div class="quick-settings"><label class="field"><span><Trophy :size="16"/>{{ t('target') }}</span><div class="suffix-input"><input v-model="target" type="number" min="10" max="2000" required data-testid="target"><span>{{ t('points') }}</span></div></label><label class="field"><span><Timer :size="16"/>{{ t('duration') }}</span><select v-model="duration"><option :value="30">{{ t('relax') }} · 30 s</option><option :value="15">{{ t('normal') }} · 15 s</option><option :value="10">{{ t('speed') }} · 10 s</option></select></label></div>
+                <div class="quick-settings game-quick-settings"><label class="field"><span><Trophy :size="16"/>{{ t('target') }}</span><div class="suffix-input"><input v-model="target" type="number" min="10" max="2000" required data-testid="target"><span>{{ t('points') }}</span></div></label><div class="field duration-field"><span><Timer :size="16"/>{{ t('duration') }}</span><div class="duration-options" role="group" :aria-label="t('duration')"><button v-for="option in durationOptions" :key="option.seconds" type="button" :class="{ active: duration === option.seconds }" :aria-pressed="duration === option.seconds" @click="duration = option.seconds"><strong>{{ t(option.key) }}</strong><small>{{ option.seconds }} s</small></button></div></div></div>
                 <button type="button" class="advanced-toggle" :aria-expanded="advanced" @click="advanced = !advanced"><Settings2 :size="17"/>{{ t('settings') }}<ChevronDown :size="17" :class="{ flipped: advanced }"/></button>
                 <div v-if="advanced" class="advanced-settings">
                   <label class="field">{{ t('antiCheat') }}<select v-model="antiCheat"><option value="soft">{{ t('soft') }}</option><option value="normal">{{ t('normal') }}</option><option value="strict">{{ t('strict') }}</option></select><small>{{ t(`${antiCheat}Help`) }}</small></label>
@@ -182,14 +200,15 @@ onUnmounted(() => { clearInterval(clock); store.stop(); document.removeEventList
                   <div class="quick-settings"><label class="field">{{ t('uniquePoints') }}<input v-model="uniquePoints" required type="number" min="1" max="100"></label><label class="field">{{ t('duplicatePoints') }}<input v-model="duplicatePoints" required type="number" min="0" :max="uniquePoints"></label></div>
                 </div>
               </template>
-              <button class="primary full" :disabled="store.busy" type="submit"><Plus v-if="mode === 'create'" :size="20"/><Users v-else :size="20"/>{{ store.busy ? t('loading') : t(mode === 'create' ? 'createAction' : 'joinAction') }}</button>
+              <p class="cta-prompt">{{ t(mode === 'create' ? 'readyPrompt' : 'joinPrompt') }}</p>
+              <button :class="['primary full', { 'start-button': mode === 'create' }]" :disabled="store.busy" type="submit"><Plus v-if="mode === 'create'" :size="20"/><Users v-else :size="20"/>{{ store.busy ? t('loading') : t(mode === 'create' ? 'createAction' : 'joinAction') }}</button>
               <div class="form-foot"><Users :size="14"/>{{ t('playersRange') }}<span>·</span><CheckCircle2 :size="14"/>{{ t('noAccount') }}</div>
             </form>
           </div>
         </section>
         <aside class="home-aside">
-          <section class="rule-card"><div class="rule-card-top"><span class="eyebrow">BAKALOREA</span><Sparkles :size="22"/></div><h2>{{ t('howTo') }}</h2><div v-for="n in 3" :key="n" class="rule-step"><span>{{ n.toString().padStart(2, '0') }}</span><div><h3>{{ t(`rule${n}Title`) }}</h3><p>{{ t(`rule${n}`) }}</p></div></div><div class="score-tip"><Trophy :size="23"/><p>{{ t('scoring') }}</p></div></section>
-          <section class="categories-block"><h2>{{ t('categories') }}<span>{{ categories.length }}</span></h2><div class="category-grid"><div v-for="c in categories" :key="c.code" class="category-item"><span :class="['category-icon', c.color]"><component :is="c.icon" :size="18"/></span>{{ t(`category.${c.code}`) }}</div></div></section>
+          <section class="rule-card"><div class="rule-card-top"><span class="eyebrow">BAKALOREA</span><Sparkles :size="22"/></div><h2>{{ t('howTo') }}</h2><p class="quick-rules-intro">{{ t('quickRulesIntro') }}</p><div class="quick-rules"><div v-for="n in 3" :key="n" class="quick-rule"><span>{{ n.toString().padStart(2, '0') }}</span><strong>{{ t(`quickRule${n}`) }}</strong></div></div><button type="button" class="rule-link" @click="rulesDialog?.showModal()">{{ t('rules') }} <span aria-hidden="true">→</span></button></section>
+          <section class="categories-block"><h2>{{ t('categories') }}<span>{{ t('categoryCount', { count: categories.length }) }}</span></h2><div class="category-groups" :aria-label="t('categoryGroupsLabel')"><button v-for="group in categoryGroups" :key="group.id" type="button" :class="['category-group', { active: categoryView === group.id }]" :aria-pressed="categoryView === group.id" @click="categoryView = group.id">{{ t(`categoryGroup.${group.id}`) }}</button></div><h3 class="category-list-title">{{ categoryView === 'popular' ? t('popularCategories') : categoryView === 'all' ? t('allCategories') : t(`categoryGroup.${categoryView}`) }}</h3><div :class="['category-grid', { 'all-categories': categoryView === 'all' }]"><div v-for="c in visibleCategories" :key="c.code" class="category-item"><span :class="['category-icon', c.color]"><component :is="c.icon" :size="18"/></span>{{ t(`category.${c.code}`) }}</div></div><button type="button" class="all-categories-button" :aria-expanded="categoryView === 'all'" @click="categoryView = categoryView === 'all' ? 'popular' : 'all'">{{ t(categoryView === 'all' ? 'showPopularCategories' : 'viewAllCategories', { count: categories.length }) }}<ChevronDown :size="16" :class="{ flipped: categoryView === 'all' }"/></button></section>
         </aside>
       </main>
 
