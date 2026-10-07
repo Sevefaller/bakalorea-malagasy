@@ -31,3 +31,6 @@ h1{letter-spacing:-1.6px;font-weight:700}
 .modal{border-radius:14px}.avatar{border-radius:9px}.language-picker{box-shadow:0 3px 8px #13172006}
 button:focus-visible,a:focus-visible,summary:focus-visible{outline-color:#65a99b}
 @media(max-width:800px){.play-top{position:sticky;top:8px;z-index:2;background:#fff;padding:7px 0}}
+
+.category-grid{max-height:340px;overflow-y:auto;align-content:start;padding-right:6px}
+.category-item{min-width:0;overflow-wrap:anywhere}

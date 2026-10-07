@@ -13,7 +13,63 @@ const target = ref(200), duration = ref(15), antiCheat = ref('normal'), letters 
 const copied = ref(false), now = ref(0), draft = ref(''), savedState = ref(''), answerInput = ref<HTMLInputElement>(), revision = ref(0)
 const installPrompt = ref<any>(null), showHistory = ref(false)
 let clock: ReturnType<typeof setInterval>, saveTimer: ReturnType<typeof setTimeout> | undefined, lastBeep = -1, away = false, activeSave = 0
-const categories = [ { code: 'male_name', icon: UserRound, color: 'purple' }, { code: 'female_name', icon: UserRound, color: 'pink' }, { code: 'plant', icon: Leaf, color: 'green' }, { code: 'fruit', icon: Apple, color: 'orange' }, { code: 'malagasy_artist', icon: Mic2, color: 'pink' }, { code: 'international_artist', icon: Music2, color: 'purple' }, { code: 'malagasy_place', icon: MapPin, color: 'orange' }, { code: 'international_place', icon: Globe2, color: 'blue' } ]
+const categories = [ { code: 'male_name', icon: UserRound, color: 'purple' }, { code: 'female_name', icon: UserRound, color: 'pink' }, { code: 'plant', icon: Leaf, color: 'green' }, { code: 'fruit', icon: Apple, color: 'orange' }, { code: 'malagasy_artist', icon: Mic2, color: 'pink' }, { code: 'international_artist', icon: Music2, color: 'purple' }, { code: 'malagasy_place', icon: MapPin, color: 'orange' }, { code: 'international_place', icon: Globe2, color: 'blue' },
+  ...[
+  'animal',
+  'bird',
+  'fish',
+  'vegetable',
+  'food',
+  'drink',
+  'household_item',
+  'furniture',
+  'clothing',
+  'footwear',
+  'profession',
+  'sport',
+  'vehicle',
+  'car_brand',
+  'country',
+  'capital_city',
+  'city',
+  'island',
+  'mountain',
+  'river',
+  'sea',
+  'color',
+  'school_item',
+  'kitchen_item',
+  'bedroom_item',
+  'office_item',
+  'electronic_device',
+  'phone_brand',
+  'movie',
+  'actor',
+  'singer',
+  'music_group',
+  'song',
+  'book',
+  'writer',
+  'cartoon',
+  'adjective',
+  'verb',
+  'round_thing',
+  'big_thing',
+  'small_thing',
+  'street_thing',
+  'school_thing',
+  'market_thing',
+  'beach_thing',
+  'sea_animal',
+  'domestic_animal',
+  'wild_animal',
+  'sweet_thing',
+  'cold_thing',
+  'hot_thing',
+  'fragrant_thing',
+  'gift_idea'
+  ].map((code, index) => ({ code, icon: Sparkles, color: ['green', 'blue', 'orange', 'purple', 'pink'][index % 5] }))
+]
 const g = computed(() => store.game), round = computed(() => g.value?.round)
 const inRoom = computed(() => route.path.startsWith('/salle/') && !!store.token)
 const spinning = computed(() => round.value?.status === 'answering' && now.value < round.value.started_at)
@@ -120,7 +176,7 @@ onUnmounted(() => { clearInterval(clock); clearTimeout(saveTimer); store.stop();
         </section>
         <aside class="home-aside">
           <section class="rule-card"><div class="rule-card-top"><span class="eyebrow">BAKALOREA</span><Sparkles :size="22"/></div><h2>{{ t('howTo') }}</h2><div v-for="n in 3" :key="n" class="rule-step"><span>{{ n.toString().padStart(2, '0') }}</span><div><h3>{{ t(`rule${n}Title`) }}</h3><p>{{ t(`rule${n}`) }}</p></div></div><div class="score-tip"><Trophy :size="23"/><p>{{ t('scoring') }}</p></div></section>
-          <section class="categories-block"><h2>{{ t('categories') }}<span>08</span></h2><div class="category-grid"><div v-for="c in categories" :key="c.code" class="category-item"><span :class="['category-icon', c.color]"><component :is="c.icon" :size="18"/></span>{{ t(`category.${c.code}`) }}</div></div></section>
+          <section class="categories-block"><h2>{{ t('categories') }}<span>{{ categories.length }}</span></h2><div class="category-grid"><div v-for="c in categories" :key="c.code" class="category-item"><span :class="['category-icon', c.color]"><component :is="c.icon" :size="18"/></span>{{ t(`category.${c.code}`) }}</div></div></section>
         </aside>
       </main>
 
