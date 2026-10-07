@@ -9,8 +9,10 @@ Parameters:
     Description: Sous-reseau PUBLIC de ce VPC avec route vers une Internet Gateway.
   InstanceType:
     Type: String
-    Default: t3.medium
-    AllowedValues: [t3.medium, t3.large, t3a.medium, t3a.large]
+    Default: t3.small
+    AllowedValues:
+      - t3.micro
+      - t3.small
   LatestAmi:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
     Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
