@@ -1,10 +1,17 @@
 <?php
 use Illuminate\Support\Facades\{Route,Broadcast,DB};
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\AdminController;
 use App\Http\Middleware\ActiveSession;
 
 Route::get('/health',function () { DB::select('SELECT 1'); return ['status'=>'ok']; });
 Route::get('/config',fn()=> ['realtime'=>config('broadcasting.default')==='reverb','key'=>env('REVERB_APP_KEY'),'host'=>env('REVERB_PUBLIC_HOST'),'port'=>(int)env('REVERB_PUBLIC_PORT',8080),'scheme'=>env('REVERB_PUBLIC_SCHEME','http')]);
+Route::prefix('admin')->group(function () {
+    Route::post('/login', [AdminController::class, 'login'])->middleware('throttle:5,1,admin-login:');
+    Route::get('/status', [AdminController::class, 'status']);
+    Route::get('/dashboard', [AdminController::class, 'dashboard']);
+    Route::post('/logout', [AdminController::class, 'logout']);
+});
 Route::middleware('throttle:12,1')->group(function () { Route::post('/games',[GameController::class,'create']); Route::post('/games/{code}/join',[GameController::class,'join']); });
 Route::middleware(['auth:sanctum','throttle:240,1'])->group(function () {
     Route::post('/session/claim',[GameController::class,'claim']);
