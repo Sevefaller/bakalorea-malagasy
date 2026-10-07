@@ -104,7 +104,7 @@ const initials = (name: string) => name.slice(0, 2).toUpperCase()
 const reasonLabel = (reason: string) => t(({ empty: 'emptyReason', letter: 'letterReason', strict: 'strictReason' } as Record<string,string>)[reason] || 'invalid')
 
 watch(locale, value => { localStorage.setItem('bakalorea.locale', value); document.documentElement.lang = value })
-watch(() => round.value?.id, async () => { draft.value = round.value?.own_answer || ''; commentDraft.value = ''; revision.value = round.value?.own_revision || 0; savedState.value = draft.value ? 'saved' : ''; lastBeep = -1; away = false; if (spinning.value) playSound('spin'); await nextTick() })
+watch(() => round.value?.id, async () => { draft.value = round.value?.own_answer || ''; commentDraft.value = ''; revision.value = round.value?.own_revision || 0; savedState.value = draft.value ? 'saved' : ''; lastBeep = -1; away = false; if (spinning.value) { await unlockSound(); playSound('start') } await nextTick() })
 watch(answering, async value => { if (value) { await nextTick(); answerInput.value?.focus(); if(document.hidden || !document.hasFocus()) reportAway(true) } })
 watch(seconds, value => { if (answering.value && value <= 5 && value !== lastBeep) { lastBeep = value; playSound('tick') } if (value === 0 && round.value?.status === 'answering') { playSound('stop'); store.refresh() } })
 watch(() => g.value?.status, value => { if (value === 'finished') playSound('win') })
@@ -150,7 +150,7 @@ async function sendComment() {
 }
 async function copyCode() { try { await navigator.clipboard.writeText(store.code); copied.value = true; setTimeout(() => copied.value = false, 2500) } catch { const el = document.querySelector('.room-code'); if(el) { const range = document.createRange(); range.selectNodeContents(el); window.getSelection()?.removeAllRanges(); window.getSelection()?.addRange(range) } } }
 async function leave() { if (g.value && await store.leaveRoom(g.value.id)) { leaveDialog.value?.close(); router.push('/') } }
-async function rejoin() { if (await store.resume()) router.push(`/salle/${store.code}`) }
+async function rejoin() { await unlockSound(); if (await store.resume()) router.push(`/salle/${store.code}`) }
 async function newGame() { if(g.value) await store.action(`/games/${g.value.id}/leave`); store.forget(); router.push('/') }
 function reportAway(isAway: boolean) {
   if (!answering.value || !round.value?.participating || away === isAway || store.replaced) return
@@ -159,18 +159,20 @@ function reportAway(isAway: boolean) {
 }
 const onVisibility = () => reportAway(document.hidden)
 const onBlur = () => reportAway(true)
-const onFocus = () => { reportAway(false); store.refresh() }
+const onFocus = () => { reportAway(false); void unlockSound(); store.refresh() }
 const captureInstall = (e: Event) => { e.preventDefault(); installPrompt.value = e }
 async function install() { await installPrompt.value?.prompt(); installPrompt.value = null }
 onMounted(async () => {
   document.documentElement.lang = locale.value
+  document.addEventListener('pointerdown', unlockSound, { once: true })
+  document.addEventListener('keydown', unlockSound, { once: true })
   clock = setInterval(() => now.value = store.serverNow(), 80)
   document.addEventListener('visibilitychange', onVisibility); window.addEventListener('blur', onBlur); window.addEventListener('focus', onFocus); window.addEventListener('beforeinstallprompt', captureInstall)
   await router.isReady()
   if (store.token && !store.left) { await store.resume(); if (!store.terminal) router.replace(`/salle/${store.code}`) }
   else if (route.params.code) { roomCode.value = String(route.params.code); mode.value = 'join'; router.replace('/') }
 })
-onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTimer); store.stop(); document.removeEventListener('visibilitychange', onVisibility); window.removeEventListener('blur', onBlur); window.removeEventListener('focus', onFocus); window.removeEventListener('beforeinstallprompt', captureInstall) })
+onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTimer); store.stop(); document.removeEventListener('pointerdown', unlockSound); document.removeEventListener('keydown', unlockSound); document.removeEventListener('visibilitychange', onVisibility); window.removeEventListener('blur', onBlur); window.removeEventListener('focus', onFocus); window.removeEventListener('beforeinstallprompt', captureInstall) })
 </script>
 
 <template>
