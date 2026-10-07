@@ -10,6 +10,9 @@ Route::prefix('admin')->group(function () {
     Route::post('/login', [AdminController::class, 'login'])->middleware('throttle:5,1,admin-login:');
     Route::get('/status', [AdminController::class, 'status']);
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
+    Route::delete('/games/finished', [AdminController::class, 'destroyFinished']);
+    Route::get('/games/{game}/players', [AdminController::class, 'players']);
+    Route::delete('/games/{game}', [AdminController::class, 'destroyGame']);
     Route::post('/logout', [AdminController::class, 'logout']);
 });
 Route::middleware('throttle:12,1')->group(function () { Route::post('/games',[GameController::class,'create']); Route::post('/games/{code}/join',[GameController::class,'join']); });

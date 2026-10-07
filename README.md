@@ -14,7 +14,7 @@ Le sélecteur MG / FR / EN change uniquement la langue du joueur. Les sons peuve
 
 ## Espace admin
 
-L’espace admin en lecture seule est accessible sur `/admin`. Il affiche les chiffres clés et les 20 dernières parties. L’identifiant et le mot de passe initiaux sont vérifiés côté serveur ; le mot de passe n’est stocké que sous forme de hash dans `backend/config/admin.php`. Pour les remplacer, définir `ADMIN_USERNAME` et `ADMIN_PASSWORD_HASH` dans l’environnement du backend, puis redémarrer le service. La connexion expire après 8 heures et la déconnexion invalide immédiatement la session.
+L’espace admin est accessible sur `/admin`. Il affiche les chiffres clés et les 50 dernières parties, avec un filtre pour les parties terminées. Un clic sur le nombre de joueurs affiche leurs noms, scores et état de connexion. L’admin peut supprimer une partie en attente, terminée ou en cours depuis plus de 3 heures (calculées depuis la première manche), ou purger tout l’historique terminé après confirmation ; les joueurs, réponses, votes, commentaires et accès associés sont effacés. L’identifiant et le mot de passe initiaux sont vérifiés côté serveur ; le mot de passe n’est stocké que sous forme de hash dans `backend/config/admin.php`. Pour les remplacer, définir `ADMIN_USERNAME` et `ADMIN_PASSWORD_HASH` dans l’environnement du backend, puis redémarrer le service. La connexion expire après 8 heures et la déconnexion invalide immédiatement la session.
 
 ## Démarrage complet — Docker
 
