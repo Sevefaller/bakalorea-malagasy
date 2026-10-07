@@ -65,6 +65,18 @@ class GameTest extends TestCase {
         $this->postJson('/api/games/'.$this->game->id.'/start',[],$this->host)->assertStatus(409);
         $this->assertSame(1,$this->game->rounds()->count());
     }
+    public function test_categories_do_not_repeat_before_the_random_pool_is_exhausted(): void {
+        $pool = DB::table('game_categories')->where('game_id',$this->game->id)->orderBy('position')->limit(3)->pluck('category_id')->all();
+        DB::table('game_categories')->where('game_id',$this->game->id)->whereNotIn('category_id',$pool)->delete();
+        $selected = [];
+        for ($i=0; $i<4; $i++) {
+            $round = $this->startRound();
+            $selected[] = $round->category_id;
+            $round->update(['status'=>'finished']);
+        }
+        $this->assertEqualsCanonicalizing($pool, array_slice($selected,0,3));
+        $this->assertContains($selected[3], $pool);
+    }
     public function test_votes_before_stop_and_self_votes_are_forbidden(): void {
         $round=$this->startRound(); $this->submit($round,$this->host,$round->letter.'ina'); $a=$round->answers()->first();
         $this->postJson('/api/answers/'.$a->id.'/votes',['vote'=>'valid'],$this->guest)->assertStatus(409);

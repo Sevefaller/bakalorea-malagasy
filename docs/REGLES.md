@@ -4,7 +4,7 @@
 
 - 2 à 12 joueurs. Les entrées sont possibles dans le lobby uniquement. Recharger la page reprend sa place avec le jeton local ; quitter explicitement révoque la place.
 - 200 points, 15 secondes, 10 points pour une bonne réponse unique et 5 pour un doublon par défaut. Tous ces paramètres se règlent à la création, dans les limites affichées.
-- Les catégories suivent l’ordre du PDF : prénom masculin, prénom féminin, plante, fruit, artiste malgache, artiste international, lieu à Madagascar, lieu à l’étranger. Puis le cycle recommence.
+- Le serveur tire une catégorie au hasard à chaque manche parmi les 61 catégories. Une catégorie ne revient qu’après épuisement du cycle.
 - Trois secondes d’animation précèdent la fenêtre de réponse. Le serveur refuse les envois avant son début et à partir de son échéance.
 - Les lettres sont choisies par le serveur. En mode sans répétition, le jeu épuise le jeu de lettres avant de recommencer un cycle.
 

@@ -34,3 +34,5 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline-color:#65a99b
 
 .category-grid{max-height:340px;overflow-y:auto;align-content:start;padding-right:6px}
 .category-item{min-width:0;overflow-wrap:anywhere}
+.judging-heading>div:first-child{min-width:0}
+.judging-category{margin-top:12px!important;color:var(--accent)!important;font-weight:700;overflow-wrap:anywhere}

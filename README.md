@@ -41,7 +41,7 @@ Sur le même Wi-Fi, ouvrir `http://ADRESSE-IP-DU-PC:8088` pour Docker (ou le por
 ## Fonctionnalités livrées
 
 - Salles de 2 à 12 joueurs, code d’invitation, présence et transfert du rôle de maître du jeu après 45 secondes d’absence.
-- Huit catégories, dans l’ordre du PDF, traduites dans les trois langues.
+- 61 catégories traduites dans les trois langues, tirées au hasard sans répétition avant la fin du cycle.
 - Tirage serveur et animation, lettres configurables et mode sans répétition.
 - Modes 10 / 15 / 30 secondes, compte à rebours fondé sur l’heure du serveur, sons.
 - Sauvegarde avec numéros de révision, reprise de session, réponses privées avant STOP.

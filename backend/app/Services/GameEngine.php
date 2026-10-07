@@ -56,9 +56,15 @@ class GameEngine {
             if (!$available) { $available = $letters; $used = []; }
             $letter = $available[random_int(0,count($available)-1)];
             $number = ($previous?->number ?? 0) + 1;
-            $categories = DB::table('game_categories')->where('game_id',$game->id)->orderBy('position')->pluck('category_id');
+            $categories = DB::table('game_categories')->where('game_id',$game->id)->orderBy('position')->pluck('category_id')->all();
+            abort_if(!$categories, 409, 'no_categories');
+            $cycleStart = intdiv($number - 1, count($categories)) * count($categories) + 1;
+            $usedCategories = $game->rounds()->where('number','>=',$cycleStart)->pluck('category_id')->all();
+            $availableCategories = array_values(array_diff($categories, $usedCategories));
+            if (!$availableCategories) $availableCategories = $categories;
+            $category = $availableCategories[random_int(0, count($availableCategories) - 1)];
             $start = now()->addSeconds(3);
-            $round = $game->rounds()->create(['number'=>$number,'category_id'=>$categories[($number-1) % count($categories)],'letter'=>$letter,'started_at'=>$start,'answer_deadline'=>$start->copy()->addSeconds($game->answer_duration)]);
+            $round = $game->rounds()->create(['number'=>$number,'category_id'=>$category,'letter'=>$letter,'started_at'=>$start,'answer_deadline'=>$start->copy()->addSeconds($game->answer_duration)]);
             foreach ($players as $p) $round->answers()->create(['player_id'=>$p->id]);
             $game->update(['status'=>'playing','used_letters'=>array_merge($used,[$letter])]);
         });
