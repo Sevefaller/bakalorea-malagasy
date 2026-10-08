@@ -4,6 +4,8 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 use App\Models\{Game,GamePlayer,Round,Answer};
 use App\Services\GameEngine;
 
@@ -191,6 +193,19 @@ class GameTest extends TestCase {
         $round->update(['status'=>'finished']);
         $this->postJson('/api/rounds/'.$round->id.'/comments',['body'=>'Too late'],$this->guest)->assertStatus(409);
         $this->getJson('/api/games/'.$this->code,$this->guest)->assertOk()->assertJsonMissingPath('round.comments');
+    }
+    public function test_chat_works_before_client_id_migration_is_applied(): void {
+        Schema::table('round_comments', function (Blueprint $table) {
+            $table->dropUnique(['round_id', 'player_id', 'client_id']);
+            $table->dropColumn('client_id');
+        });
+        $round = $this->startRound();
+        $this->stopRound($round);
+        $clientId = (string) Str::uuid();
+        $this->postJson('/api/rounds/'.$round->id.'/comments', ['body'=>'Salama','client_id'=>$clientId], $this->host)->assertCreated();
+        $this->getJson('/api/games/'.$this->code, $this->guest)->assertOk()
+            ->assertJsonPath('round.comments.0.body', 'Salama')
+            ->assertJsonPath('round.comments.0.client_id', null);
     }
     public function test_comment_retry_keeps_one_message_even_after_judging_ends(): void {
         $round = $this->startRound();

@@ -13,7 +13,7 @@ const target = ref(200), duration = ref(15), antiCheat = ref('normal'), letters 
 const durationOptions = [{ seconds: 10, key: 'speed' }, { seconds: 15, key: 'normal' }, { seconds: 30, key: 'relax' }]
 const copied = ref(false), now = ref(0), draft = ref(''), savedState = ref(''), answerInput = ref<HTMLInputElement>(), revision = ref(0)
 const installPrompt = ref<any>(null), showHistory = ref(false), commentDraft = ref(''), sendingComment = ref(false), chatMessages = ref<HTMLElement>()
-type PendingComment = { id: string; roundId: number; body: string; status: 'sending' | 'sent' | 'failed' }
+type PendingComment = { id: string; roundId: number; body: string; status: 'sending' | 'sent' | 'failed'; serverId?: number }
 const pendingComment = ref<PendingComment | null>(null)
 const showMission = ref(false), categoryView = ref('popular')
 const roomNotice = ref('')
@@ -115,7 +115,7 @@ watch(seconds, value => { if (answering.value && value <= 5 && value !== lastBee
 watch(() => g.value?.status, value => { if (value === 'lobby' && soundOn.value) waitingMusic.value = true; else if (value !== 'lobby') waitingMusic.value = false; if (value === 'finished') playSound('win') })
 watch(() => g.value?.code, (code, previous) => { if (code && code !== previous && g.value?.status === 'lobby') waitingMusic.value = soundOn.value })
 watch(soundOn, value => { if (!value) waitingMusic.value = false })
-watch([() => round.value?.comments?.at(-1)?.id, () => pendingComment.value?.id], async () => { if (pendingComment.value && round.value?.comments?.some(comment => comment.client_id === pendingComment.value?.id)) pendingComment.value = null; await nextTick(); if (chatMessages.value) chatMessages.value.scrollTop = chatMessages.value.scrollHeight })
+watch([() => round.value?.comments?.at(-1)?.id, () => pendingComment.value?.id, () => pendingComment.value?.serverId], async () => { if (pendingComment.value && round.value?.comments?.some(comment => comment.id === pendingComment.value?.serverId || comment.client_id === pendingComment.value?.id)) pendingComment.value = null; await nextTick(); if (chatMessages.value) chatMessages.value.scrollTop = chatMessages.value.scrollHeight })
 watch(() => g.value?.players, (players, previous) => {
   if (!players || !previous) return
   for (const player of players) {
@@ -159,9 +159,9 @@ async function sendComment() {
   message.status = 'sending'
   sendingComment.value = true
   try {
-    await store.request(`/rounds/${roundId}/comments`, 'POST', { body: message.body, client_id: message.id }, true)
+    const result = await store.request(`/rounds/${roundId}/comments`, 'POST', { body: message.body, client_id: message.id }, true)
     store.error = ''
-    if (pendingComment.value?.id === message.id) pendingComment.value.status = 'sent'
+    if (pendingComment.value?.id === message.id) { pendingComment.value.serverId = result.id; pendingComment.value.status = 'sent' }
     await store.refresh()
   } catch { if (pendingComment.value?.id === message.id) pendingComment.value.status = 'failed' }
   finally { sendingComment.value = false }

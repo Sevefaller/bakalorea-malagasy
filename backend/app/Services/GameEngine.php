@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Models\{Game,GamePlayer,Round,Answer};
 use App\Events\GameChanged;
 use Illuminate\Support\Facades\{DB,Cache,Log};
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class GameEngine {
@@ -107,10 +108,15 @@ class GameEngine {
     public function comment(Round $round, GamePlayer $player, string $body, string $clientId): array {
         $result = $this->locked($round->game, function () use ($round,$player,$body,$clientId) {
             $round->refresh();
-            $existing = DB::table('round_comments')->where('round_id',$round->id)->where('player_id',$player->id)->where('client_id',$clientId)->first();
-            if ($existing) return ['id'=>$existing->id,'created'=>false];
+            $hasClientId = Schema::hasColumn('round_comments', 'client_id');
+            if ($hasClientId) {
+                $existing = DB::table('round_comments')->where('round_id',$round->id)->where('player_id',$player->id)->where('client_id',$clientId)->first();
+                if ($existing) return ['id'=>$existing->id,'created'=>false];
+            }
             abort_unless($round->status === 'judging',409,'not_judging');
-            $id = DB::table('round_comments')->insertGetId(['round_id'=>$round->id,'player_id'=>$player->id,'client_id'=>$clientId,'body'=>$body,'created_at'=>now()]);
+            $values = ['round_id'=>$round->id,'player_id'=>$player->id,'body'=>$body,'created_at'=>now()];
+            if ($hasClientId) $values['client_id'] = $clientId;
+            $id = DB::table('round_comments')->insertGetId($values);
             return ['id'=>$id,'created'=>true];
         });
         if ($result['created']) $this->notify($round->game,'CommentAdded');
@@ -202,7 +208,11 @@ class GameEngine {
             if ($round) {
                 $own = $round->answers()->where('player_id',$player->id)->first();
                 $data['round'] = ['id'=>$round->id,'number'=>$round->number,'category'=>DB::table('categories')->where('id',$round->category_id)->value('code'),'letter'=>$round->letter,'status'=>$round->status,'started_at'=>$round->started_at->getTimestampMs(),'answer_deadline'=>$round->answer_deadline->getTimestampMs(),'own_answer'=>$own?->answer ?? '','own_revision'=>$own?->revision ?? 0,'participating'=>(bool)$own,'ready'=>$round->status === 'judging' && $this->ready($round)];
-                if ($round->status === 'judging') $data['round']['comments'] = DB::table('round_comments')->where('round_id',$round->id)->orderByDesc('id')->limit(100)->get(['id','player_id','client_id','body','created_at'])->reverse()->values();
+                if ($round->status === 'judging') {
+                    $columns = ['id','player_id','body','created_at'];
+                    $columns[] = Schema::hasColumn('round_comments', 'client_id') ? 'client_id' : DB::raw('NULL AS client_id');
+                    $data['round']['comments'] = DB::table('round_comments')->where('round_id',$round->id)->orderByDesc('id')->limit(100)->get($columns)->reverse()->values();
+                }
                 if ($round->status !== 'answering') $data['round']['answers'] = $round->answers()->get()->map(function ($a) use ($game,$player) {
                     $referee = $this->referee($game,$a);
                     $decision = $a->tie_decision;
