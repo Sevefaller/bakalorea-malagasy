@@ -3,7 +3,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
 import { Users, Plus, KeyRound, ChevronDown, Settings2, Trophy, Timer, ShieldCheck, Check, X, HelpCircle, Copy, Crown, LogOut, Volume2, VolumeX, Globe2, Sparkles, LockKeyhole, Leaf, Apple, MapPin, Mic2, Music2, UserRound, Flag, CheckCircle2, Download, RotateCcw, History, WifiOff, MessageCircle, Send } from 'lucide-vue-next'
-import { useGame } from './store'
+import { makeUuid, useGame } from './store'
 import { soundOn, soundBlocked, toggleSound, unlockSound, playSound } from './sound'
 
 const { t, te, locale } = useI18n(), store = useGame(), router = useRouter(), route = useRoute()
@@ -151,7 +151,7 @@ async function sendComment() {
   if (!message) {
     const body = commentDraft.value.trim()
     if (!body) return
-    message = { id: crypto.randomUUID(), roundId, body, status: 'sending' }
+    message = { id: makeUuid(), roundId, body, status: 'sending' }
     pendingComment.value = message
     commentDraft.value = ''
   }

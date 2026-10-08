@@ -9,15 +9,19 @@ export interface RoundComment { id: number; player_id: number; client_id: string
 export interface Round { id: number; number: number; category: string; letter: string; status: string; started_at: number; answer_deadline: number; own_answer: string; own_revision: number; participating: boolean; ready: boolean; answers?: Answer[]; comments?: RoundComment[] }
 export interface Game { id: number; code: string; name: string; status: string; host_id: number; winner_id: number | null; me_id: number; target_score: number; answer_duration: number; anti_cheat_mode: string; unique_points: number; duplicate_points: number; letters: string; no_repeat: boolean; server_now: number; players: Player[]; round: Round | null; history: { number: number; letter: string; category: string; answers: { player_id: number; answer: string; points_awarded: number; verdict: boolean }[] }[] }
 
+export function makeUuid(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(16))
+  bytes[6] = (bytes[6] & 15) | 64; bytes[8] = (bytes[8] & 63) | 128
+  const hex = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('')
+  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`
+}
+
 export const useGame = defineStore('game', () => {
   const game = ref<Game | null>(null), error = ref(''), busy = ref(false), disconnected = ref(false), replaced = ref(false), terminal = ref(false)
   const token = ref(localStorage.getItem('bakalorea.token') || '')
   const code = ref(localStorage.getItem('bakalorea.code') || '')
   const left = ref(localStorage.getItem('bakalorea.left') === '1' && !!token.value)
-  const bytes = crypto.getRandomValues(new Uint8Array(16))
-  bytes[6] = (bytes[6] & 15) | 64; bytes[8] = (bytes[8] & 63) | 128
-  const hex = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('')
-  const sessionId = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`
+  const sessionId = makeUuid()
   sessionStorage.setItem('bakalorea.session', sessionId)
   let timer: ReturnType<typeof setInterval> | undefined, echo: Echo<'reverb'> | undefined, fetching = false
   let anchorServer = 0, anchorPerf = 0
