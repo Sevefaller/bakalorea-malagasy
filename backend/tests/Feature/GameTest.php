@@ -77,6 +77,28 @@ class GameTest extends TestCase {
         $this->assertEqualsCanonicalizing($pool, array_slice($selected,0,3));
         $this->assertContains($selected[3], $pool);
     }
+    public function test_recent_category_letter_pair_is_avoided_across_games(): void {
+        $first = $this->startRound();
+        $session = (string) Str::uuid();
+        $created = $this->postJson('/api/games', ['nickname'=>'Other host','locale'=>'fr','session_id'=>$session,'name'=>'Second room','target_score'=>20,'answer_duration'=>15,'anti_cheat_mode'=>'normal','letters'=>'AB','no_repeat'=>true,'unique_points'=>10,'duplicate_points'=>5])->assertCreated()->json();
+        $other = Game::where('code', $created['code'])->firstOrFail();
+        $headers = ['Authorization'=>'Bearer '.$created['token'],'X-Session-ID'=>$session];
+        $this->postJson('/api/games/'.$created['code'].'/join', ['nickname'=>'Other guest','locale'=>'fr','session_id'=>(string) Str::uuid()])->assertCreated();
+        $this->postJson('/api/games/'.$other->id.'/start', [], $headers)->assertOk();
+        $second = $other->rounds()->firstOrFail();
+        $this->assertNotSame([$first->category_id, $first->letter], [$second->category_id, $second->letter]);
+    }
+    public function test_pair_pool_is_exhausted_before_a_pair_repeats(): void {
+        $pool = DB::table('game_categories')->where('game_id', $this->game->id)->orderBy('position')->limit(2)->pluck('category_id')->all();
+        DB::table('game_categories')->where('game_id', $this->game->id)->whereNotIn('category_id', $pool)->delete();
+        $pairs = [];
+        for ($i = 0; $i < 4; $i++) {
+            $round = $this->startRound();
+            $pairs[] = $round->category_id.':'.$round->letter;
+            $round->update(['status'=>'finished']);
+        }
+        $this->assertCount(4, array_unique($pairs));
+    }
     public function test_votes_before_stop_and_self_votes_are_forbidden(): void {
         $round=$this->startRound(); $this->submit($round,$this->host,$round->letter.'ina'); $a=$round->answers()->first();
         $this->postJson('/api/answers/'.$a->id.'/votes',['vote'=>'valid'],$this->guest)->assertStatus(409);
@@ -169,6 +191,27 @@ class GameTest extends TestCase {
         $round->update(['status'=>'finished']);
         $this->postJson('/api/rounds/'.$round->id.'/comments',['body'=>'Too late'],$this->guest)->assertStatus(409);
         $this->getJson('/api/games/'.$this->code,$this->guest)->assertOk()->assertJsonMissingPath('round.comments');
+    }
+    public function test_comment_retry_keeps_one_message_even_after_judging_ends(): void {
+        $round = $this->startRound();
+        $this->stopRound($round);
+        $clientId = (string) Str::uuid();
+        $url = '/api/rounds/'.$round->id.'/comments';
+        $first = $this->postJson($url, ['body'=>'Salama','client_id'=>$clientId], $this->host)->assertCreated();
+        $this->postJson($url, ['body'=>'Salama','client_id'=>$clientId], $this->host)->assertOk()->assertJsonPath('id', $first->json('id'));
+        $this->assertSame(1, \Illuminate\Support\Facades\DB::table('round_comments')->where('round_id', $round->id)->count());
+        $this->getJson('/api/games/'.$this->code, $this->guest)->assertJsonPath('round.comments.0.client_id', $clientId);
+        $round->update(['status'=>'finished']);
+        $this->postJson($url, ['body'=>'Salama','client_id'=>$clientId], $this->host)->assertOk();
+        $this->postJson($url, ['body'=>'Another','client_id'=>(string)Str::uuid()], $this->host)->assertStatus(409);
+    }
+    public function test_comment_limit_is_per_player_on_shared_network(): void {
+        $round = $this->startRound();
+        $this->stopRound($round);
+        $url = '/api/rounds/'.$round->id.'/comments';
+        for ($i=0; $i<30; $i++) $this->postJson($url, ['body'=>'Message '.$i], $this->host)->assertCreated();
+        $this->postJson($url, ['body'=>'Too many'], $this->host)->assertStatus(429);
+        $this->postJson($url, ['body'=>'Another player'], $this->guest)->assertCreated();
     }
     public function test_room_polling_does_not_exhaust_the_comment_limit(): void {
         $round=$this->startRound();

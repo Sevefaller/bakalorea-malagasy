@@ -43,7 +43,7 @@ class GameEngine {
     }
 
     public function start(Game $game, GamePlayer $player): void {
-        $this->locked($game, function (Game $game) use ($player) {
+        Cache::lock('round-selection', 15)->block(5, fn () => $this->locked($game, function (Game $game) use ($player) {
             abort_unless($game->host_id === $player->id, 403, 'host_only');
             abort_unless(in_array($game->status,['lobby','playing']), 409, 'game_finished');
             $previous = $game->rounds()->latest('number')->first();
@@ -54,7 +54,6 @@ class GameEngine {
             $used = $game->used_letters ?? [];
             $available = $game->no_repeat ? array_values(array_diff($letters,$used)) : $letters;
             if (!$available) { $available = $letters; $used = []; }
-            $letter = $available[random_int(0,count($available)-1)];
             $number = ($previous?->number ?? 0) + 1;
             $categories = DB::table('game_categories')->where('game_id',$game->id)->orderBy('position')->pluck('category_id')->all();
             abort_if(!$categories, 409, 'no_categories');
@@ -62,12 +61,23 @@ class GameEngine {
             $usedCategories = $game->rounds()->where('number','>=',$cycleStart)->pluck('category_id')->all();
             $availableCategories = array_values(array_diff($categories, $usedCategories));
             if (!$availableCategories) $availableCategories = $categories;
-            $category = $availableCategories[random_int(0, count($availableCategories) - 1)];
+            // Favor pairs absent from recent rounds, including rounds in other rooms.
+            // The random choice remains uniform among equally eligible pairs.
+            $recent = DB::table('rounds')->orderByDesc('id')->limit(100)->get(['category_id', 'letter']);
+            $pairsByAge = [];
+            foreach ($availableCategories as $categoryId) {
+                foreach ($available as $candidateLetter) {
+                    $age = $recent->search(fn ($round) => $round->category_id === $categoryId && $round->letter === $candidateLetter);
+                    $pairsByAge[$age === false ? 100 : $age][] = [$categoryId, $candidateLetter];
+                }
+            }
+            $oldest = max(array_keys($pairsByAge));
+            [$category, $letter] = $pairsByAge[$oldest][random_int(0, count($pairsByAge[$oldest]) - 1)];
             $start = now()->addSeconds(3);
             $round = $game->rounds()->create(['number'=>$number,'category_id'=>$category,'letter'=>$letter,'started_at'=>$start,'answer_deadline'=>$start->copy()->addSeconds($game->answer_duration)]);
             foreach ($players as $p) $round->answers()->create(['player_id'=>$p->id]);
             $game->update(['status'=>'playing','used_letters'=>array_merge($used,[$letter])]);
-        });
+        }));
         $this->notify($game,'RoundStarted');
     }
 

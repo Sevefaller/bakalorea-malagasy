@@ -4,7 +4,7 @@
 
 - 2 à 12 joueurs actifs. On peut rejoindre une partie en cours et participer à partir de la manche suivante. Quitter marque la place comme absente ; le joueur peut revenir sur le même appareil avec son jeton local et conserver son score, tant qu'une place est disponible.
 - 200 points, 15 secondes, 10 points pour une bonne réponse unique et 5 pour un doublon par défaut. Tous ces paramètres se règlent à la création, dans les limites affichées.
-- Le serveur tire une catégorie au hasard à chaque manche parmi les 61 catégories. Une catégorie ne revient qu’après épuisement du cycle.
+- Le serveur tire une catégorie au hasard à chaque manche parmi les 61 catégories. Une catégorie ne revient qu’après épuisement du cycle. Parmi les couples catégorie-lettre possibles, il privilégie ceux absents des 100 dernières manches de toutes les parties, puis les moins récents si tous ont déjà servi.
 - Trois secondes d’animation précèdent la fenêtre de réponse. Le serveur refuse les envois avant son début et à partir de son échéance.
 - Les lettres sont choisies par le serveur. En mode sans répétition, le jeu épuise le jeu de lettres avant de recommencer un cycle.
 
