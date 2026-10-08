@@ -75,6 +75,70 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline-color:#65a99b
 @media(max-width:1000px){.judging-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"round" "heading" "banner" "chat" "answers" "actions";row-gap:14px}.judging-layout>.judging-chat{position:static;height:210px;min-height:0}.judging-layout>.answer-cards{max-height:55vh}.judging-layout>.judging-heading,.judging-layout>.stop-banner{margin-bottom:0}}
 @media(max-width:460px){.judging-layout>.judging-chat{height:200px}.judging-layout .vote{font-size:.68rem}}
 
+/* Judging screen: answers and room activity share one clear two-column layout. */
+.judging-room{--accent:#087e78;max-width:1160px;grid-template-columns:minmax(0,1fr) minmax(270px,32%);grid-template-areas:"top top" "round round" "heading heading" "banner banner" "answers scoreboard" "answers chat" "actions actions";gap:14px 18px;align-items:start}
+.judging-room>.game-main,.judging-room>.room-aside{display:contents}
+.judging-room .room-topline{grid-area:top;margin-bottom:6px}
+.judging-room .round-title{grid-area:round;justify-content:flex-start;gap:12px;margin:0;flex-wrap:wrap}
+.judging-room .round-title .eyebrow{font-size:.75rem;letter-spacing:.8px}
+.judging-category-pill{border-radius:30px;background:#087e78;color:#fff;font-weight:700;font-size:.76rem;padding:6px 13px}
+.judging-room .judging-heading{grid-area:heading;align-items:end;margin:0;gap:16px}
+.judging-room .judging-heading h1{font-size:clamp(2.5rem,5vw,3.5rem);line-height:1.05;letter-spacing:-2px}
+.judging-room .judging-heading .intro{margin-top:8px;color:#556476}
+.judging-letter-card{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:158px;min-height:84px;padding:10px;background:#087e78;color:#fff;border-radius:13px;text-align:center}
+.judging-letter-card span{font-size:.66rem;font-weight:700;white-space:nowrap}
+.judging-letter-card strong{font-family:'Space Grotesk',system-ui,sans-serif;font-size:2.8rem;line-height:1.1}
+.judging-room .stop-banner{grid-area:banner;display:flex;align-items:center;gap:13px;margin:2px 0 0;padding:13px 17px;border:2px solid #cf6208;border-radius:11px;background:#fff3e5;color:#9d3f00}
+.judging-room .stop-banner svg{flex-shrink:0}
+.judging-room .stop-banner>div{display:flex;flex-direction:column;gap:2px}
+.judging-room .stop-banner strong{color:#a94300;font-size:.9rem}
+.judging-room .stop-banner span{font-size:.78rem}
+.judging-room .answer-cards{grid-area:answers;min-width:0;max-height:none;overflow:visible;padding:0;gap:12px}
+.judging-room .judgment-card{padding:17px 18px;border-radius:12px;border-color:#dbe2e4;box-shadow:none}
+.judging-room .judgment-top{gap:9px}
+.judging-room .judgment-top .avatar-small{width:30px;height:30px;border-radius:50%;font-size:.68rem}
+.judging-room .judgment-top>strong{font-size:.85rem;color:#0d2332}
+.judging-room .judgment-top .pill{border-radius:30px;background:#087e78;color:#fff;font-size:.66rem;font-weight:700}
+.judging-room .revealed-answer{margin:13px 0;font-size:1.65rem;color:#0d2332;line-height:1.2}
+.judging-room .own-answer{padding:8px 11px;border-radius:8px;background:#f2f4f5;color:#596779}
+.judging-room .vote-buttons{gap:8px}
+.judging-room .vote{min-height:39px;padding:8px 5px;border-width:2px;font-size:.78rem;font-weight:700;gap:5px}
+.judging-room .vote.valid{border-color:#31a66a;color:#17623f}
+.judging-room .vote.invalid{border-color:#ff8586;color:#b43135}
+.judging-room .vote.uncertain{border-color:#ffbd33;color:#865b00}
+.judging-room .vote.valid.selected{background:#d9f7e7;border-color:#168c4b;color:#115b34}
+.judging-room .vote.invalid.selected{background:#ffe4e4;border-color:#e65660;color:#9e2830}
+.judging-room .vote.uncertain.selected{background:#fff2cc;border-color:#eba914;color:#765000}
+.judging-room .vote-counts{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.judging-room .vote-counts>span{gap:3px;padding:4px 9px;border-radius:30px;background:#eff2f5;color:#536478;font-weight:700}
+.judging-room .vote-counts>span:first-child{background:#e2f8eb;color:#147347}
+.judging-room .vote-counts>span svg{width:13px;height:13px}
+.judging-room .scoreboard{grid-area:scoreboard;position:relative;margin:0;padding:15px;border-radius:12px;border-color:#dbe2e4;box-shadow:none}
+.judging-room .scoreboard-heading{margin-bottom:5px}
+.judging-room .scoreboard-heading svg{display:none}
+.judging-room .scoreboard-heading h2{font-size:.92rem}
+.judging-room .scoreboard>.hint{position:absolute;top:17px;right:15px;margin:0;font-size:.68rem}
+.judging-room .rank-row{gap:7px;padding:7px 0 5px;border:0}
+.judging-room .rank-number{width:auto;color:#152331;font-size:.72rem}
+.judging-room .rank-player>strong{font-size:.75rem;font-weight:700}
+.judging-room .rank-score{font-size:.82rem}
+.judging-room .score-track{height:4px;margin-top:3px}
+.judging-room .judging-chat{grid-area:chat;position:static;align-self:stretch;height:420px;min-height:300px;margin:0;padding:0;border-radius:12px;border-color:#dbe2e4;box-shadow:none;overflow:hidden}
+.judging-room .judging-chat h2{flex-shrink:0;margin:0;padding:13px 15px;border-bottom:1px solid #e3e8e9;font-size:.9rem}
+.judging-room .judging-chat h2 svg{display:none}
+.judging-room .chat-messages{flex:1;min-height:0;max-height:none;padding:13px 14px;gap:11px}
+.judging-room .chat-message{border-radius:10px 10px 10px 3px;background:#eff0f8}
+.judging-room .chat-message.mine{border-radius:10px 10px 3px 10px;background:#087e78;color:#fff}
+.judging-room .chat-message.mine strong{color:#d5f5f0}
+.judging-room .chat-message.mine.pending small{color:#e0f4f1}
+.judging-room .chat-form{flex-shrink:0;margin:0;padding:12px;border-top:1px solid #e3e8e9}
+.judging-room .chat-form .primary{width:42px;min-width:42px;height:41px;min-height:41px;padding:8px}
+.judging-room .chat-form .primary span{display:none}
+.judging-room .room-settings,.judging-room .history-toggle,.judging-room .history-list{display:none}
+.judging-room .judging-actions{grid-area:actions;margin-top:3px}
+@media(max-width:800px){.judging-room{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "round" "heading" "banner" "answers" "scoreboard" "chat" "actions";gap:13px;max-width:640px}.judging-room .judging-chat{height:330px;min-height:250px}.judging-room .room-topline{margin-bottom:5px}}
+@media(max-width:460px){.judging-room .judging-heading h1{font-size:2.5rem}.judging-letter-card{width:104px;min-height:75px}.judging-letter-card span{font-size:.6rem;white-space:normal}.judging-letter-card strong{font-size:2.3rem}.judging-room .stop-banner{padding:11px 12px}.judging-room .vote{font-size:.7rem}.judging-room .scoreboard>.hint{position:static;margin:0 0 8px}.judging-room .judging-chat{height:300px}}
+
 .home-intro{max-width:48ch}
 .mission-toggle,.rule-link{display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--accent);font-size:.8rem;font-weight:700;padding:5px 0}
 .mission-toggle{margin-top:7px}

@@ -16,10 +16,16 @@ test('chat sends by button and Enter without crypto.randomUUID', async ({ page }
       id: 1, code: 'TEST12', name: 'Test', status: 'playing', host_id: 1, winner_id: null,
       me_id: 1, target_score: 200, answer_duration: 15, anti_cheat_mode: 'normal',
       unique_points: 10, duplicate_points: 5, letters: 'AB', no_repeat: true,
-      server_now: Date.now(), players: [{ id: 1, nickname: 'Lova', score: 0, online: true, left: false }],
+      server_now: Date.now(), players: [
+        { id: 1, nickname: 'Lova', score: 0, online: true, left: false },
+        { id: 2, nickname: 'Narindra', score: 0, online: true, left: false },
+      ],
       history: [], round: { id: 7, number: 1, category: 'animal', letter: 'A', status: 'judging',
         started_at: Date.now() - 20000, answer_deadline: Date.now() - 5000, own_answer: '',
-        own_revision: 0, participating: true, ready: false, answers: [], comments },
+        own_revision: 0, participating: true, ready: false, answers: [
+          { id: 1, player_id: 1, answer: 'Antilope', flagged: false, invalid_reason: null, verdict: null, points: 0, tie_decision: null, referee_id: null, votes: { valid: 0, invalid: 0, uncertain: 0, count: 0, tied: false }, my_vote: null },
+          { id: 2, player_id: 2, answer: 'Aigle', flagged: false, invalid_reason: null, verdict: null, points: 0, tie_decision: null, referee_id: null, votes: { valid: 0, invalid: 0, uncertain: 0, count: 0, tied: false }, my_vote: null },
+        ], comments },
     } })
     if (path === '/api/rounds/7/comments') {
       posts++
@@ -33,6 +39,11 @@ test('chat sends by button and Enter without crypto.randomUUID', async ({ page }
 
   await page.goto('/')
   await expect(page.locator('#judging-comment')).toBeVisible()
+  const answers = await page.locator('.answer-cards').boundingBox()
+  const ranking = await page.locator('.judging-room .scoreboard').boundingBox()
+  const chat = await page.locator('.judging-chat').boundingBox()
+  expect(answers && ranking && chat && answers.x + answers.width < ranking.x).toBeTruthy()
+  expect(ranking && chat && ranking.y + ranking.height < chat.y).toBeTruthy()
   await page.locator('#judging-comment').fill('Salama')
   await page.locator('.chat-form button').click()
   await expect.poll(() => posts).toBe(1)
@@ -41,4 +52,8 @@ test('chat sends by button and Enter without crypto.randomUUID', async ({ page }
   await page.locator('#judging-comment').press('Enter')
   await expect.poll(() => posts).toBe(2)
   await expect(page.locator('.chat-messages').getByText('Manao ahoana')).toBeVisible()
+  await page.setViewportSize({ width: 390, height: 844 })
+  const mobileAnswers = await page.locator('.answer-cards').boundingBox()
+  const mobileRanking = await page.locator('.judging-room .scoreboard').boundingBox()
+  expect(mobileAnswers && mobileRanking && mobileAnswers.y + mobileAnswers.height < mobileRanking.y).toBeTruthy()
 })
