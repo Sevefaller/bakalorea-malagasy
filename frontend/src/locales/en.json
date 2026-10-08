@@ -113,6 +113,7 @@
   "stopText": "Answers are locked. Time to judge!",
   "judging": "Mitsara",
   "judgingCategoryLetter": "{category} starting with {letter}",
+  "judgingResponseCount": "{count} answers to judge",
   "judgingLetterCue": "Starts with the letter",
   "stopHeading": "STOP – answers locked",
   "judgingStopHelp": "Time to judge: vote on the other players’ answers.",

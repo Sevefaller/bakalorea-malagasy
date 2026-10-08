@@ -252,7 +252,7 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
         </aside>
       </main>
 
-      <main v-else-if="g" :class="['room-layout', { 'judging-room': round?.status === 'judging' }]">
+      <main v-else-if="g" :class="['room-layout', { 'judging-room': round?.status === 'judging', 'dense-judging': round?.status === 'judging' && (round.answers?.length ?? 0) >= 6 }]">
         <div v-if="store.disconnected" class="connection-banner" role="status"><WifiOff :size="18"/>{{ t('connectionLost') }}</div>
         <div v-if="roomNotice" class="room-notice" role="status">{{ roomNotice }}</div>
         <div class="room-topline"><div class="breadcrumbs">{{ t('room') }} <span>/</span> <strong>{{ g.name }}</strong></div><button class="text-button" @click="leaveDialog?.showModal()"><LogOut :size="17"/>{{ t('leave') }}</button></div>
@@ -273,7 +273,7 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
           </template>
 
           <template v-else-if="round">
-            <div class="round-title"><span class="eyebrow">{{ t('round') }} {{ String(round.number).padStart(2,'0') }}</span><span class="pill" :class="{ 'judging-category-pill': round.status === 'judging' }">{{ round.status === 'judging' ? t('judgingCategoryLetter', { category: t(`category.${round.category}`), letter: round.letter }) : t(`category.${round.category}`) }}</span></div>
+            <div class="round-title"><span class="eyebrow">{{ t('round') }} {{ String(round.number).padStart(2,'0') }}</span><span class="pill" :class="{ 'judging-category-pill': round.status === 'judging' }">{{ round.status === 'judging' ? t('judgingCategoryLetter', { category: t(`category.${round.category}`), letter: round.letter }) : t(`category.${round.category}`) }}</span><span v-if="round.status === 'judging' && (round.answers?.length ?? 0) >= 6" class="judging-player-count">{{ t('judgingResponseCount', { count: round.answers?.length ?? 0 }) }}</span></div>
             <div v-if="round.status === 'answering'" :class="['card play-card', { urgent: seconds <= 5 && !spinning }]">
               <div class="play-top"><h2>{{ t(spinning ? 'getReady' : seconds === 0 ? 'stop' : 'yourTurn') }}</h2><div v-if="!spinning" class="timer" role="timer" :aria-label="t('duration')"><Timer :size="20"/><strong>{{ seconds }}</strong><span>s</span></div></div>
               <div class="letter-stage"><p>{{ t(spinning ? 'spin' : 'startsWith') }}</p><div :class="['letter-tile', { spinning }]" data-testid="letter">{{ spinning ? spinLetter : round.letter }}</div><h2>{{ t(`category.${round.category}`) }}</h2></div>

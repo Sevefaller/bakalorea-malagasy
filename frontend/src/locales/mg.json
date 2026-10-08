@@ -113,6 +113,7 @@
   "stopText": "Mihidy ny valiny. Andao hitsara!",
   "judging": "Mitsara",
   "judgingCategoryLetter": "{category} manomboka amin’ny {letter}",
+  "judgingResponseCount": "Valiny {count} hotsaraina",
   "judgingLetterCue": "Manomboka amin’ny litera",
   "stopHeading": "STOP – mihidy ny valiny",
   "judgingStopHelp": "Fotoana hitsarana: fidio ny valin’ny mpilalao hafa.",

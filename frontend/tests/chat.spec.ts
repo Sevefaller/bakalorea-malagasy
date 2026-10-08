@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test'
 test('chat sends by button and Enter without crypto.randomUUID', async ({ page }) => {
   const comments: { id: number; player_id: number; client_id: string; body: string; created_at: string }[] = []
   let posts = 0
+  let playerCount = 2
   await page.addInitScript(() => {
     localStorage.setItem('bakalorea.token', 'test-token')
     localStorage.setItem('bakalorea.code', 'TEST12')
@@ -16,16 +17,17 @@ test('chat sends by button and Enter without crypto.randomUUID', async ({ page }
       id: 1, code: 'TEST12', name: 'Test', status: 'playing', host_id: 1, winner_id: null,
       me_id: 1, target_score: 200, answer_duration: 15, anti_cheat_mode: 'normal',
       unique_points: 10, duplicate_points: 5, letters: 'AB', no_repeat: true,
-      server_now: Date.now(), players: [
-        { id: 1, nickname: 'Lova', score: 0, online: true, left: false },
-        { id: 2, nickname: 'Narindra', score: 0, online: true, left: false },
-      ],
+      server_now: Date.now(), players: Array.from({ length: playerCount }, (_, index) => ({
+        id: index + 1, nickname: index === 0 ? 'Lova' : index === 1 ? 'Narindra' : `Joueur ${index + 1}`,
+        score: 0, online: true, left: false,
+      })),
       history: [], round: { id: 7, number: 1, category: 'animal', letter: 'A', status: 'judging',
         started_at: Date.now() - 20000, answer_deadline: Date.now() - 5000, own_answer: '',
-        own_revision: 0, participating: true, ready: false, answers: [
-          { id: 1, player_id: 1, answer: 'Antilope', flagged: false, invalid_reason: null, verdict: null, points: 0, tie_decision: null, referee_id: null, votes: { valid: 0, invalid: 0, uncertain: 0, count: 0, tied: false }, my_vote: null },
-          { id: 2, player_id: 2, answer: 'Aigle', flagged: false, invalid_reason: null, verdict: null, points: 0, tie_decision: null, referee_id: null, votes: { valid: 0, invalid: 0, uncertain: 0, count: 0, tied: false }, my_vote: null },
-        ], comments },
+        own_revision: 0, participating: true, ready: false, answers: Array.from({ length: playerCount }, (_, index) => ({
+          id: index + 1, player_id: index + 1, answer: index === 0 ? 'Antilope' : index === 1 ? 'Aigle' : `Animal ${index + 1}`,
+          flagged: false, invalid_reason: null, verdict: null, points: 0, tie_decision: null, referee_id: null,
+          votes: { valid: 0, invalid: 0, uncertain: 0, count: 0, tied: false }, my_vote: null,
+        })), comments },
     } })
     if (path === '/api/rounds/7/comments') {
       posts++
@@ -56,4 +58,17 @@ test('chat sends by button and Enter without crypto.randomUUID', async ({ page }
   const mobileAnswers = await page.locator('.answer-cards').boundingBox()
   const mobileRanking = await page.locator('.judging-room .scoreboard').boundingBox()
   expect(mobileAnswers && mobileRanking && mobileAnswers.y + mobileAnswers.height < mobileRanking.y).toBeTruthy()
+
+  playerCount = 12
+  await page.setViewportSize({ width: 1280, height: 720 })
+  await page.reload()
+  await expect(page.locator('.judging-room.dense-judging .judgment-card')).toHaveCount(12)
+  const scrollArea = page.locator('.answer-cards')
+  expect(await scrollArea.evaluate(element => element.scrollHeight > element.clientHeight)).toBeTruthy()
+  await page.locator('.judgment-card').last().scrollIntoViewIfNeeded()
+  await expect(page.locator('.judgment-card').last()).toBeInViewport()
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  expect(await scrollArea.evaluate(element => getComputedStyle(element).overflowY)).toBe('visible')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy()
 })

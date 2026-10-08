@@ -113,6 +113,7 @@
   "stopText": "Les réponses sont verrouillées. Place au jugement !",
   "judging": "Mitsara",
   "judgingCategoryLetter": "{category} qui commence par {letter}",
+  "judgingResponseCount": "{count} réponses à juger",
   "judgingLetterCue": "Commence par la lettre",
   "stopHeading": "STOP – réponses verrouillées",
   "judgingStopHelp": "Place au jugement : votez sur les réponses des autres joueurs.",

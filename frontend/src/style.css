@@ -139,6 +139,20 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline-color:#65a99b
 @media(max-width:800px){.judging-room{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "round" "heading" "banner" "answers" "scoreboard" "chat" "actions";gap:13px;max-width:640px}.judging-room .judging-chat{height:330px;min-height:250px}.judging-room .room-topline{margin-bottom:5px}}
 @media(max-width:460px){.judging-room .judging-heading h1{font-size:2.5rem}.judging-letter-card{width:104px;min-height:75px}.judging-letter-card span{font-size:.6rem;white-space:normal}.judging-letter-card strong{font-size:2.3rem}.judging-room .stop-banner{padding:11px 12px}.judging-room .vote{font-size:.7rem}.judging-room .scoreboard>.hint{position:static;margin:0 0 8px}.judging-room .judging-chat{height:300px}}
 
+/* Keep every answer reachable without making twelve-player judging excessively tall. */
+.judging-room .judging-player-count{margin-left:auto;color:#5d6d78;font-size:.75rem;font-weight:700}
+.judging-room.dense-judging .answer-cards{max-height:min(72vh,720px);overflow-y:auto;overscroll-behavior:contain;padding-right:8px;scrollbar-width:thin;scrollbar-color:#8bbdb5 transparent}
+.judging-room.dense-judging .judgment-card{padding:12px 15px}
+.judging-room.dense-judging .revealed-answer{margin:8px 0;font-size:1.3rem}
+.judging-room.dense-judging .vote{min-height:36px;padding:7px 4px}
+.judging-room.dense-judging .vote-counts{margin-top:8px}
+.judging-room.dense-judging .scoreboard{max-height:280px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#8bbdb5 transparent}
+.judging-room.dense-judging .rank-row{padding:5px 0 4px}
+.judging-room.dense-judging .judging-chat{height:370px;min-height:280px}
+@media(max-width:800px){.judging-room.dense-judging .answer-cards{max-height:none;overflow:visible;padding-right:0}.judging-room.dense-judging .scoreboard{max-height:none;overflow:visible}.judging-room.dense-judging .judging-chat{height:330px}}
+@media(max-width:800px){.judging-room.dense-judging .judgment-card{padding:10px 12px}.judging-room.dense-judging .judgment-top .avatar-small{width:25px;height:25px}.judging-room.dense-judging .revealed-answer{margin:5px 0;font-size:1.16rem}.judging-room.dense-judging .vote{min-height:33px;font-size:.7rem}.judging-room.dense-judging .vote-counts{margin-top:6px}}
+@media(max-width:460px){.judging-room .judging-player-count{width:100%;margin-left:0}.judging-room.dense-judging .judging-chat{height:300px}}
+
 .home-intro{max-width:48ch}
 .mission-toggle,.rule-link{display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--accent);font-size:.8rem;font-weight:700;padding:5px 0}
 .mission-toggle{margin-top:7px}
