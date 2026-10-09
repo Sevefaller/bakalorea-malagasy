@@ -52,6 +52,7 @@ Sur le même Wi-Fi, ouvrir `http://ADRESSE-IP-DU-PC:8088` pour Docker (ou le por
 - Votes valide / incorrect / incertain, arbitrage des égalités et détection des doublons.
 - Barème configurable, classement, victoire, manches de départage et historique.
 - Journal de sorties d’écran ; modes souple, normal et strict.
+- Guide intégré accessible par un bouton flottant : réponses issues des règles et des données de la partie (code, score, joueurs, manche, chrono), en malgache, français et anglais, sans service externe.
 - Manifeste PWA, icônes, service worker et page hors connexion. Une partie nécessite Internet.
 - Tests automatisés du serveur et du parcours navigateur.
 

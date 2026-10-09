@@ -5,6 +5,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { Users, Plus, KeyRound, ChevronDown, Settings2, Trophy, Timer, ShieldCheck, Check, X, HelpCircle, Copy, Crown, LogOut, Volume2, VolumeX, Globe2, Sparkles, LockKeyhole, Leaf, Apple, MapPin, Mic2, Music2, UserRound, Flag, CheckCircle2, Download, RotateCcw, History, WifiOff, MessageCircle, Send } from 'lucide-vue-next'
 import { makeUuid, useGame } from './store'
 import { soundOn, soundBlocked, toggleSound, unlockSound, playSound } from './sound'
+import HelpAgent from './HelpAgent.vue'
 
 const { t, te, locale } = useI18n(), store = useGame(), router = useRouter(), route = useRoute()
 const mode = ref('create'), advanced = ref(false), rulesDialog = ref<HTMLDialogElement>(), leaveDialog = ref<HTMLDialogElement>()
@@ -107,6 +108,27 @@ const tiedLeaders = computed(() => ranking.value.length > 1 && ranking.value[0].
 const playerName = (id: number | null) => g.value?.players.find(p => p.id === id)?.nickname || '—'
 const initials = (name: string) => name.slice(0, 2).toUpperCase()
 const reasonLabel = (reason: string) => t(({ empty: 'emptyReason', letter: 'letterReason', strict: 'strictReason' } as Record<string,string>)[reason] || 'invalid')
+const guideTipKey = computed(() => {
+  if (store.disconnected) return 'guide.disconnected'
+  if (!inRoom.value || !g.value) return mode.value === 'join' ? 'guide.join' : 'guide.create'
+  if (g.value.status === 'finished') return 'guide.finished'
+  if (g.value.status === 'lobby') return onlineCount.value < 2 ? 'guide.invite' : store.isHost ? 'guide.start' : 'guide.waitHost'
+  if (!round.value) return 'guide.waitHost'
+  if (round.value.status === 'answering') {
+    if (spinning.value) return 'guide.spin'
+    if (!round.value.participating) return 'guide.spectate'
+    if (savedState.value === 'notSaved') return 'guide.retrySave'
+    return savedState.value === 'saved' ? 'guide.saved' : 'guide.answer'
+  }
+  if (round.value.status === 'judging') {
+    if (round.value.answers?.some(a => !a.invalid_reason && a.votes.tied && a.tie_decision === null && a.referee_id === g.value?.me_id && round.value?.ready)) return 'guide.decide'
+    if (round.value.answers?.some(a => !a.invalid_reason && a.player_id !== g.value?.me_id && round.value?.participating && !a.my_vote)) return 'guide.vote'
+    if (!round.value.ready) return 'guide.waitVotes'
+    return store.isHost ? 'guide.showResults' : 'guide.waitResults'
+  }
+  return store.isHost ? 'guide.nextRound' : 'guide.waitNext'
+})
+const guideTip = computed(() => t(guideTipKey.value, { category: round.value ? t(`category.${round.value.category}`) : '', letter: round.value?.letter || '' }))
 
 watch(locale, value => { localStorage.setItem('bakalorea.locale', value); document.documentElement.lang = value })
 watch(() => round.value?.id, async () => { draft.value = round.value?.own_answer || ''; commentDraft.value = ''; pendingComment.value = null; revision.value = round.value?.own_revision || 0; savedState.value = draft.value ? 'saved' : ''; lastBeep = -1; away = false; if (spinning.value) { await unlockSound(); playSound('start') } await nextTick() })
@@ -303,6 +325,7 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
     </template>
 
     <footer><span>BAKALOREA <span class="footer-dot">✳</span> {{ t('footer') }}</span><span class="developer-credit">Développer par RATIAZAFY Séverin</span><a class="text-button" href="/admin">Admin</a><button class="text-button" @click="rulesDialog?.showModal()">{{ t('rules') }}</button></footer>
+    <HelpAgent :context-tip="guideTip" :game="g || null" :remaining-seconds="seconds" />
     <div v-if="soundBlocked" class="sound-notice" role="status">{{ t('soundBlocked') }}</div>
     <dialog ref="rulesDialog" class="modal"><div class="modal-heading"><h2>{{ t('rulesTitle') }}</h2><button class="icon-button" :aria-label="t('close')" @click="rulesDialog?.close()"><X :size="20"/></button></div><div v-for="n in 3" :key="n" class="modal-rule"><h3>{{ n }}. {{ t(`rule${n}Title`) }}</h3><p>{{ t(`rule${n}`) }}</p></div><p>{{ t('scoring') }}</p><p>{{ t('tieHelp') }}</p><button class="primary full" @click="rulesDialog?.close()">{{ t('close') }}</button></dialog>
     <dialog ref="leaveDialog" class="modal"><h2>{{ t('leaveTitle') }}</h2><p>{{ t('leaveText') }}</p><div class="dialog-actions"><button class="secondary" @click="leaveDialog?.close()">{{ t('cancel') }}</button><button class="primary" :disabled="store.busy" @click="leave">{{ t('leave') }}</button></div></dialog>
