@@ -10,7 +10,7 @@
 
 ## Validation
 
-- Pendant « Mitsara », chaque réponse admissible propose une recherche Google préremplie avec la catégorie et la réponse. Les joueurs peuvent consulter les sources et corriger leur vote avant la clôture. La recherche ne détermine pas automatiquement le verdict : les résultats peuvent être ambigus ou incomplets.
+- Pendant « Mitsara », chaque réponse admissible propose un bouton « Vérifier sur Google » qui ouvre une recherche préremplie avec la catégorie et la réponse du joueur. Son usage est facultatif et ne change pas le vote. Cette recherche gratuite ne décide pas automatiquement du verdict : les résultats peuvent être ambigus ou incomplets.
 
 - Une réponse vide, commençant par une autre lettre, ou signalée en mode strict reçoit automatiquement zéro.
 - La casse, les accents et les espaces supplémentaires sont ignorés pour comparer les doublons. Les signes de ponctuation restent significatifs.

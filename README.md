@@ -50,6 +50,7 @@ Sur le même Wi-Fi, ouvrir `http://ADRESSE-IP-DU-PC:8088` pour Docker (ou le por
 - Modes 10 / 15 / 30 secondes, compte à rebours fondé sur l’heure du serveur, sons.
 - Sauvegarde avec numéros de révision, reprise de session, réponses privées avant STOP.
 - Votes valide / incorrect / incertain, arbitrage des égalités et détection des doublons.
+- Pendant « Mitsara », le bouton « Vérifier sur Google » ouvre gratuitement une recherche préremplie pour la réponse du joueur et sa catégorie. Le joueur choisit librement de l'utiliser ; les votes restent inchangés. Aucun compte API ni paiement n'est nécessaire.
 - Barème configurable, classement, victoire, manches de départage et historique.
 - Journal de sorties d’écran ; modes souple, normal et strict.
 - Guide intégré accessible par un bouton flottant : réponses issues des règles et des données de la partie (code, score, joueurs, manche, chrono), en malgache, français et anglais, sans service externe.
