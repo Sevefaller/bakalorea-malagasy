@@ -172,6 +172,7 @@
   "judgingStopHelp": "Fotoana hitsarana: fidio ny valin’ny mpilalao hafa.",
   "judgingText": "Mety ve io valiny io? Ianareo no manapa-kevitra.",
   "googleCheck": "Hamarino amin'ny Google",
+  "googleCheckQuery": "Ao amin'ny sokajy « {category} » ve ny « {answer} »? eny sa tsia",
   "googleCheckAnswer": "Karohy ao amin'ny Google ny « {answer} » mba hanamarinana ny valiny",
   "valid": "Ekena",
   "invalid": "Diso",

@@ -172,6 +172,7 @@
   "judgingStopHelp": "Place au jugement : votez sur les réponses des autres joueurs.",
   "judgingText": "Est-ce que ça compte ? À vous de décider.",
   "googleCheck": "Vérifier sur Google",
+  "googleCheckQuery": "Est-ce que « {answer} » appartient à la catégorie « {category} » ? oui ou non",
   "googleCheckAnswer": "Rechercher « {answer} » sur Google pour vérifier la réponse",
   "valid": "Valide",
   "invalid": "Incorrect",

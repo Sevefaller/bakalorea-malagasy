@@ -66,7 +66,7 @@ test('complete two-player game with private answers, voting and victory', async 
   await expect(host.getByTestId('judging-category')).toHaveText(category)
   const googleCheck = host.getByRole('link', { name: `Rechercher « ${letter}ob » sur Google pour vérifier la réponse` })
   await expect(googleCheck).toHaveAttribute('target', '_blank')
-  await expect(googleCheck).toHaveAttribute('href', `https://www.google.com/search?q=${encodeURIComponent(`${category} ${letter}ob`)}`)
+  await expect(googleCheck).toHaveAttribute('href', `https://www.google.com/search?q=${encodeURIComponent(`Est-ce que « ${letter}ob » appartient à la catégorie « ${category} » ? oui ou non`)}`)
   await host.locator('#judging-comment').fill('Salama')
   await host.locator('.chat-form button').click()
   await expect(host.locator('.chat-messages').getByText('Salama')).toBeVisible()

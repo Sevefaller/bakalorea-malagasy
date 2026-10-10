@@ -172,6 +172,7 @@
   "judgingStopHelp": "Time to judge: vote on the other players’ answers.",
   "judgingText": "Does that count? You decide.",
   "googleCheck": "Check on Google",
+  "googleCheckQuery": "Does “{answer}” belong to the “{category}” category? yes or no",
   "googleCheckAnswer": "Search Google for “{answer}” to check this answer",
   "valid": "Valid",
   "invalid": "Incorrect",

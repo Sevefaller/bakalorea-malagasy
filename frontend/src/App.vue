@@ -108,7 +108,7 @@ const tiedLeaders = computed(() => ranking.value.length > 1 && ranking.value[0].
 const playerName = (id: number | null) => g.value?.players.find(p => p.id === id)?.nickname || '—'
 const initials = (name: string) => name.slice(0, 2).toUpperCase()
 const reasonLabel = (reason: string) => t(({ empty: 'emptyReason', letter: 'letterReason', strict: 'strictReason' } as Record<string,string>)[reason] || 'invalid')
-const googleSearchUrl = (answer: string) => `https://www.google.com/search?q=${encodeURIComponent(`${t(`category.${round.value?.category}`)} ${answer.trim()}`)}`
+const googleSearchUrl = (answer: string) => `https://www.google.com/search?q=${encodeURIComponent(t('googleCheckQuery', { answer: answer.trim(), category: t(`category.${round.value?.category}`) }))}`
 const guideTipKey = computed(() => {
   if (store.disconnected) return 'guide.disconnected'
   if (!inRoom.value || !g.value) return mode.value === 'join' ? 'guide.join' : 'guide.create'
