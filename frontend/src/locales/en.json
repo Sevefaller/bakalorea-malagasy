@@ -1,4 +1,5 @@
 {
+  "reactions": { "title": "React to this answer", "like": "Like", "love": "Love", "haha": "Haha", "wow": "Wow", "sad": "Sad", "angry": "Angry" },
   "tagline": "Letters, laughter & family",
   "guide": {
     "create": "Enter your nickname, choose the settings, then create a room. Share its code with your friends.",

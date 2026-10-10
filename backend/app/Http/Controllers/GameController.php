@@ -58,6 +58,12 @@ class GameController extends Controller {
     public function answer(Request $r,Round $round) { $p=$this->member($r,$round->game); $v=$r->validate(['answer'=>'present|nullable|string|max:120','revision'=>'required|integer|min:1|max:100000']); $this->engine->answer($round,$p,$v['answer']??'',$v['revision']); return response()->json(['ok'=>true,'revision'=>$v['revision']]); }
     public function vote(Request $r,Answer $answer) { $p=$this->member($r,$answer->round->game); $v=$r->validate(['vote'=>'required|in:valid,invalid,uncertain']); $this->engine->vote($answer,$p,$v['vote']); return response()->json(['ok'=>true]); }
     public function decide(Request $r,Answer $answer) { $p=$this->member($r,$answer->round->game); $v=$r->validate(['valid'=>'required|boolean']); $this->engine->decide($answer,$p,$v['valid']); return response()->json(['ok'=>true]); }
+    public function react(Request $r,Answer $answer) {
+        $p=$this->member($r,$answer->round->game);
+        $v=$r->validate(['reaction'=>'present|nullable|in:like,love,haha,wow,sad,angry']);
+        $this->engine->react($answer,$p,$v['reaction']);
+        return response()->json(['ok'=>true]);
+    }
     public function comment(Request $r,Round $round) {
         $p=$this->member($r,$round->game);
         $v=$r->validate(['body'=>'required|string|max:300','client_id'=>'sometimes|uuid']);

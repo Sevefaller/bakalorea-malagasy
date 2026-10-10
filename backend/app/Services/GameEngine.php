@@ -105,6 +105,17 @@ class GameEngine {
         $this->notify($answer->round->game,'VoteUpdated');
     }
 
+    public function react(Answer $answer, GamePlayer $player, ?string $reaction): void {
+        $this->locked($answer->round->game, function () use ($answer,$player,$reaction) {
+            $round = $answer->round()->first();
+            abort_unless($round->status === 'judging',409,'not_judging');
+            $key = ['answer_id'=>$answer->id,'player_id'=>$player->id];
+            if ($reaction === null) DB::table('answer_reactions')->where($key)->delete();
+            else DB::table('answer_reactions')->updateOrInsert($key,['reaction'=>$reaction]);
+        });
+        $this->notify($answer->round->game,'ReactionUpdated');
+    }
+
     public function comment(Round $round, GamePlayer $player, string $body, string $clientId): array {
         $result = $this->locked($round->game, function () use ($round,$player,$body,$clientId) {
             $round->refresh();
@@ -217,7 +228,7 @@ class GameEngine {
                     $referee = $this->referee($game,$a);
                     $decision = $a->tie_decision;
                     if ($referee === null && now()->gte($a->round->answer_deadline->copy()->addSeconds(30))) $decision = false;
-                    return ['id'=>$a->id,'player_id'=>$a->player_id,'answer'=>$a->answer,'flagged'=>$game->anti_cheat_mode !== 'soft' && $a->flagged,'invalid_reason'=>$a->invalid_reason,'verdict'=>$a->verdict,'points'=>$a->points_awarded,'tie_decision'=>$decision,'referee_id'=>$referee,'votes'=>$this->tally($a),'my_vote'=>DB::table('votes')->where('answer_id',$a->id)->where('voter_player_id',$player->id)->value('vote')];
+                    return ['id'=>$a->id,'player_id'=>$a->player_id,'answer'=>$a->answer,'flagged'=>$game->anti_cheat_mode !== 'soft' && $a->flagged,'invalid_reason'=>$a->invalid_reason,'verdict'=>$a->verdict,'points'=>$a->points_awarded,'tie_decision'=>$decision,'referee_id'=>$referee,'votes'=>$this->tally($a),'reactions'=>DB::table('answer_reactions')->where('answer_id',$a->id)->get()->countBy('reaction')->all(),'my_reaction'=>DB::table('answer_reactions')->where('answer_id',$a->id)->where('player_id',$player->id)->value('reaction'),'my_vote'=>DB::table('votes')->where('answer_id',$a->id)->where('voter_player_id',$player->id)->value('vote')];
                 })->values();
             }
             $data['history'] = $game->rounds()->where('status','finished')->orderByDesc('number')->limit(50)->get()->map(fn ($r) => ['number'=>$r->number,'letter'=>$r->letter,'category'=>DB::table('categories')->where('id',$r->category_id)->value('code'),'answers'=>$r->answers()->get(['player_id','answer','points_awarded','verdict'])]);

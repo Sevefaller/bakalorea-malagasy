@@ -1,4 +1,5 @@
 {
+  "reactions": { "title": "Réagir à cette réponse", "like": "J’aime", "love": "J’adore", "haha": "Haha", "wow": "Wouah", "sad": "Triste", "angry": "Grrr" },
   "tagline": "Lettres, rires & famille",
   "guide": {
     "create": "Saisis ton pseudo, choisis les réglages puis crée une salle. Partage ensuite son code avec tes proches.",

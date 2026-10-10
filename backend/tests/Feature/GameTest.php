@@ -41,6 +41,39 @@ class GameTest extends TestCase {
     }
     private function submit(Round $round,array $headers,string $text,int $revision=1) { return $this->patchJson('/api/rounds/'.$round->id.'/answer',['answer'=>$text,'revision'=>$revision],$headers); }
 
+    public function test_reactions_are_shared_replaceable_and_removable_without_affecting_votes(): void {
+        $round=$this->startRound();
+        $this->submit($round,$this->host,$round->letter.'ina')->assertOk();
+        $this->submit($round,$this->guest,$round->letter.'ilo')->assertOk();
+        $answer=$round->answers()->first();
+        $url='/api/answers/'.$answer->id.'/reactions';
+        $this->postJson($url,['reaction'=>'haha'],$this->guest)->assertStatus(409);
+        $this->stopRound($round);
+        $this->postJson($url,['reaction'=>'haha'],$this->guest)->assertOk();
+        $this->postJson($url,['reaction'=>'haha'],$this->guest)->assertOk();
+        $this->getJson('/api/games/'.$this->code,$this->host)->assertJsonPath('round.answers.0.reactions.haha',1)->assertJsonPath('round.answers.0.my_reaction',null);
+        $this->getJson('/api/games/'.$this->code,$this->guest)->assertJsonPath('round.answers.0.my_reaction','haha');
+        $this->postJson($url,['reaction'=>'love'],$this->guest)->assertOk();
+        $this->assertDatabaseCount('answer_reactions',1);
+        $this->assertDatabaseHas('answer_reactions',['answer_id'=>$answer->id,'reaction'=>'love']);
+        $this->assertDatabaseCount('votes',0);
+        $this->assertFalse(app(GameEngine::class)->ready($round));
+        $this->postJson($url,['reaction'=>'unknown'],$this->guest)->assertUnprocessable();
+        $this->postJson($url,['reaction'=>null],$this->guest)->assertOk();
+        $this->assertDatabaseCount('answer_reactions',0);
+        $round->update(['status'=>'finished']);
+        $this->postJson($url,['reaction'=>'like'],$this->guest)->assertStatus(409);
+    }
+
+    public function test_reactions_from_another_game_are_forbidden(): void {
+        $round=$this->startRound();
+        $this->stopRound($round);
+        $session=(string)Str::uuid();
+        $other=$this->postJson('/api/games',['nickname'=>'Other','locale'=>'fr','session_id'=>$session,'name'=>'Other game','target_score'=>20,'answer_duration'=>15,'anti_cheat_mode'=>'normal','letters'=>'AB','no_repeat'=>true,'unique_points'=>10,'duplicate_points'=>5])->assertCreated()->json();
+        $this->postJson('/api/answers/'.$round->answers()->first()->id.'/reactions',['reaction'=>'haha'],['Authorization'=>'Bearer '.$other['token'],'X-Session-ID'=>$session])->assertForbidden();
+        $this->assertDatabaseCount('answer_reactions',0);
+    }
+
     public function test_answers_are_private_before_stop_and_revealed_after(): void {
         $round=$this->startRound(); $this->submit($round,$this->host,$round->letter.'lina')->assertOk();
         $json=$this->getJson('/api/games/'.$this->code,$this->guest)->assertOk()->json();

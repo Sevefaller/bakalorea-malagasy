@@ -28,6 +28,7 @@ Route::middleware(['auth:sanctum','throttle:game-requests'])->group(function () 
         // Keep action limits separate from the room's frequent status polling.
         Route::patch('/rounds/{round}/answer',[GameController::class,'answer'])->middleware('throttle:game-answers');
         Route::post('/answers/{answer}/votes',[GameController::class,'vote']);
+        Route::post('/answers/{answer}/reactions',[GameController::class,'react']);
         Route::post('/answers/{answer}/decision',[GameController::class,'decide']);
         Route::post('/rounds/{round}/comments',[GameController::class,'comment'])->middleware('throttle:round-comments');
         Route::post('/rounds/{round}/finish-judging',[GameController::class,'finish']);

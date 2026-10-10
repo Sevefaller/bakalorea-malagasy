@@ -4,7 +4,8 @@ import Echo from 'laravel-echo'
 import Pusher from 'pusher-js'
 
 export interface Player { id: number; nickname: string; score: number; online: boolean; left: boolean }
-export interface Answer { id: number; player_id: number; answer: string; flagged: boolean; invalid_reason: string | null; verdict: boolean | null; points: number; tie_decision: boolean | null; referee_id: number | null; votes: { valid: number; invalid: number; uncertain: number; count: number; tied: boolean }; my_vote: string | null }
+export type Reaction = 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
+export interface Answer { reactions: Partial<Record<Reaction, number>>; my_reaction: Reaction | null; id: number; player_id: number; answer: string; flagged: boolean; invalid_reason: string | null; verdict: boolean | null; points: number; tie_decision: boolean | null; referee_id: number | null; votes: { valid: number; invalid: number; uncertain: number; count: number; tied: boolean }; my_vote: string | null }
 export interface RoundComment { id: number; player_id: number; client_id: string | null; body: string; created_at: string }
 export interface Round { id: number; number: number; category: string; letter: string; status: string; started_at: number; answer_deadline: number; own_answer: string; own_revision: number; participating: boolean; ready: boolean; answers?: Answer[]; comments?: RoundComment[] }
 export interface Game { id: number; code: string; name: string; status: string; host_id: number; winner_id: number | null; me_id: number; target_score: number; answer_duration: number; anti_cheat_mode: string; unique_points: number; duplicate_points: number; letters: string; no_repeat: boolean; server_now: number; players: Player[]; round: Round | null; history: { number: number; letter: string; category: string; answers: { player_id: number; answer: string; points_awarded: number; verdict: boolean }[] }[] }

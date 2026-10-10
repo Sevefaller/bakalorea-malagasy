@@ -214,3 +214,12 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline-color:#65a99b
 .room-notice{grid-column:1/-1;padding:10px 14px;margin-bottom:12px;border:1px solid #c6dfd0;border-radius:9px;background:#eff8f2;color:#2a7054;font-size:.8rem;font-weight:600}
 .left-status{display:block;margin-top:3px;color:#a16b5b!important;font-size:.69rem!important}
 @media(max-width:460px){.resume-room{align-items:flex-start;flex-direction:column}.resume-room .secondary{width:100%}}
+.answer-reactions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.reaction-button { display: inline-flex; align-items: center; gap: 5px; padding: 6px 9px; border: 1px solid var(--border); border-radius: 20px; background: transparent; color: inherit; font: inherit; font-size: 12px; cursor: pointer; transition: background .15s, transform .15s; }
+.reaction-button:hover:not(:disabled) { background: #eff8f5; transform: translateY(-2px); }
+.reaction-button.selected { background: #e4f3ee; border-color: var(--accent); color: var(--accent); }
+.reaction-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.reaction-button:disabled { opacity: .55; cursor: default; }
+.reaction-emoji { font-size: 20px; line-height: 1.2; }
+.reaction-count { font-weight: 700; }
+@media (max-width: 600px) { .reaction-label { display: none; } .reaction-button { min-width: 38px; min-height: 40px; justify-content: center; } }
