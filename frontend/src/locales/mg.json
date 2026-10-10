@@ -171,6 +171,8 @@
   "stopHeading": "STOP – mihidy ny valiny",
   "judgingStopHelp": "Fotoana hitsarana: fidio ny valin’ny mpilalao hafa.",
   "judgingText": "Mety ve io valiny io? Ianareo no manapa-kevitra.",
+  "googleCheck": "Hamarino amin'ny Google",
+  "googleCheckAnswer": "Karohy ao amin'ny Google ny « {answer} » mba hanamarinana ny valiny",
   "valid": "Ekena",
   "invalid": "Diso",
   "uncertain": "Tsy azo antoka",

@@ -171,6 +171,8 @@
   "stopHeading": "STOP – réponses verrouillées",
   "judgingStopHelp": "Place au jugement : votez sur les réponses des autres joueurs.",
   "judgingText": "Est-ce que ça compte ? À vous de décider.",
+  "googleCheck": "Vérifier sur Google",
+  "googleCheckAnswer": "Rechercher « {answer} » sur Google pour vérifier la réponse",
   "valid": "Valide",
   "invalid": "Incorrect",
   "uncertain": "Incertain",
