@@ -202,13 +202,17 @@ class GameEngine {
             abort_unless($round->status === 'answering' && now()->gte($round->started_at) && now()->lt($round->answer_deadline),409,'answer_closed');
             $answer = $round->answers()->where('player_id',$player->id)->firstOrFail();
             $events = DB::table('anti_cheat_events')->where('round_id',$round->id)->where('player_id',$player->id)->whereNull('ended_at');
-            if ($type === 'away') {
+            if ($type === 'paste') {
+                DB::table('anti_cheat_events')->insert(['round_id'=>$round->id,'player_id'=>$player->id,'event_type'=>'paste','started_at'=>now(),'ended_at'=>now(),'duration_ms'=>0]);
+                $answer->update(['flagged'=>true]);
+            } elseif ($type === 'away') {
                 if (!$events->exists()) DB::table('anti_cheat_events')->insert(['round_id'=>$round->id,'player_id'=>$player->id,'event_type'=>'away','started_at'=>now()]);
                 $answer->update(['flagged'=>true]);
             } else {
                 foreach ($events->get() as $event) $events->where('id',$event->id)->update(['ended_at'=>now(),'duration_ms'=>max(0,(int)\Carbon\Carbon::parse($event->started_at)->diffInMilliseconds(now()))]);
             }
         });
+        $this->notify($round->game, 'AntiCheatChanged');
     }
 
     public function snapshot(Game $game, GamePlayer $player): array {
@@ -217,6 +221,8 @@ class GameEngine {
             $round = $game->rounds()->latest('number')->first();
             $data = ['id'=>$game->id,'code'=>$game->code,'name'=>$game->name,'status'=>$game->status,'host_id'=>$game->host_id,'winner_id'=>$game->winner_id,'target_score'=>$game->target_score,'answer_duration'=>$game->answer_duration,'anti_cheat_mode'=>$game->anti_cheat_mode,'unique_points'=>$game->unique_points,'duplicate_points'=>$game->duplicate_points,'letters'=>$game->letters,'no_repeat'=>$game->no_repeat,'me_id'=>$player->id,'server_now'=>now()->getTimestampMs(),'players'=>$players->map(fn ($p) => ['id'=>$p->id,'nickname'=>$p->nickname,'score'=>$p->score,'left'=>(bool)$p->left_at,'online'=>!$p->left_at && $p->last_seen_at?->gte(now()->subSeconds(45))])->values(),'round'=>null];
             if ($round) {
+                $alerts = $game->anti_cheat_mode === 'soft' ? [] : DB::table('anti_cheat_events')->where('round_id',$round->id)->select('player_id','event_type')->selectRaw('COUNT(*) AS count')->groupBy('player_id','event_type')->get();
+                $data['anti_cheat_alerts'] = $alerts;
                 $own = $round->answers()->where('player_id',$player->id)->first();
                 $data['round'] = ['id'=>$round->id,'number'=>$round->number,'category'=>DB::table('categories')->where('id',$round->category_id)->value('code'),'letter'=>$round->letter,'status'=>$round->status,'started_at'=>$round->started_at->getTimestampMs(),'answer_deadline'=>$round->answer_deadline->getTimestampMs(),'own_answer'=>$own?->answer ?? '','own_revision'=>$own?->revision ?? 0,'participating'=>(bool)$own,'ready'=>$round->status === 'judging' && $this->ready($round)];
                 if ($round->status === 'judging') {

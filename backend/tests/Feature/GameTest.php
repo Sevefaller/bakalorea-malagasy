@@ -159,6 +159,44 @@ class GameTest extends TestCase {
         $this->assertSame('strict',$round->answers()->first()->invalid_reason);
         $this->assertGreaterThanOrEqual(2000,DB::table('anti_cheat_events')->value('duration_ms'));
     }
+    public function test_game_creation_defaults_to_strict_mode(): void {
+        $response=$this->postJson('/api/games',['nickname'=>'Strict host','locale'=>'fr','session_id'=>(string)Str::uuid(),'name'=>'Strict room','target_score'=>20,'answer_duration'=>15,'letters'=>'AB','no_repeat'=>true,'unique_points'=>10,'duplicate_points'=>5])->assertCreated();
+        $this->assertSame('strict',Game::where('code',$response->json('code'))->firstOrFail()->anti_cheat_mode);
+    }
+
+    public function test_away_reports_are_deduplicated_until_the_player_returns(): void {
+        $round=$this->startRound();
+        foreach (['away','away','back','away'] as $event) {
+            $this->postJson('/api/anti-cheat/events',['round_id'=>$round->id,'event'=>$event],$this->host)->assertOk();
+        }
+        $snapshot=$this->getJson('/api/games/'.$this->code,$this->guest)->assertOk();
+        $this->assertSame(2,(int)$snapshot->json('anti_cheat_alerts.0.count'));
+        $snapshot->assertJsonPath('anti_cheat_alerts.0.event_type','away');
+    }
+
+    public function test_paste_is_shared_without_revealing_answers_and_invalidates_in_strict_mode(): void {
+        $this->game->update(['anti_cheat_mode'=>'strict']);
+        $round=$this->startRound();
+        $this->submit($round,$this->host,$round->letter.'ina')->assertOk();
+        $this->postJson('/api/anti-cheat/events',['round_id'=>$round->id,'event'=>'paste'],$this->host)->assertOk();
+        $snapshot=$this->getJson('/api/games/'.$this->code,$this->guest)->assertOk();
+        $snapshot->assertJsonPath('anti_cheat_alerts.0.player_id',$this->game->host_id);
+        $snapshot->assertJsonPath('anti_cheat_alerts.0.event_type','paste');
+        $this->assertArrayNotHasKey('answers',$snapshot->json('round'));
+        $this->stopRound($round);
+        $this->assertSame('strict',$round->answers()->where('player_id',$this->game->host_id)->first()->invalid_reason);
+        $this->postJson('/api/anti-cheat/events',['round_id'=>$round->id,'event'=>'paste'],$this->host)->assertStatus(409);
+    }
+
+    public function test_soft_mode_hides_alerts_and_does_not_invalidate_pasted_answer(): void {
+        $this->game->update(['anti_cheat_mode'=>'soft']);
+        $round=$this->startRound();
+        $this->submit($round,$this->host,$round->letter.'ina')->assertOk();
+        $this->postJson('/api/anti-cheat/events',['round_id'=>$round->id,'event'=>'paste'],$this->host)->assertOk();
+        $this->getJson('/api/games/'.$this->code,$this->guest)->assertOk()->assertJsonPath('anti_cheat_alerts',[]);
+        $this->stopRound($round);
+        $this->assertNull($round->answers()->where('player_id',$this->game->host_id)->first()->invalid_reason);
+    }
     public function test_ties_require_other_player_for_hosts_answer(): void {
         $round=$this->startRound(); $this->submit($round,$this->host,$round->letter.'ina'); $this->submit($round,$this->guest,$round->letter.'ob'); $this->stopRound($round);
         $a=$round->answers()->orderBy('id')->get();

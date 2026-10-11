@@ -14,7 +14,8 @@ class GameController extends Controller {
 
     public function create(Request $r) {
         $identity=$this->identity($r);
-        $settings=$r->validate(['name'=>'required|string|max:60','target_score'=>'required|integer|min:10|max:2000','answer_duration'=>'required|integer|in:10,15,30','anti_cheat_mode'=>'required|in:soft,normal,strict','letters'=>'required|string|regex:/^[A-Z]{2,26}$/','no_repeat'=>'required|boolean','unique_points'=>'required|integer|min:1|max:100','duplicate_points'=>'required|integer|min:0|lte:unique_points']);
+        $settings=$r->validate(['name'=>'required|string|max:60','target_score'=>'required|integer|min:10|max:2000','answer_duration'=>'required|integer|in:10,15,30','anti_cheat_mode'=>'sometimes|in:soft,normal,strict','letters'=>'required|string|regex:/^[A-Z]{2,26}$/','no_repeat'=>'required|boolean','unique_points'=>'required|integer|min:1|max:100','duplicate_points'=>'required|integer|min:0|lte:unique_points']);
+        $settings['anti_cheat_mode'] ??= 'strict';
         $settings['letters']=implode('',array_unique(str_split($settings['letters'])));
         abort_if(strlen($settings['letters'])<2,422,'invalid_letters');
         return DB::transaction(function () use ($identity,$settings) {
@@ -73,7 +74,7 @@ class GameController extends Controller {
         return response()->json(['ok'=>true,'id'=>$result['id']],$result['created']?201:200);
     }
     public function finish(Request $r,Round $round) { $this->engine->finish($round,$this->member($r,$round->game)); return response()->json(['ok'=>true]); }
-    public function antiCheat(Request $r) { $v=$r->validate(['round_id'=>'required|integer','event'=>'required|in:away,back']); $round=Round::findOrFail($v['round_id']); $this->engine->antiCheat($round,$this->member($r,$round->game),$v['event']); return response()->json(['ok'=>true]); }
+    public function antiCheat(Request $r) { $v=$r->validate(['round_id'=>'required|integer','event'=>'required|in:away,back,paste']); $round=Round::findOrFail($v['round_id']); $this->engine->antiCheat($round,$this->member($r,$round->game),$v['event']); return response()->json(['ok'=>true]); }
     public function leave(Request $r,Game $game) {
         $p=$this->member($r,$game);
         $this->engine->locked($game,function () use ($p) { $p->update(['left_at'=>now()]); });
