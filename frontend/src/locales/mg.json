@@ -1,4 +1,14 @@
 {
+  "updates": {
+    "title": "Vaovao", "unreadLabel": "Vaovao: misy fanavaozana hojerena", "intro": "Jereo eto ireo fiasa vaovao sy fanatsarana ny lalao.",
+    "launch": {
+      "title": "Ireo fiasa azonao andramana",
+      "categories": { "title": "Sokajy maro kokoa", "description": "Misafidiana sokajy be mpitia na mikaroha lohahevitra hafa hanovana ny lalao." },
+      "reactions": { "title": "Fihetseham-po amin’ny valiny", "description": "Manehoa fihetseham-po amin’ny emoji ary jereo izay naneho izany." },
+      "chat": { "title": "Resaka mandritra ny fifidianana", "description": "Miresaha amin’ny mpilalao hafa rehefa manamarina ny valiny." },
+      "guide": { "title": "Fanampiana mandritra ny lalao", "description": "Jereo ireo torohevitra mifanaraka amin’ny dingana tsirairay amin’ny lalao." }
+    }
+  },
   "integrity": {"title":"Hetsika hita tamin’ity fihodinana ity","away":"Niala tamin’ny efijery na varavarankely tsy mavitrika","paste":"Lahatsoratra napetaka tao amin’ny valiny","limit":"Tsy azo fantarina ny finday hafa na fanampiana avy any ivelany. Tsy porofon’ny fitaka ireo fampitandremana ireo."},
   "reactions": { "viewPeople": "Jereo izay naneho fihetseham-po", "noPeople": "Tsy misy fihetseham-po", "title": "Fihetseham-po amin’ity valiny ity", "like": "Tiako", "love": "Tena tiako", "haha": "Haha", "wow": "Oay", "sad": "Malahelo", "angry": "Tezitra" },
   "tagline": "Litera, hehy & fianakaviana",

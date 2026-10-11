@@ -1,4 +1,14 @@
 {
+  "updates": {
+    "title": "Nouveautés", "unreadLabel": "Nouveautés : des mises à jour à découvrir", "intro": "Retrouve ici les nouvelles fonctionnalités et les améliorations du jeu.",
+    "launch": {
+      "title": "Les fonctionnalités à découvrir",
+      "categories": { "title": "Plus de catégories", "description": "Choisis parmi les catégories populaires ou explore les thèmes pour varier les parties." },
+      "reactions": { "title": "Réactions aux réponses", "description": "Réagis aux réponses avec des emojis et découvre qui a réagi." },
+      "chat": { "title": "Discussion pendant les votes", "description": "Échange avec les autres joueurs pendant la validation des réponses." },
+      "guide": { "title": "Aide pendant la partie", "description": "Consulte les conseils adaptés à chaque étape du jeu." }
+    }
+  },
   "integrity": {"title":"Activité détectée pendant cette manche","away":"Écran quitté ou fenêtre inactive","paste":"Texte collé dans la réponse","limit":"Un autre téléphone ou une aide extérieure ne peuvent pas être détectés. Ces alertes ne prouvent pas une triche."},
   "reactions": { "viewPeople": "Voir qui a réagi", "noPeople": "Aucune réaction", "title": "Réagir à cette réponse", "like": "J’aime", "love": "J’adore", "haha": "Haha", "wow": "Wouah", "sad": "Triste", "angry": "Grrr" },
   "tagline": "Lettres, rires & famille",

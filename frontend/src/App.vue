@@ -6,6 +6,7 @@ import { Users, Plus, KeyRound, ChevronDown, Settings2, Trophy, Timer, ShieldChe
 import { makeUuid, useGame, type Reaction } from './store'
 import { soundOn, soundBlocked, toggleSound, unlockSound, playSound } from './sound'
 import HelpAgent from './HelpAgent.vue'
+import Updates from './Updates.vue'
 
 const { t, te, locale } = useI18n(), store = useGame(), router = useRouter(), route = useRoute()
 const reactions: { key: Reaction; emoji: string }[] = [{ key: 'like', emoji: '👍' }, { key: 'love', emoji: '❤️' }, { key: 'haha', emoji: '😂' }, { key: 'wow', emoji: '😮' }, { key: 'sad', emoji: '😢' }, { key: 'angry', emoji: '😡' }]
@@ -232,6 +233,7 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
     <header class="topbar">
       <a href="/" class="brand brand-illustrated" :aria-label="`Bakalorea · ${t('tagline')}`" @click.prevent="inRoom ? null : router.push('/')"><img class="family-logo" src="/images/bakalorea-family-logo.png" :alt="`Bakalorea · ${t('tagline')}`" width="1440" height="1080" fetchpriority="high"></a>
       <div class="header-actions">
+        <Updates />
         <button class="text-button rules-link" @click="rulesDialog?.showModal()"><HelpCircle :size="18"/>{{ t('rules') }}</button>
         <button v-if="installPrompt" class="icon-button" :aria-label="t('install')" @click="install"><Download :size="19"/></button>
         <button class="icon-button" :aria-label="t('sound')" :aria-pressed="soundOn" @click="toggleSound"><Volume2 v-if="soundOn" :size="20"/><VolumeX v-else :size="20"/></button>

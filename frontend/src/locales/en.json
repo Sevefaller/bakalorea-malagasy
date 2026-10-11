@@ -1,4 +1,14 @@
 {
+  "updates": {
+    "title": "What’s new", "unreadLabel": "What’s new: updates to discover", "intro": "Find new features and game improvements here.",
+    "launch": {
+      "title": "Features to discover",
+      "categories": { "title": "More categories", "description": "Choose popular categories or explore themes to keep each game fresh." },
+      "reactions": { "title": "Answer reactions", "description": "React to answers with emojis and see who reacted." },
+      "chat": { "title": "Chat during voting", "description": "Talk with other players while reviewing answers." },
+      "guide": { "title": "Help during the game", "description": "Find tips for each stage of the game." }
+    }
+  },
   "integrity": {"title":"Activity detected this round","away":"Screen left or window inactive","paste":"Text pasted into the answer","limit":"Another phone or outside help cannot be detected. These alerts do not prove cheating."},
   "reactions": { "viewPeople": "See who reacted", "noPeople": "No reactions", "title": "React to this answer", "like": "Like", "love": "Love", "haha": "Haha", "wow": "Wow", "sad": "Sad", "angry": "Angry" },
   "tagline": "Letters, laughter & family",
