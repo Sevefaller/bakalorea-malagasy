@@ -1,6 +1,6 @@
 {
   "integrity": {"title":"Hetsika hita tamin’ity fihodinana ity","away":"Niala tamin’ny efijery na varavarankely tsy mavitrika","paste":"Lahatsoratra napetaka tao amin’ny valiny","limit":"Tsy azo fantarina ny finday hafa na fanampiana avy any ivelany. Tsy porofon’ny fitaka ireo fampitandremana ireo."},
-  "reactions": { "title": "Fihetseham-po amin’ity valiny ity", "like": "Tiako", "love": "Tena tiako", "haha": "Haha", "wow": "Oay", "sad": "Malahelo", "angry": "Tezitra" },
+  "reactions": { "viewPeople": "Jereo izay naneho fihetseham-po", "noPeople": "Tsy misy fihetseham-po", "title": "Fihetseham-po amin’ity valiny ity", "like": "Tiako", "love": "Tena tiako", "haha": "Haha", "wow": "Oay", "sad": "Malahelo", "angry": "Tezitra" },
   "tagline": "Litera, hehy & fianakaviana",
   "guide": {
     "create": "Soraty ny anaranao, fidio ny safidy, dia mamoròna efitra. Zarao amin'ny namanao ny kaody.",

@@ -231,10 +231,11 @@ class GameEngine {
                     $data['round']['comments'] = DB::table('round_comments')->where('round_id',$round->id)->orderByDesc('id')->limit(100)->get($columns)->reverse()->values();
                 }
                 if ($round->status !== 'answering') $data['round']['answers'] = $round->answers()->get()->map(function ($a) use ($game,$player) {
+                    $reactionRows = DB::table('answer_reactions')->where('answer_id',$a->id)->orderBy('player_id')->get();
                     $referee = $this->referee($game,$a);
                     $decision = $a->tie_decision;
                     if ($referee === null && now()->gte($a->round->answer_deadline->copy()->addSeconds(30))) $decision = false;
-                    return ['id'=>$a->id,'player_id'=>$a->player_id,'answer'=>$a->answer,'flagged'=>$game->anti_cheat_mode !== 'soft' && $a->flagged,'invalid_reason'=>$a->invalid_reason,'verdict'=>$a->verdict,'points'=>$a->points_awarded,'tie_decision'=>$decision,'referee_id'=>$referee,'votes'=>$this->tally($a),'reactions'=>DB::table('answer_reactions')->where('answer_id',$a->id)->get()->countBy('reaction')->all(),'my_reaction'=>DB::table('answer_reactions')->where('answer_id',$a->id)->where('player_id',$player->id)->value('reaction'),'my_vote'=>DB::table('votes')->where('answer_id',$a->id)->where('voter_player_id',$player->id)->value('vote')];
+                    return ['id'=>$a->id,'player_id'=>$a->player_id,'answer'=>$a->answer,'flagged'=>$game->anti_cheat_mode !== 'soft' && $a->flagged,'invalid_reason'=>$a->invalid_reason,'verdict'=>$a->verdict,'points'=>$a->points_awarded,'tie_decision'=>$decision,'referee_id'=>$referee,'votes'=>$this->tally($a),'reactions'=>$reactionRows->countBy('reaction')->all(),'reaction_players'=>$reactionRows->groupBy('reaction')->map(fn ($rows) => $rows->pluck('player_id')->values())->all(),'my_reaction'=>DB::table('answer_reactions')->where('answer_id',$a->id)->where('player_id',$player->id)->value('reaction'),'my_vote'=>DB::table('votes')->where('answer_id',$a->id)->where('voter_player_id',$player->id)->value('vote')];
                 })->values();
             }
             $data['history'] = $game->rounds()->where('status','finished')->orderByDesc('number')->limit(50)->get()->map(fn ($r) => ['number'=>$r->number,'letter'=>$r->letter,'category'=>DB::table('categories')->where('id',$r->category_id)->value('code'),'answers'=>$r->answers()->get(['player_id','answer','points_awarded','verdict'])]);

@@ -1,6 +1,6 @@
 {
   "integrity": {"title":"Activité détectée pendant cette manche","away":"Écran quitté ou fenêtre inactive","paste":"Texte collé dans la réponse","limit":"Un autre téléphone ou une aide extérieure ne peuvent pas être détectés. Ces alertes ne prouvent pas une triche."},
-  "reactions": { "title": "Réagir à cette réponse", "like": "J’aime", "love": "J’adore", "haha": "Haha", "wow": "Wouah", "sad": "Triste", "angry": "Grrr" },
+  "reactions": { "viewPeople": "Voir qui a réagi", "noPeople": "Aucune réaction", "title": "Réagir à cette réponse", "like": "J’aime", "love": "J’adore", "haha": "Haha", "wow": "Wouah", "sad": "Triste", "angry": "Grrr" },
   "tagline": "Lettres, rires & famille",
   "guide": {
     "create": "Saisis ton pseudo, choisis les réglages puis crée une salle. Partage ensuite son code avec tes proches.",

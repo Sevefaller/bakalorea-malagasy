@@ -225,4 +225,10 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline-color:#65a99b
 .reaction-emoji { font-size: 18px; line-height: 1.2; }
 .reaction-label { display: none; }
 .reaction-count { font-weight: 700; }
+.reaction-option { display: inline-flex; align-items: center; }
+.reaction-count-button { min-width: 28px; min-height: 32px; padding: 4px 7px; border: 0; border-radius: 12px; background: #edf5f3; color: var(--accent); font-size: 12px; font-weight: 700; }
+.reaction-count-button:hover, .reaction-count-button[aria-expanded="true"] { background: #d4e9dc; }
+.reaction-people { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 8px; padding: 8px 10px; border-radius: 10px; background: #f6f7f9; font-size: 12px; overflow-wrap: anywhere; }
+.reaction-people strong { color: var(--accent); }
+@media (pointer: coarse) { .reaction-count-button { min-width: 40px; min-height: 40px; } }
 @media (pointer: coarse) { .reaction-button { min-width: 40px; min-height: 40px; } }
