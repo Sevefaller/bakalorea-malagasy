@@ -41,6 +41,19 @@ bash deploy/aws/deploy.sh jeu.votre-domaine.fr
 
 `deploy.sh` génère `.env.aws` avec permissions 600 lors du premier lancement. Il conserve les secrets lors des relances, construit les images, sauvegarde la base avant migration, lance les services et vérifie l’URL HTTPS. Il n’exécute jamais `down -v` ou une réinitialisation de base.
 
+Pour le domaine actuel, vérifier ces variables non secrètes dans la configuration sécurisée du déploiement :
+
+```ini
+DOMAIN=bakalorea.duckdns.org
+SITE_ADDRESS=bakalorea.duckdns.org
+REVERB_PUBLIC_HOST=bakalorea.duckdns.org
+REVERB_PUBLIC_PORT=443
+REVERB_PUBLIC_SCHEME=https
+REVERB_ALLOWED_ORIGINS=bakalorea.duckdns.org
+```
+
+Le script refuse de déployer si `.env.aws` contient encore les anciennes valeurs HTTP. Garder `.env.aws` et les secrets qu’il contient hors de Git et les sauvegarder dans le système sécurisé du pipeline.
+
 Ouvrir ensuite **https://jeu.votre-domaine.fr** et tester une partie depuis deux appareils. Les WebSockets passent par le même domaine HTTPS. L’installation PWA est disponible depuis un navigateur compatible.
 
 ## 4. Commandes d’exploitation
