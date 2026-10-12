@@ -1,7 +1,7 @@
 {
-  "presence": { "title": "Fanamarinana fa eo ianao", "description": "Miato 5 segondra ny famantaranandron’ny lalao. Tsy mampihena ny fotoana hamalianao ity fanamarinana ity.", "time": "Manana {seconds} segondra ianao hanamafisana.", "copy": "Soraty ireto litera roa ireto", "here": "Eto aho", "validate": "Hamafiso", "confirmed": "Voamarina fa eo ianao. Hitohy ny lalao rehefa tapitra ny 5 segondra.", "wait": "Manamarina ny fisiany ny mpilalao. Hitohy tsy ho ela ny lalao.", "warning": "Raha tsy manamafy ara-potoana ianao dia tsy ekena ny valinteninao amin’ity fihodinana ity.", "failed": "Tsy voamarina ara-potoana fa eo ianao", "wrong": "Tsy mifanaraka ny litera. Andramo indray.", "retry": "Tsy vita ny fanamarinana. Andramo indray alohan’ny fotoana hifarana." },
+  "presence": {"title":"Fanamarinana fa eo ianao","description":"Miato 5 segondra ny fotoana. Tsy mihena ny fotoana hamalianao.","time":"{seconds} segondra sisa.","here":"Eto aho","confirmed":"Voamarina fa eo ianao. Hitohy ny lalao rehefa tapitra ny fiatoana.","wait":"Manamarina ny fisiany ny mpilalao.","warning":"Raha tsy manamafy ianao dia haseho amin’ny fampitandremana momba ny hosoka ny fihetsika mampiahiahy. Mbola ekena ny valinteninao.","retry":"Andramo indray alohan’ny fotoana hifarana.","missing":"Tsy voamarina fa eo — fihetsika mampiahiahy","option":"Alefaso ny fanamarinana ny fisiana","frequency":"Mandeha ho azy amin’ny fomba hentitra 15 segondra ary azo vonoina ao amin’ny fikirana: fanamarinana isaky ny fihodinana 2 hatramin’ny 5, miaraka amin’ny fiatoana 5 segondra."},
   "updates": {
-    "strict": { "title": "Fanamarinana ny fisiana amin’ny fomba hentitra", "presence": { "title": "Fiatoana hanamafisana fa eo ianao", "description": "Mandritra ny fihodinana, manana 5 segondra ianao hanindriana bokotra na hanoratana litera roa. Miato ny fotoana ho an’ny rehetra. Raha tsy manamafy ara-potoana ianao dia tsy ekena ny valinteninao." } },
+    "strict": {"flow":{"description":"Mandeha ho azy amin’ny fomba hentitra 15 segondra ary azo vonoina ao amin’ny fikirana: fanamarinana isaky ny fihodinana 2 hatramin’ny 5, miaraka amin’ny fiatoana 5 segondra.","title":"Alefaso ny fanamarinana ny fisiana"},"title":"Fanamarinana fa eo ianao"},
     "title": "Vaovao", "unreadLabel": "Vaovao: misy fanavaozana hojerena", "intro": "Jereo eto ireo fiasa vaovao sy fanatsarana ny lalao.",
     "launch": {
       "title": "Ireo fiasa azonao andramana",
@@ -224,7 +224,7 @@
   "stayFocused": "Mijanòna amin’ity efijery ity mandritra ny fihodinana.",
   "softHelp": "Voarakitra ny fialana amin’ny efijery, tsy misy sazy.",
   "normalHelp": "Ampahafantarina ny mpilalao ny fialana amin’ny efijery sy ny fametahana lahatsoratra mandritra ny fihodinana.",
-  "strictHelp": "Foanana ny valiny raha miala amin’ny efijery, mifindra varavarankely na mametaka lahatsoratra mandritra ny famaliana. Miato ny fotoana rehefa misy fanamarinana kisendrasendra: hamafiso ao anatin’ny 5 segondra fa eo ianao mba ho ekena ny valinteninao.",
+  "strictHelp": "Foanana ny valiny raha miala amin’ny efijery, mifindra varavarankely na mametaka lahatsoratra mandritra ny famaliana.",
   "tieHelp": "Ny mpitarika no manapaka raha mitovy ny vato. Mpilalao hafa no mitsara ny valin’ny mpitarika.",
   "spectating": "Handray anjara amin’ny fihodinana manaraka ianao.",
   "rulesTitle": "Ahoana ny filalaovana?",

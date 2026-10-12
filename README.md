@@ -12,7 +12,7 @@ Application multijoueur construite à partir de **Cahier_des_charges_Jeu_Familia
 
 Le sélecteur MG / FR / EN change uniquement la langue du joueur. Les sons peuvent être désactivés dans la barre supérieure.
 
-En mode strict, chaque manche comporte une vérification de présence après 8 à 10 secondes de jeu (8 à 9 secondes pour une manche de 10 secondes). Le chrono et la saisie sont suspendus pour tous pendant 5 secondes. Chaque joueur reçoit aléatoirement un bouton « Je suis là » ou deux lettres à recopier. Le jeu reprend ensuite avec le temps restant intact. Une confirmation manquante invalide la réponse de cette manche. Les nouvelles colonnes nécessitent l’exécution des migrations Laravel : `php artisan migrate --force` depuis `backend`.
+Les manches durent 10, 15 ou 30 secondes. Pour les manches de 15 secondes en mode strict, les vérifications de présence sont activées par défaut ; le créateur peut les désactiver dans les réglages avancés. Le serveur choisit aléatoirement un intervalle de 2 à 5 manches entre les contrôles. Le bouton « Je suis là » apparaît entre la 8e et la 10e seconde ; le chrono et la saisie sont suspendus pour tous pendant 5 secondes. Sans confirmation, une activité suspecte est signalée dans les alertes anti-triche, mais la réponse reste valide. Cette vérification ne prouve pas une absence de triche. Appliquer les migrations Laravel avec `php artisan migrate --force` depuis `backend`.
 
 ## Espace admin
 

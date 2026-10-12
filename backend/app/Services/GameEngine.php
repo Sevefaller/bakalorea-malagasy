@@ -29,7 +29,6 @@ class GameEngine {
             foreach ($round->answers()->get() as $answer) {
                 $reason = $answer->normalized === '' ? 'empty' : (!str_starts_with($answer->normalized, strtolower($round->letter)) ? 'letter' : null);
                 if ($game->anti_cheat_mode === 'strict' && $answer->flagged) $reason = 'strict';
-                if ($round->presence_at && !$answer->presence_confirmed && $reason !== 'strict') $reason = 'presence';
                 $answer->update(['is_locked'=>true, 'invalid_reason'=>$reason]);
             }
             foreach (DB::table('anti_cheat_events')->where('round_id',$round->id)->whereNull('ended_at')->get() as $event) {
@@ -76,13 +75,17 @@ class GameEngine {
             $oldest = max(array_keys($pairsByAge));
             [$category, $letter] = $pairsByAge[$oldest][random_int(0, count($pairsByAge[$oldest]) - 1)];
             $start = now()->addSeconds(3);
-            // A ten-second round also gets time to resume after the check.
-            $presenceAt = $game->anti_cheat_mode === 'strict' ? $start->copy()->addMilliseconds(random_int(8000, min(10000, ($game->answer_duration - 1) * 1000))) : null;
-            $round = $game->rounds()->create(['number'=>$number,'category_id'=>$category,'letter'=>$letter,'started_at'=>$start,'answer_deadline'=>$start->copy()->addSeconds($game->answer_duration + ($presenceAt ? 5 : 0)), 'presence_at'=>$presenceAt]);
-            foreach ($players as $p) {
-                $code = $presenceAt && random_int(0, 1) ? chr(random_int(65, 90)).chr(random_int(65, 90)) : null;
-                $round->answers()->create(['player_id'=>$p->id,'presence_code'=>$code]);
+            $presenceAt = null;
+            if ($game->presence_checks && $game->anti_cheat_mode === 'strict' && (int)$game->answer_duration === 15) {
+                $nextCheck = $game->presence_next_round ?? random_int(2,5);
+                if ($number >= $nextCheck) {
+                    $presenceAt = $start->copy()->addMilliseconds(random_int(8000,10000));
+                    $nextCheck = $number + random_int(2,5);
+                }
+                $game->update(['presence_next_round'=>$nextCheck]);
             }
+            $round = $game->rounds()->create(['number'=>$number,'category_id'=>$category,'letter'=>$letter,'started_at'=>$start,'answer_deadline'=>$start->copy()->addSeconds($game->answer_duration + ($presenceAt ? 5 : 0)),'presence_at'=>$presenceAt]);
+            foreach ($players as $p) $round->answers()->create(['player_id'=>$p->id]);
             $game->update(['status'=>'playing','used_letters'=>array_merge($used,[$letter])]);
         }));
         $this->notify($game,'RoundStarted');
@@ -103,13 +106,11 @@ class GameEngine {
         return $round->presence_at && now()->gte($round->presence_at) && now()->lt($round->presence_at->copy()->addSeconds(5));
     }
 
-    public function confirmPresence(Round $round, GamePlayer $player, string $code): void {
-        $this->locked($round->game, function () use ($round, $player, $code) {
+    public function confirmPresence(Round $round, GamePlayer $player): void {
+        $this->locked($round->game, function () use ($round,$player) {
             $round->refresh();
             abort_unless($round->status === 'answering' && $this->presencePaused($round),409,'presence_closed');
-            $answer = $round->answers()->where('player_id',$player->id)->firstOrFail();
-            abort_if($answer->presence_code !== null && strtoupper(trim($code)) !== $answer->presence_code,422,'presence_wrong');
-            $answer->update(['presence_confirmed'=>true]);
+            $round->answers()->where('player_id',$player->id)->firstOrFail()->update(['presence_confirmed'=>true]);
         });
     }
 
@@ -241,14 +242,18 @@ class GameEngine {
             $players = $game->players()->orderBy('id')->get();
             $round = $game->rounds()->latest('number')->first();
             $data = ['id'=>$game->id,'code'=>$game->code,'name'=>$game->name,'status'=>$game->status,'host_id'=>$game->host_id,'winner_id'=>$game->winner_id,'target_score'=>$game->target_score,'answer_duration'=>$game->answer_duration,'anti_cheat_mode'=>$game->anti_cheat_mode,'unique_points'=>$game->unique_points,'duplicate_points'=>$game->duplicate_points,'letters'=>$game->letters,'no_repeat'=>$game->no_repeat,'me_id'=>$player->id,'server_now'=>now()->getTimestampMs(),'players'=>$players->map(fn ($p) => ['id'=>$p->id,'nickname'=>$p->nickname,'score'=>$p->score,'left'=>(bool)$p->left_at,'online'=>!$p->left_at && $p->last_seen_at?->gte(now()->subSeconds(45))])->values(),'round'=>null];
+            $data['presence_checks'] = (bool)$game->presence_checks;
+            $data['presence_missing'] = [];
             if ($round) {
                 $alerts = $game->anti_cheat_mode === 'soft' ? [] : DB::table('anti_cheat_events')->where('round_id',$round->id)->select('player_id','event_type')->selectRaw('COUNT(*) AS count')->groupBy('player_id','event_type')->get();
                 $data['anti_cheat_alerts'] = $alerts;
                 $own = $round->answers()->where('player_id',$player->id)->first();
-                // Reveal each player's challenge only during the verification window.
-                $presence = $round->presence_at ? ['starts_at'=>$round->presence_at->getTimestampMs(),'ends_at'=>$round->presence_at->copy()->addSeconds(5)->getTimestampMs(),'confirmed'=>(bool)$own?->presence_confirmed,'code'=>$this->presencePaused($round) ? $own?->presence_code : null] : null;
+                $data['presence_missing'] = $round->presence_at && now()->gte($round->presence_at->copy()->addSeconds(5)) ? $round->answers()->where('presence_confirmed',false)->pluck('player_id')->values() : [];
+                foreach ($data['presence_missing'] as $missingPlayerId) {
+                    $alerts->push((object)['player_id'=>$missingPlayerId,'event_type'=>'presence','count'=>1]);
+                }
                 $data['round'] = ['id'=>$round->id,'number'=>$round->number,'category'=>DB::table('categories')->where('id',$round->category_id)->value('code'),'letter'=>$round->letter,'status'=>$round->status,'started_at'=>$round->started_at->getTimestampMs(),'answer_deadline'=>$round->answer_deadline->getTimestampMs(),'own_answer'=>$own?->answer ?? '','own_revision'=>$own?->revision ?? 0,'participating'=>(bool)$own,'ready'=>$round->status === 'judging' && $this->ready($round)];
-                $data['round']['presence'] = $presence;
+                $data['round']['presence'] = $round->presence_at ? ['starts_at'=>$round->presence_at->getTimestampMs(),'ends_at'=>$round->presence_at->copy()->addSeconds(5)->getTimestampMs(),'confirmed'=>(bool)$own?->presence_confirmed] : null;
                 if ($round->status === 'judging') {
                     $columns = ['id','player_id','body','created_at'];
                     $columns[] = Schema::hasColumn('round_comments', 'client_id') ? 'client_id' : DB::raw('NULL AS client_id');

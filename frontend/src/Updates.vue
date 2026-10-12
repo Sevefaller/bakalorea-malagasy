@@ -6,7 +6,7 @@ import { Sparkles, X } from 'lucide-vue-next'
 const { t, locale } = useI18n()
 // Add future updates first, with a unique ID, an ISO date and translated content.
 const releases = [
-  { id: '2026-10-12-presence', date: '2026-10-12', key: 'strict', features: ['presence'] },
+  { id: '2026-10-12-optional-presence', date: '2026-10-12', key: 'strict', features: ['flow'] },
   { id: '2026-10-11', date: '2026-10-11', key: 'launch', features: ['categories', 'reactions', 'chat', 'guide'] }
 ]
 const storageKey = 'bakalorea.updates.seen'

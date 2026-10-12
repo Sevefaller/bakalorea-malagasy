@@ -8,6 +8,7 @@ import { soundOn, soundBlocked, toggleSound, unlockSound, playSound } from './so
 import HelpAgent from './HelpAgent.vue'
 import Updates from './Updates.vue'
 import PresenceCheck from './PresenceCheck.vue'
+const presenceChecks = ref(true)
 
 const { t, te, locale } = useI18n(), store = useGame(), router = useRouter(), route = useRoute()
 const reactions: { key: Reaction; emoji: string }[] = [{ key: 'like', emoji: '👍' }, { key: 'love', emoji: '❤️' }, { key: 'haha', emoji: '😂' }, { key: 'wow', emoji: '😮' }, { key: 'sad', emoji: '😢' }, { key: 'angry', emoji: '😡' }]
@@ -117,7 +118,7 @@ const onlineCount = computed(() => g.value?.players.filter(p => p.online).length
 const tiedLeaders = computed(() => ranking.value.length > 1 && ranking.value[0].score >= (g.value?.target_score || 200) && ranking.value[0].score === ranking.value[1].score)
 const playerName = (id: number | null) => g.value?.players.find(p => p.id === id)?.nickname || '—'
 const initials = (name: string) => name.slice(0, 2).toUpperCase()
-const reasonLabel = (reason: string) => t(({ empty: 'emptyReason', letter: 'letterReason', strict: 'strictReason', presence: 'presence.failed' } as Record<string,string>)[reason] || 'invalid')
+const reasonLabel = (reason: string) => t(({ empty: 'emptyReason', letter: 'letterReason', strict: 'strictReason' } as Record<string,string>)[reason] || 'invalid')
 const googleSearchUrl = (answer: string) => `https://www.google.com/search?q=${encodeURIComponent(t('googleCheckQuery', { answer: answer.trim(), category: t(`category.${round.value?.category}`) }))}`
 const guideTipKey = computed(() => {
   if (store.disconnected) return 'guide.disconnected'
@@ -165,7 +166,7 @@ watch(() => g.value?.players, (players, previous) => {
 async function enter() {
   if (mode.value === 'join' && store.left && roomCode.value.trim().toUpperCase() === store.code) { await rejoin(); return }
   await unlockSound(); localStorage.setItem('bakalorea.nickname', nickname.value.trim())
-  const ok = await store.enter(mode.value, { nickname: nickname.value.trim(), locale: locale.value, code: roomCode.value.trim(), name: roomName.value.trim() || t('defaultRoomName'), target_score: Number(target.value), answer_duration: Number(duration.value), anti_cheat_mode: antiCheat.value, letters: letters.value.toUpperCase().replace(/[^A-Z]/g, ''), no_repeat: noRepeat.value, unique_points: Number(uniquePoints.value), duplicate_points: Number(duplicatePoints.value) })
+  const ok = await store.enter(mode.value, { nickname: nickname.value.trim(), locale: locale.value, code: roomCode.value.trim(), name: roomName.value.trim() || t('defaultRoomName'), presence_checks: presenceChecks.value && antiCheat.value === 'strict' && duration.value === 15, target_score: Number(target.value), answer_duration: Number(duration.value), anti_cheat_mode: antiCheat.value, letters: letters.value.toUpperCase().replace(/[^A-Z]/g, ''), no_repeat: noRepeat.value, unique_points: Number(uniquePoints.value), duplicate_points: Number(duplicatePoints.value) })
   if (ok) router.push(`/salle/${store.code}`)
 }
 function changedAnswer() { savedState.value = '' }
@@ -273,7 +274,7 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
                 <div class="quick-settings game-quick-settings"><label class="field"><span><Trophy :size="16"/>{{ t('target') }}</span><div class="suffix-input"><input v-model="target" type="number" min="10" max="2000" required data-testid="target"><span>{{ t('points') }}</span></div></label><div class="field duration-field"><span><Timer :size="16"/>{{ t('duration') }}</span><div class="duration-options" role="group" :aria-label="t('duration')"><button v-for="option in durationOptions" :key="option.seconds" type="button" :class="{ active: duration === option.seconds }" :aria-pressed="duration === option.seconds" @click="duration = option.seconds"><strong>{{ t(option.key) }}</strong><small>{{ option.seconds }} s</small></button></div></div></div>
                 <button type="button" class="advanced-toggle" :aria-expanded="advanced" @click="advanced = !advanced"><Settings2 :size="17"/>{{ t('settings') }}<ChevronDown :size="17" :class="{ flipped: advanced }"/></button>
                 <div v-if="advanced" class="advanced-settings">
-                  <label class="field">{{ t('antiCheat') }}<select v-model="antiCheat"><option value="soft">{{ t('soft') }}</option><option value="normal">{{ t('normal') }}</option><option value="strict">{{ t('strict') }}</option></select><small>{{ t(`${antiCheat}Help`) }}</small></label>
+                  <label class="field">{{ t('antiCheat') }}<select v-model="antiCheat"><option value="soft">{{ t('soft') }}</option><option value="normal">{{ t('normal') }}</option><option value="strict">{{ t('strict') }}</option></select><small>{{ t(`${antiCheat}Help`) }}</small></label><label v-if="antiCheat === 'strict' && duration === 15" class="check-field"><input v-model="presenceChecks" type="checkbox">{{ t('presence.option') }}<small>{{ t('presence.frequency') }}</small></label>
                   <label class="field">{{ t('letters') }}<input v-model="letters" required minlength="2" maxlength="26" pattern="[a-zA-Z]{2,26}" autocapitalize="characters" data-testid="letters"></label>
                   <label class="checkbox"><input v-model="noRepeat" type="checkbox">{{ t('noRepeat') }}</label>
                   <div class="quick-settings"><label class="field">{{ t('uniquePoints') }}<input v-model="uniquePoints" required type="number" min="1" max="100"></label><label class="field">{{ t('duplicatePoints') }}<input v-model="duplicatePoints" required type="number" min="0" :max="uniquePoints"></label></div>
@@ -294,7 +295,7 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
       <main v-else-if="g" :class="['room-layout', { 'judging-room': round?.status === 'judging', 'dense-judging': round?.status === 'judging' && (round.answers?.length ?? 0) >= 6 }]">
         <div v-if="store.disconnected" class="connection-banner" role="status"><WifiOff :size="18"/>{{ t('connectionLost') }}</div>
         <div v-if="roomNotice" class="room-notice" role="status">{{ roomNotice }}</div>
-        <section v-if="g.anti_cheat_alerts?.length" class="room-notice anti-cheat-alerts" aria-live="polite"><strong>{{ t('integrity.title') }}</strong><p v-for="alert in g.anti_cheat_alerts" :key="`${alert.player_id}-${alert.event_type}`">{{ playerName(alert.player_id) }} · {{ t(alert.event_type === 'paste' ? 'integrity.paste' : 'integrity.away') }} × {{ alert.count }}</p></section>
+        <section v-if="g.presence_checks" class="room-notice">{{ t('presence.frequency') }}</section><section v-if="g.anti_cheat_alerts?.length" class="room-notice anti-cheat-alerts" aria-live="polite"><strong>{{ t('integrity.title') }}</strong><p v-for="alert in g.anti_cheat_alerts" :key="`${alert.player_id}-${alert.event_type}`">{{ playerName(alert.player_id) }} · {{ t(alert.event_type === 'presence' ? 'presence.missing' : alert.event_type === 'paste' ? 'integrity.paste' : 'integrity.away') }} × {{ alert.count }}</p></section>
         <div class="room-topline"><div class="breadcrumbs">{{ t('room') }} <span>/</span> <strong>{{ g.name }}</strong></div><button class="text-button" @click="leaveDialog?.showModal()"><LogOut :size="17"/>{{ t('leave') }}</button></div>
         <section :class="['game-main', { 'judging-layout': round?.status === 'judging' }]">
           <template v-if="g.status === 'lobby'">
@@ -343,8 +344,7 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
     </template>
 
     <footer><span>BAKALOREA <span class="footer-dot">✳</span> {{ t('footer') }}</span><span class="developer-credit">Développer par RATIAZAFY Séverin</span><a class="text-button" href="/admin">Admin</a><button class="text-button" @click="rulesDialog?.showModal()">{{ t('rules') }}</button></footer>
-    <HelpAgent :context-tip="guideTip" :game="g || null" :remaining-seconds="seconds" />
-    <PresenceCheck v-if="round && presencePaused" :key="round.id" :round="round" :now="now" :ready="!!g && g.server_now >= (round.presence?.starts_at || 0)" />
+    <HelpAgent :context-tip="guideTip" :game="g || null" :remaining-seconds="seconds" /><PresenceCheck v-if="round && presencePaused" :key="round.id" :round="round" :now="now" />
     <div v-if="soundBlocked" class="sound-notice" role="status">{{ t('soundBlocked') }}</div>
     <dialog ref="rulesDialog" class="modal"><div class="modal-heading"><h2>{{ t('rulesTitle') }}</h2><button class="icon-button" :aria-label="t('close')" @click="rulesDialog?.close()"><X :size="20"/></button></div><div v-for="n in 3" :key="n" class="modal-rule"><h3>{{ n }}. {{ t(`rule${n}Title`) }}</h3><p>{{ t(`rule${n}`) }}</p></div><p>{{ t('scoring') }}</p><p>{{ t('tieHelp') }}</p><button class="primary full" @click="rulesDialog?.close()">{{ t('close') }}</button></dialog>
     <dialog ref="leaveDialog" class="modal"><h2>{{ t('leaveTitle') }}</h2><p>{{ t('leaveText') }}</p><div class="dialog-actions"><button class="secondary" @click="leaveDialog?.close()">{{ t('cancel') }}</button><button class="primary" :disabled="store.busy" @click="leave">{{ t('leave') }}</button></div></dialog>
@@ -352,6 +352,7 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
 </template>
 
 <style scoped>
+.check-field{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:start;font-size:.85rem}.check-field input{width:16px;height:16px;margin:2px 0;accent-color:var(--accent)}.check-field small{grid-column:2;color:var(--muted);line-height:1.5}
 .waiting-music{margin-top:16px;padding:18px 20px}.waiting-music-heading{display:flex;align-items:center;gap:9px;color:var(--accent);margin-bottom:12px;font-size:.9rem}.waiting-music-button{min-height:40px;font-size:.82rem}.waiting-music .hint{margin-top:10px}.waiting-music-player{margin-top:14px}.waiting-music-player iframe{display:block;width:100%;aspect-ratio:16/9;min-height:200px;border:0;border-radius:10px;background:#edf1f0}.waiting-music-player a{display:inline-block;margin-top:9px;color:var(--accent);font-size:.78rem;text-decoration:underline;text-underline-offset:3px}
 .chat-message.pending{border:1px dashed #a9cdbb}.chat-message.pending small{display:block;margin-top:6px;color:#5c8073;font-size:.72rem}.chat-retry{display:flex;gap:12px;margin-top:8px}.chat-retry button{border:0;background:transparent;color:#286e5c;padding:2px 0;font-size:.75rem;font-weight:700;text-decoration:underline;text-underline-offset:2px}.chat-retry button:disabled{opacity:.5}
 </style>
