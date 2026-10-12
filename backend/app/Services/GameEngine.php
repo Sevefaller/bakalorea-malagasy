@@ -62,6 +62,18 @@ class GameEngine {
             $usedCategories = $game->rounds()->where('number','>=',$cycleStart)->pluck('category_id')->all();
             $availableCategories = array_values(array_diff($categories, $usedCategories));
             if (!$availableCategories) $availableCategories = $categories;
+            $progress = (int)$players->max('score') / max(1, (int)$game->target_score);
+            $minimumDifficulty = $progress >= 0.8 ? 3 : ($progress >= 0.5 ? 2 : 1);
+            if ($minimumDifficulty > 1) {
+                $codes = DB::table('categories')->whereIn('id',$availableCategories)->pluck('code','id');
+                $levels = [];
+                foreach (config('category_difficulty') as $level => $categoryCodes) {
+                    foreach ($categoryCodes as $code) $levels[$code] = (int)$level;
+                }
+                $highestAvailable = $codes->map(fn ($code) => $levels[$code] ?? 1)->max();
+                $required = min($minimumDifficulty, $highestAvailable);
+                $availableCategories = array_values(array_filter($availableCategories, fn ($id) => ($levels[$codes[$id]] ?? 1) >= $required));
+            }
             // Favor pairs absent from recent rounds, including rounds in other rooms.
             // The random choice remains uniform among equally eligible pairs.
             $recent = DB::table('rounds')->orderByDesc('id')->limit(100)->get(['category_id', 'letter']);

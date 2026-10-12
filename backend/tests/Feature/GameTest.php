@@ -171,6 +171,30 @@ class GameTest extends TestCase {
         $this->postJson('/api/games/'.$this->game->id.'/start',[],$this->host)->assertStatus(409);
         $this->assertSame(1,$this->game->rounds()->count());
     }
+    public function test_categories_become_harder_as_the_leader_approaches_the_target(): void {
+        $pool=DB::table('categories')->whereIn('code',['fruit','spice','malagasy_monarch'])->pluck('id','code');
+        DB::table('game_categories')->where('game_id',$this->game->id)->whereNotIn('category_id',$pool->values())->delete();
+        $this->game->update(['target_score'=>100]);
+        $this->game->players()->whereKey($this->game->host_id)->update(['score'=>80]);
+        $hard=$this->startRound();
+        $this->assertEquals($pool['malagasy_monarch'],$hard->category_id);
+        $this->stopRound($hard); $hard->update(['status'=>'finished']);
+        // When the hardest category is exhausted, use the hardest remaining one.
+        $medium=$this->startRound();
+        $this->assertEquals($pool['spice'],$medium->category_id);
+        $this->stopRound($medium); $medium->update(['status'=>'finished']);
+        $easy=$this->startRound();
+        $this->assertEquals($pool['fruit'],$easy->category_id);
+    }
+
+    public function test_halfway_progress_excludes_easy_categories(): void {
+        $pool=DB::table('categories')->whereIn('code',['fruit','spice'])->pluck('id','code');
+        DB::table('game_categories')->where('game_id',$this->game->id)->whereNotIn('category_id',$pool->values())->delete();
+        $this->game->update(['target_score'=>100]);
+        $this->game->players()->whereKey($this->game->host_id)->update(['score'=>50]);
+        $this->assertEquals($pool['spice'],$this->startRound()->category_id);
+    }
+
     public function test_categories_do_not_repeat_before_the_random_pool_is_exhausted(): void {
         $pool = DB::table('game_categories')->where('game_id',$this->game->id)->orderBy('position')->limit(3)->pluck('category_id')->all();
         DB::table('game_categories')->where('game_id',$this->game->id)->whereNotIn('category_id',$pool)->delete();
