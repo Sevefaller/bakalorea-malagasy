@@ -6,7 +6,7 @@ import Pusher from 'pusher-js'
 export interface Player { id: number; nickname: string; score: number; online: boolean; left: boolean }
 export type Reaction = 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
 export interface Answer { reaction_players?: Partial<Record<Reaction, number[]>>; reactions: Partial<Record<Reaction, number>>; my_reaction: Reaction | null; id: number; player_id: number; answer: string; flagged: boolean; invalid_reason: string | null; verdict: boolean | null; points: number; tie_decision: boolean | null; referee_id: number | null; votes: { valid: number; invalid: number; uncertain: number; count: number; tied: boolean }; my_vote: string | null }
-export interface RoundComment { id: number; player_id: number; client_id: string | null; body: string; created_at: string }
+export interface RoundComment { id: number; player_id: number; client_id: string | null; body: string; created_at: string; has_image?: boolean | number }
 export interface Round { id: number; number: number; category: string; letter: string; status: string; started_at: number; answer_deadline: number; own_answer: string; own_revision: number; participating: boolean; ready: boolean; answers?: Answer[]; comments?: RoundComment[]; presence?: { starts_at: number; ends_at: number; confirmed: boolean } | null }
 export interface Game { presence_checks?: boolean; presence_missing?: number[]; anti_cheat_alerts?: { player_id: number; event_type: string; count: number }[]; id: number; code: string; name: string; status: string; host_id: number; winner_id: number | null; me_id: number; target_score: number; answer_duration: number; anti_cheat_mode: string; unique_points: number; duplicate_points: number; letters: string; no_repeat: boolean; server_now: number; players: Player[]; round: Round | null; history: { number: number; letter: string; category: string; answers: { player_id: number; answer: string; points_awarded: number; verdict: boolean }[] }[] }
 
@@ -29,10 +29,11 @@ export const useGame = defineStore('game', () => {
   const isHost = computed(() => game.value?.host_id === game.value?.me_id)
   const ranking = computed(() => [...(game.value?.players || [])].sort((a,b) => b.score - a.score || a.id - b.id))
   const serverNow = () => anchorServer + performance.now() - anchorPerf
-  async function request(path: string, method = 'GET', body?: unknown, quiet = false) {
+  async function request(path: string, method = 'GET', body?: unknown, quiet = false, binary = false) {
     let res: Response
-    try { res = await fetch(`/api${path}`, { method, headers: { 'Content-Type': 'application/json', Accept: 'application/json', Authorization: `Bearer ${token.value}`, 'X-Session-ID': sessionId }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}), cache: 'no-store', signal: AbortSignal.timeout(8000) }) }
+    try { res = await fetch(`/api${path}`, { method, headers: { ...(body instanceof FormData ? {} : { 'Content-Type': 'application/json' }), Accept: 'application/json', Authorization: `Bearer ${token.value}`, 'X-Session-ID': sessionId }, ...(body !== undefined ? { body: body instanceof FormData ? body : JSON.stringify(body) } : {}), cache: 'no-store', signal: AbortSignal.timeout(8000) }) }
     catch { if (!quiet) error.value = 'network'; throw new Error('network') }
+    if (res.ok && binary) return res.blob()
     const data = await res.json().catch(() => ({}))
     if (!res.ok) {
       const message = res.status === 401 ? 'unauthorized' : res.status === 404 ? 'not_found' : res.status === 429 ? 'rate_limit' : data.message || 'generic'

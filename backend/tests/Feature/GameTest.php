@@ -107,6 +107,35 @@ class GameTest extends TestCase {
         $this->assertSame(1,DB::table('categories')->where('code','gift_idea')->count());
     }
 
+    public function test_chat_photos_are_private_and_upload_retries_do_not_duplicate_messages(): void {
+        $round=$this->startRound();
+        $this->stopRound($round);
+        $bytes=base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aN1sAAAAASUVORK5CYII=');
+        $file=\Illuminate\Http\UploadedFile::fake()->createWithContent('photo.png',$bytes);
+        $clientId=(string)Str::uuid();
+        $payload=['body'=>'','client_id'=>$clientId,'image'=>$file];
+        $url='/api/rounds/'.$round->id.'/comments';
+        $id=$this->post($url,$payload,[...$this->host,'Accept'=>'application/json'])->assertCreated()->json('id');
+        $this->post($url,$payload,[...$this->host,'Accept'=>'application/json'])->assertOk()->assertJsonPath('id',$id);
+        $this->assertDatabaseCount('round_comments',1);
+        $snapshot=$this->getJson('/api/games/'.$this->code,$this->guest)->assertOk();
+        $this->assertTrue((bool)$snapshot->json('round.comments.0.has_image'));
+        $this->assertArrayNotHasKey('image_data',$snapshot->json('round.comments.0'));
+        $photo=$this->get('/api/comments/'.$id.'/image',$this->guest)->assertOk();
+        $this->assertSame($bytes,$photo->getContent());
+        $photo->assertHeader('Content-Type','image/png');
+        $this->get('/api/comments/'.$id.'/image',['Accept'=>'application/json'])->assertUnauthorized();
+        $session=(string)Str::uuid();
+        $other=$this->postJson('/api/games',['nickname'=>'Other','locale'=>'fr','session_id'=>$session,'name'=>'Other room','target_score'=>20,'answer_duration'=>15,'anti_cheat_mode'=>'normal','letters'=>'AB','no_repeat'=>true,'unique_points'=>10,'duplicate_points'=>5])->assertCreated()->json();
+        $this->get('/api/comments/'.$id.'/image',['Authorization'=>'Bearer '.$other['token'],'X-Session-ID'=>$session,'Accept'=>'application/json'])->assertForbidden();
+        $bad=\Illuminate\Http\UploadedFile::fake()->createWithContent('bad.svg','<svg xmlns="http://www.w3.org/2000/svg"></svg>');
+        $this->post($url,['image'=>$bad],[...$this->host,'Accept'=>'application/json'])->assertUnprocessable();
+        $large=\Illuminate\Http\UploadedFile::fake()->createWithContent('large.png',$bytes.str_repeat('x',1024*1024));
+        $this->post($url,['image'=>$large],[...$this->host,'Accept'=>'application/json'])->assertUnprocessable();
+        $round->update(['status'=>'finished']);
+        $this->post($url,['image'=>\Illuminate\Http\UploadedFile::fake()->createWithContent('photo.png',$bytes)],[...$this->host,'Accept'=>'application/json'])->assertStatus(409);
+    }
+
     public function test_reactions_are_shared_replaceable_and_removable_without_affecting_votes(): void {
         $round=$this->startRound();
         $this->submit($round,$this->host,$round->letter.'ina')->assertOk();

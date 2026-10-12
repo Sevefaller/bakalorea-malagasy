@@ -69,11 +69,18 @@ class GameController extends Controller {
     }
     public function comment(Request $r,Round $round) {
         $p=$this->member($r,$round->game);
-        $v=$r->validate(['body'=>'required|string|max:300','client_id'=>'sometimes|uuid']);
-        $body=trim($v['body']);
-        abort_if($body==='',422,'empty_comment');
-        $result=$this->engine->comment($round,$p,$body,$v['client_id']??(string)Str::uuid());
+        $v=$r->validate(['body'=>'nullable|string|max:300','client_id'=>'sometimes|uuid','image'=>'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:1024|dimensions:max_width=4096,max_height=4096']);
+        $body=trim($v['body']??'');
+        abort_if($body==='' && !$r->hasFile('image'),422,'empty_comment');
+        $result=$this->engine->comment($round,$p,$body,$v['client_id']??(string)Str::uuid(),$r->file('image'));
         return response()->json(['ok'=>true,'id'=>$result['id']],$result['created']?201:200);
+    }
+    public function commentImage(Request $r, int $comment) {
+        $row=DB::table('round_comments')->where('id',$comment)->first();
+        abort_unless($row && $row->image_data,404);
+        $round=Round::findOrFail($row->round_id);
+        $this->member($r,$round->game);
+        return response(base64_decode($row->image_data),200,['Content-Type'=>$row->image_mime,'Cache-Control'=>'private, no-store','X-Content-Type-Options'=>'nosniff']);
     }
     public function presence(Request $r,Round $round) { $this->engine->confirmPresence($round,$this->member($r,$round->game)); return response()->json(['ok'=>true]); }
     public function finish(Request $r,Round $round) { $this->engine->finish($round,$this->member($r,$round->game)); return response()->json(['ok'=>true]); }

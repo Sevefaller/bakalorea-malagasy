@@ -150,8 +150,8 @@ class GameEngine {
         $this->notify($answer->round->game,'ReactionUpdated');
     }
 
-    public function comment(Round $round, GamePlayer $player, string $body, string $clientId): array {
-        $result = $this->locked($round->game, function () use ($round,$player,$body,$clientId) {
+    public function comment(Round $round, GamePlayer $player, string $body, string $clientId, ?\Illuminate\Http\UploadedFile $image = null): array {
+        $result = $this->locked($round->game, function () use ($round,$player,$body,$clientId,$image) {
             $round->refresh();
             $hasClientId = Schema::hasColumn('round_comments', 'client_id');
             if ($hasClientId) {
@@ -160,6 +160,10 @@ class GameEngine {
             }
             abort_unless($round->status === 'judging',409,'not_judging');
             $values = ['round_id'=>$round->id,'player_id'=>$player->id,'body'=>$body,'created_at'=>now()];
+            if ($image) {
+                $values['image_data'] = base64_encode(file_get_contents($image->getRealPath()));
+                $values['image_mime'] = $image->getMimeType();
+            }
             if ($hasClientId) $values['client_id'] = $clientId;
             $id = DB::table('round_comments')->insertGetId($values);
             return ['id'=>$id,'created'=>true];
@@ -268,6 +272,7 @@ class GameEngine {
                 $data['round']['presence'] = $round->presence_at ? ['starts_at'=>$round->presence_at->getTimestampMs(),'ends_at'=>$round->presence_at->copy()->addSeconds(5)->getTimestampMs(),'confirmed'=>(bool)$own?->presence_confirmed] : null;
                 if ($round->status === 'judging') {
                     $columns = ['id','player_id','body','created_at'];
+                    $columns[] = DB::raw('CASE WHEN image_data IS NULL THEN 0 ELSE 1 END AS has_image');
                     $columns[] = Schema::hasColumn('round_comments', 'client_id') ? 'client_id' : DB::raw('NULL AS client_id');
                     $data['round']['comments'] = DB::table('round_comments')->where('round_id',$round->id)->orderByDesc('id')->limit(100)->get($columns)->reverse()->values();
                 }
