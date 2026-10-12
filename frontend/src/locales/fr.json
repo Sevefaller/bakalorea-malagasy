@@ -1,5 +1,7 @@
 {
+  "presence": { "title": "Vérification de présence", "description": "Le chrono du jeu est en pause pendant 5 secondes. Cette vérification ne réduit pas ton temps de réponse.", "time": "Il te reste {seconds} secondes pour confirmer.", "copy": "Recopie ces deux lettres", "here": "Je suis là", "validate": "Confirmer", "confirmed": "Présence confirmée. Le jeu reprend à la fin des 5 secondes.", "wait": "Vérification des joueurs en cours. Le jeu va reprendre.", "warning": "Sans confirmation dans le délai, ta réponse sera invalidée pour cette manche.", "failed": "Présence non confirmée dans le délai", "wrong": "Les lettres ne correspondent pas. Réessaie.", "retry": "Confirmation impossible. Réessaie avant la fin du délai." },
   "updates": {
+    "strict": { "title": "Vérification de présence en mode strict", "presence": { "title": "Une pause pour confirmer ta présence", "description": "Pendant la manche, tu as 5 secondes pour cliquer sur un bouton ou recopier deux lettres. Le chrono est en pause pour tous. Sans confirmation à temps, ta réponse est invalidée." } },
     "title": "Nouveautés", "unreadLabel": "Nouveautés : des mises à jour à découvrir", "intro": "Retrouve ici les nouvelles fonctionnalités et les améliorations du jeu.",
     "launch": {
       "title": "Les fonctionnalités à découvrir",
@@ -222,7 +224,7 @@
   "stayFocused": "Reste sur cet écran pendant la manche.",
   "softHelp": "Les sorties d’écran sont enregistrées sans pénalité.",
   "normalHelp": "Les sorties d’écran et les collages sont signalés aux joueurs pendant la manche.",
-  "strictHelp": "Quitter l’écran, changer de fenêtre ou coller du texte pendant la saisie annule la réponse.",
+  "strictHelp": "Quitter l’écran, changer de fenêtre ou coller du texte pendant la saisie annule la réponse. Une vérification aléatoire met le chrono en pause : confirme ta présence en 5 secondes pour garder ta réponse valide.",
   "tieHelp": "Le maître du jeu tranche les égalités. Pour sa propre réponse, un autre joueur arbitre.",
   "spectating": "Tu participeras à la prochaine manche.",
   "rulesTitle": "Comment jouer ?",

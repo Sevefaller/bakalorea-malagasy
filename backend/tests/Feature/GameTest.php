@@ -41,6 +41,52 @@ class GameTest extends TestCase {
     }
     private function submit(Round $round,array $headers,string $text,int $revision=1) { return $this->patchJson('/api/rounds/'.$round->id.'/answer',['answer'=>$text,'revision'=>$revision],$headers); }
 
+    public function test_presence_check_pauses_answers_and_invalidates_only_unconfirmed_players(): void {
+        $this->game->update(['anti_cheat_mode'=>'strict']);
+        $round=$this->startRound();
+        $this->assertGreaterThanOrEqual(8000, $round->started_at->diffInMilliseconds($round->presence_at));
+        $this->assertLessThanOrEqual(10000, $round->started_at->diffInMilliseconds($round->presence_at));
+        $this->assertEquals(20000, $round->started_at->diffInMilliseconds($round->answer_deadline));
+        $hostAnswer=$round->answers()->where('player_id',$this->game->host_id)->firstOrFail();
+        $hostAnswer->update(['presence_code'=>'QZ']);
+        $url='/api/rounds/'.$round->id.'/presence';
+        $this->getJson('/api/games/'.$this->code,$this->host)->assertJsonPath('round.presence.code',null);
+        $this->postJson($url,['code'=>'QZ'],$this->host)->assertStatus(409);
+        $this->submit($round,$this->host,$round->letter.'ina')->assertOk();
+        $this->submit($round,$this->guest,$round->letter.'ilo')->assertOk();
+        $this->travelTo($round->presence_at);
+        $this->getJson('/api/games/'.$this->code,$this->host)->assertJsonPath('round.presence.code','QZ');
+        $this->submit($round,$this->host,'Paused',2)->assertStatus(409);
+        $this->postJson($url,['code'=>'AA'],$this->host)->assertUnprocessable();
+        $this->postJson($url,['code'=>'qz'],$this->host)->assertOk();
+        $this->postJson($url,['code'=>'QZ'],$this->host)->assertOk();
+        $this->getJson('/api/games/'.$this->code,$this->host)->assertJsonPath('round.presence.confirmed',true);
+        $this->travelTo($round->presence_at->copy()->addSeconds(5));
+        $this->postJson($url,['code'=>'QZ'],$this->guest)->assertStatus(409);
+        $this->submit($round,$this->host,$round->letter.'ina',2)->assertOk();
+        $this->stopRound($round);
+        $this->assertNull($hostAnswer->fresh()->invalid_reason);
+        $this->assertSame('presence',$round->answers()->where('player_id','!=',$this->game->host_id)->first()->invalid_reason);
+    }
+
+    public function test_presence_button_and_spectator_permissions(): void {
+        $this->game->update(['anti_cheat_mode'=>'strict','answer_duration'=>10]);
+        $round=$this->startRound();
+        $this->assertLessThanOrEqual(9000,$round->started_at->diffInMilliseconds($round->presence_at));
+        $round->answers()->where('player_id',$this->game->host_id)->update(['presence_code'=>null]);
+        $round->answers()->where('player_id','!=',$this->game->host_id)->delete();
+        $this->travelTo($round->presence_at);
+        $this->postJson('/api/rounds/'.$round->id.'/presence',[],$this->host)->assertOk();
+        $this->postJson('/api/rounds/'.$round->id.'/presence',[],$this->guest)->assertNotFound();
+    }
+
+    public function test_normal_round_has_no_presence_check_or_extra_time(): void {
+        $round=$this->startRound();
+        $this->assertNull($round->presence_at);
+        $this->assertEquals(15000,$round->started_at->diffInMilliseconds($round->answer_deadline));
+        $this->getJson('/api/games/'.$this->code,$this->host)->assertJsonPath('round.presence',null);
+    }
+
     public function test_reactions_are_shared_replaceable_and_removable_without_affecting_votes(): void {
         $round=$this->startRound();
         $this->submit($round,$this->host,$round->letter.'ina')->assertOk();

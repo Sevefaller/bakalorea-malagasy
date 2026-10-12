@@ -1,5 +1,7 @@
 {
+  "presence": { "title": "Presence check", "description": "The game timer is paused for 5 seconds. This check does not reduce your answering time.", "time": "You have {seconds} seconds left to confirm.", "copy": "Type these two letters", "here": "I'm here", "validate": "Confirm", "confirmed": "Presence confirmed. The game resumes after the 5 seconds.", "wait": "Players are confirming their presence. The game will resume shortly.", "warning": "If you do not confirm in time, your answer will be invalid for this round.", "failed": "Presence was not confirmed in time", "wrong": "The letters do not match. Try again.", "retry": "Could not confirm. Try again before time runs out." },
   "updates": {
+    "strict": { "title": "Presence checks in strict mode", "presence": { "title": "A pause to confirm you are here", "description": "During the round, you have 5 seconds to click a button or type two letters. Everyone’s timer is paused. Without confirmation in time, your answer is invalid." } },
     "title": "What’s new", "unreadLabel": "What’s new: updates to discover", "intro": "Find new features and game improvements here.",
     "launch": {
       "title": "Features to discover",
@@ -222,7 +224,7 @@
   "stayFocused": "Stay on this screen during the round.",
   "softHelp": "Leaving the screen is logged without a penalty.",
   "normalHelp": "Screen departures and pasted text are reported to players during the round.",
-  "strictHelp": "Leaving the screen, switching windows or pasting text while answering disqualifies your answer.",
+  "strictHelp": "Leaving the screen, switching windows or pasting text while answering disqualifies your answer. A random check pauses the timer: confirm your presence within 5 seconds to keep your answer valid.",
   "tieHelp": "The host breaks ties. Another player decides ties on the host’s own answer.",
   "spectating": "You’ll play in the next round.",
   "rulesTitle": "How to play",

@@ -7,6 +7,7 @@ import { makeUuid, useGame, type Reaction } from './store'
 import { soundOn, soundBlocked, toggleSound, unlockSound, playSound } from './sound'
 import HelpAgent from './HelpAgent.vue'
 import Updates from './Updates.vue'
+import PresenceCheck from './PresenceCheck.vue'
 
 const { t, te, locale } = useI18n(), store = useGame(), router = useRouter(), route = useRoute()
 const reactions: { key: Reaction; emoji: string }[] = [{ key: 'like', emoji: '👍' }, { key: 'love', emoji: '❤️' }, { key: 'haha', emoji: '😂' }, { key: 'wow', emoji: '😮' }, { key: 'sad', emoji: '😢' }, { key: 'angry', emoji: '😡' }]
@@ -100,8 +101,14 @@ const visibleCategories = computed(() => {
 const g = computed(() => store.game), round = computed(() => g.value?.round)
 const inRoom = computed(() => route.path.startsWith('/salle/') && !!store.token)
 const spinning = computed(() => round.value?.status === 'answering' && now.value < round.value.started_at)
-const seconds = computed(() => round.value ? Math.max(0, Math.ceil((round.value.answer_deadline - now.value) / 1000)) : 0)
-const answering = computed(() => round.value?.status === 'answering' && !spinning.value && seconds.value > 0)
+const presencePaused = computed(() => !!round.value?.presence && round.value.status === 'answering' && now.value >= round.value.presence.starts_at && now.value < round.value.presence.ends_at)
+const seconds = computed(() => {
+  if (!round.value) return 0
+  const check = round.value.presence
+  const pauseRemaining = check ? Math.max(0, Math.min(5000, check.ends_at - now.value)) : 0
+  return Math.max(0, Math.ceil((round.value.answer_deadline - now.value - pauseRemaining) / 1000))
+})
+const answering = computed(() => round.value?.status === 'answering' && !spinning.value && !presencePaused.value && seconds.value > 0)
 const spinLetter = computed(() => g.value?.letters[Math.floor(now.value / 90) % g.value.letters.length] || 'B')
 const ranking = computed(() => store.ranking)
 const ties = computed(() => round.value?.answers?.some(a => !a.invalid_reason && a.votes.tied && a.tie_decision === null))
@@ -110,10 +117,11 @@ const onlineCount = computed(() => g.value?.players.filter(p => p.online).length
 const tiedLeaders = computed(() => ranking.value.length > 1 && ranking.value[0].score >= (g.value?.target_score || 200) && ranking.value[0].score === ranking.value[1].score)
 const playerName = (id: number | null) => g.value?.players.find(p => p.id === id)?.nickname || '—'
 const initials = (name: string) => name.slice(0, 2).toUpperCase()
-const reasonLabel = (reason: string) => t(({ empty: 'emptyReason', letter: 'letterReason', strict: 'strictReason' } as Record<string,string>)[reason] || 'invalid')
+const reasonLabel = (reason: string) => t(({ empty: 'emptyReason', letter: 'letterReason', strict: 'strictReason', presence: 'presence.failed' } as Record<string,string>)[reason] || 'invalid')
 const googleSearchUrl = (answer: string) => `https://www.google.com/search?q=${encodeURIComponent(t('googleCheckQuery', { answer: answer.trim(), category: t(`category.${round.value?.category}`) }))}`
 const guideTipKey = computed(() => {
   if (store.disconnected) return 'guide.disconnected'
+  if (presencePaused.value) return 'presence.description'
   if (!inRoom.value || !g.value) return mode.value === 'join' ? 'guide.join' : 'guide.create'
   if (g.value.status === 'finished') return 'guide.finished'
   if (g.value.status === 'lobby') return onlineCount.value < 2 ? 'guide.invite' : store.isHost ? 'guide.start' : 'guide.waitHost'
@@ -336,6 +344,7 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
 
     <footer><span>BAKALOREA <span class="footer-dot">✳</span> {{ t('footer') }}</span><span class="developer-credit">Développer par RATIAZAFY Séverin</span><a class="text-button" href="/admin">Admin</a><button class="text-button" @click="rulesDialog?.showModal()">{{ t('rules') }}</button></footer>
     <HelpAgent :context-tip="guideTip" :game="g || null" :remaining-seconds="seconds" />
+    <PresenceCheck v-if="round && presencePaused" :key="round.id" :round="round" :now="now" :ready="!!g && g.server_now >= (round.presence?.starts_at || 0)" />
     <div v-if="soundBlocked" class="sound-notice" role="status">{{ t('soundBlocked') }}</div>
     <dialog ref="rulesDialog" class="modal"><div class="modal-heading"><h2>{{ t('rulesTitle') }}</h2><button class="icon-button" :aria-label="t('close')" @click="rulesDialog?.close()"><X :size="20"/></button></div><div v-for="n in 3" :key="n" class="modal-rule"><h3>{{ n }}. {{ t(`rule${n}Title`) }}</h3><p>{{ t(`rule${n}`) }}</p></div><p>{{ t('scoring') }}</p><p>{{ t('tieHelp') }}</p><button class="primary full" @click="rulesDialog?.close()">{{ t('close') }}</button></dialog>
     <dialog ref="leaveDialog" class="modal"><h2>{{ t('leaveTitle') }}</h2><p>{{ t('leaveText') }}</p><div class="dialog-actions"><button class="secondary" @click="leaveDialog?.close()">{{ t('cancel') }}</button><button class="primary" :disabled="store.busy" @click="leave">{{ t('leave') }}</button></div></dialog>
