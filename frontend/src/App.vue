@@ -395,7 +395,11 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
 </template>
 
 <style scoped>
-.chat-photo{display:block;max-width:100%;max-height:260px;border-radius:10px;object-fit:contain;margin:8px 0}.chat-photo-preview{margin:10px 0}.chat-form{flex-wrap:wrap}.chat-form #judging-comment{min-width:0;flex:1}
+.chat-photo{display:block;max-width:100%;max-height:260px;border-radius:10px;object-fit:contain;margin:8px 0}
+.chat-photo-preview{display:flex;align-items:center;gap:12px;flex:none;min-width:0;padding:8px 12px;border-top:1px solid var(--border)}
+.chat-photo-preview .chat-photo{width:72px;height:72px;max-height:72px;flex:none;margin:0;object-fit:cover}
+.chat-photo-preview .text-button{min-width:0;overflow-wrap:anywhere;text-align:left}
+.chat-form{flex-wrap:nowrap;min-width:0}.chat-form #judging-comment{min-width:0;flex:1}
 .check-field{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:start;font-size:.85rem}.check-field input{width:16px;height:16px;margin:2px 0;accent-color:var(--accent)}.check-field small{grid-column:2;color:var(--muted);line-height:1.5}
 .waiting-music{margin-top:16px;padding:18px 20px}.waiting-music-heading{display:flex;align-items:center;gap:9px;color:var(--accent);margin-bottom:12px;font-size:.9rem}.waiting-music-button{min-height:40px;font-size:.82rem}.waiting-music .hint{margin-top:10px}.waiting-music-player{margin-top:14px}.waiting-music-player iframe{display:block;width:100%;aspect-ratio:16/9;min-height:200px;border:0;border-radius:10px;background:#edf1f0}.waiting-music-player a{display:inline-block;margin-top:9px;color:var(--accent);font-size:.78rem;text-decoration:underline;text-underline-offset:3px}
 .chat-message.pending{border:1px dashed #a9cdbb}.chat-message.pending small{display:block;margin-top:6px;color:#5c8073;font-size:.72rem}.chat-retry{display:flex;gap:12px;margin-top:8px}.chat-retry button{border:0;background:transparent;color:#286e5c;padding:2px 0;font-size:.75rem;font-weight:700;text-decoration:underline;text-underline-offset:2px}.chat-retry button:disabled{opacity:.5}

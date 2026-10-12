@@ -7,6 +7,7 @@ test('chat sends by button and Enter without crypto.randomUUID', async ({ page }
   await page.addInitScript(() => {
     localStorage.setItem('bakalorea.token', 'test-token')
     localStorage.setItem('bakalorea.code', 'TEST12')
+    localStorage.setItem('bakalorea.updates.seen', '2026-10-12-chat-photos')
     Object.defineProperty(window.crypto, 'randomUUID', { value: undefined })
   })
   await page.route('**/api/**', async route => {
@@ -47,14 +48,28 @@ test('chat sends by button and Enter without crypto.randomUUID', async ({ page }
   expect(answers && ranking && chat && answers.x + answers.width < ranking.x).toBeTruthy()
   expect(ranking && chat && ranking.y + ranking.height < chat.y).toBeTruthy()
   await page.locator('#judging-comment').fill('Salama')
-  await page.locator('.chat-form button').click()
+  await page.locator('.chat-form button[type="submit"]').click()
   await expect.poll(() => posts).toBe(1)
   await expect(page.locator('.chat-messages').getByText('Salama')).toBeVisible()
   await page.locator('#judging-comment').fill('Manao ahoana')
   await page.locator('#judging-comment').press('Enter')
   await expect.poll(() => posts).toBe(2)
   await expect(page.locator('.chat-messages').getByText('Manao ahoana')).toBeVisible()
+  await page.locator('.chat-form input[type="file"]').setInputFiles({
+    name: 'photo.png', mimeType: 'image/png',
+    buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=', 'base64'),
+  })
+  await expect(page.locator('.chat-photo-preview')).toBeVisible()
+  const sendButton = page.locator('.chat-form button[type="submit"]')
+  const sendFitsInChat = async () => {
+    const button = await sendButton.boundingBox()
+    const chatBox = await page.locator('.judging-chat').boundingBox()
+    return !!button && !!chatBox && button.y >= chatBox.y && button.y + button.height <= chatBox.y + chatBox.height
+  }
+  await expect.poll(sendFitsInChat).toBe(true)
   await page.setViewportSize({ width: 390, height: 844 })
+  await expect.poll(sendFitsInChat).toBe(true)
+  await page.locator('.chat-photo-preview button').click()
   const mobileAnswers = await page.locator('.answer-cards').boundingBox()
   const mobileRanking = await page.locator('.judging-room .scoreboard').boundingBox()
   expect(mobileAnswers && mobileRanking && mobileAnswers.y + mobileAnswers.height < mobileRanking.y).toBeTruthy()
