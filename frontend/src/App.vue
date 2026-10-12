@@ -7,6 +7,7 @@ import { makeUuid, useGame, type Reaction } from './store'
 import { soundOn, soundBlocked, toggleSound, unlockSound, playSound } from './sound'
 import HelpAgent from './HelpAgent.vue'
 import Updates from './Updates.vue'
+import additionalCategories from './additionalCategories.json'
 import PresenceCheck from './PresenceCheck.vue'
 const presenceChecks = ref(true)
 
@@ -82,7 +83,8 @@ const categories = [ { code: 'male_name', icon: UserRound, color: 'purple' }, { 
   'hot_thing',
   'fragrant_thing',
   'gift_idea'
-  ].map((code, index) => ({ code, icon: Sparkles, color: ['green', 'blue', 'orange', 'purple', 'pink'][index % 5] }))
+  ].map((code, index) => ({ code, icon: Sparkles, color: ['green', 'blue', 'orange', 'purple', 'pink'][index % 5] })),
+  ...additionalCategories.map(({ code }, index) => ({ code, icon: Sparkles, color: ['green', 'blue', 'orange', 'purple', 'pink'][index % 5] }))
 ]
 const popularCategoryCodes = ['male_name', 'female_name', 'fruit', 'animal', 'malagasy_place', 'malagasy_artist']
 const categoryGroups = [
@@ -92,7 +94,8 @@ const categoryGroups = [
   { id: 'nature', codes: ['plant', 'animal', 'bird', 'fish', 'sea_animal', 'domestic_animal', 'wild_animal'] },
   { id: 'culture', codes: ['malagasy_artist', 'international_artist', 'movie', 'actor', 'singer', 'music_group', 'song', 'book', 'writer', 'cartoon'] },
   { id: 'things', codes: ['household_item', 'furniture', 'clothing', 'footwear', 'vehicle', 'car_brand', 'color', 'school_item', 'kitchen_item', 'bedroom_item', 'office_item', 'electronic_device', 'phone_brand', 'big_thing', 'small_thing', 'round_thing', 'street_thing', 'school_thing', 'market_thing', 'beach_thing'] },
-  { id: 'fun', codes: ['profession', 'sport', 'adjective', 'verb', 'gift_idea'] }
+  { id: 'fun', codes: ['profession', 'sport', 'adjective', 'verb', 'gift_idea', ...additionalCategories.filter(category => category.group === 'fun').map(category => category.code)] },
+  ...['malagasyCulture', 'dailyLife', 'familyFriends', 'natureKnowledge'].map(id => ({ id, codes: additionalCategories.filter(category => category.group === id).map(category => category.code) }))
 ]
 const visibleCategories = computed(() => {
   if (categoryView.value === 'all') return categories

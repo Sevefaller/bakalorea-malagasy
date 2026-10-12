@@ -90,6 +90,23 @@ class GameTest extends TestCase {
         foreach ($round->answers()->get() as $answer) $this->assertNull($answer->invalid_reason);
     }
 
+    public function test_new_categories_are_translated_and_attached_to_existing_rooms_without_duplicates(): void {
+        $catalog=json_decode(file_get_contents(base_path('../frontend/src/additionalCategories.json')),true,512,JSON_THROW_ON_ERROR);
+        $this->assertCount(94,$catalog);
+        $codes=array_column($catalog,'code');
+        $ids=DB::table('categories')->whereIn('code',$codes)->pluck('id');
+        $this->assertCount(94,$ids);
+        foreach (['mg','fr','en'] as $locale) {
+            $this->assertSame(94,DB::table('category_translations')->whereIn('category_id',$ids)->where('locale',$locale)->count());
+        }
+        DB::table('game_categories')->where('game_id',$this->game->id)->whereIn('category_id',$ids)->delete();
+        $migration=require database_path('migrations/2026_10_12_000003_add_cultural_and_fun_categories.php');
+        $migration->up();
+        $migration->up();
+        $this->assertSame(94,DB::table('game_categories')->where('game_id',$this->game->id)->whereIn('category_id',$ids)->count());
+        $this->assertSame(1,DB::table('categories')->where('code','gift_idea')->count());
+    }
+
     public function test_reactions_are_shared_replaceable_and_removable_without_affecting_votes(): void {
         $round=$this->startRound();
         $this->submit($round,$this->host,$round->letter.'ina')->assertOk();

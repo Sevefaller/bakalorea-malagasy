@@ -7,6 +7,7 @@ const { t, locale } = useI18n()
 const props = withDefaults(defineProps<{ autoOpen?: boolean }>(), { autoOpen: true })
 // Add future updates first, with a unique ID, an ISO date and translated content.
 const releases = [
+  { id: '2026-10-12-categories', date: '2026-10-12', key: 'expansion', features: ['categories'] },
   { id: '2026-10-12-optional-presence', date: '2026-10-12', key: 'strict', features: ['flow'] },
   { id: '2026-10-11', date: '2026-10-11', key: 'launch', features: ['categories', 'reactions', 'chat', 'guide'] }
 ]

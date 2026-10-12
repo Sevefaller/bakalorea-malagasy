@@ -1,0 +1,378 @@
+[
+    {
+        "code":  "malagasy_dish",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_dessert",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "traditional_malagasy_food",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_monarch",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_historical_figure",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "madagascar_region",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "madagascar_district",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "madagascar_commune",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "madagascar_national_park",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_monument",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_company",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_brand",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_proverb",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_expression",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "traditional_malagasy_game",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "traditional_malagasy_instrument",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_custom",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "traditional_malagasy_festival",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "traditional_malagasy_object",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_historical_site",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_song",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_music_group",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_movie",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_actor",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_comedian",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_writer",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "traditional_malagasy_sport",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "madagascar_ethnic_group",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_dance",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "malagasy_handicraft",
+        "group":  "malagasyCulture"
+    },
+    {
+        "code":  "scary_thing",
+        "group":  "fun"
+    },
+    {
+        "code":  "funny_thing",
+        "group":  "fun"
+    },
+    {
+        "code":  "embarrassing_thing",
+        "group":  "fun"
+    },
+    {
+        "code":  "annoying_thing",
+        "group":  "fun"
+    },
+    {
+        "code":  "smelly_thing",
+        "group":  "fun"
+    },
+    {
+        "code":  "weird_thing",
+        "group":  "fun"
+    },
+    {
+        "code":  "happy_thing",
+        "group":  "fun"
+    },
+    {
+        "code":  "sleepy_thing",
+        "group":  "fun"
+    },
+    {
+        "code":  "wake_up_thing",
+        "group":  "fun"
+    },
+    {
+        "code":  "argument_cause",
+        "group":  "fun"
+    },
+    {
+        "code":  "forgotten_thing",
+        "group":  "fun"
+    },
+    {
+        "code":  "secret_activity",
+        "group":  "fun"
+    },
+    {
+        "code":  "alone_activity",
+        "group":  "fun"
+    },
+    {
+        "code":  "bored_activity",
+        "group":  "fun"
+    },
+    {
+        "code":  "angry_activity",
+        "group":  "fun"
+    },
+    {
+        "code":  "happy_activity",
+        "group":  "fun"
+    },
+    {
+        "code":  "never_lent_thing",
+        "group":  "fun"
+    },
+    {
+        "code":  "thing_to_keep",
+        "group":  "fun"
+    },
+    {
+        "code":  "unnecessary_purchase",
+        "group":  "fun"
+    },
+    {
+        "code":  "inedible_thing",
+        "group":  "fun"
+    },
+    {
+        "code":  "fridge_thing",
+        "group":  "dailyLife"
+    },
+    {
+        "code":  "under_bed_thing",
+        "group":  "dailyLife"
+    },
+    {
+        "code":  "bag_thing",
+        "group":  "dailyLife"
+    },
+    {
+        "code":  "wedding_thing",
+        "group":  "dailyLife"
+    },
+    {
+        "code":  "church_thing",
+        "group":  "dailyLife"
+    },
+    {
+        "code":  "hospital_thing",
+        "group":  "dailyLife"
+    },
+    {
+        "code":  "garage_thing",
+        "group":  "dailyLife"
+    },
+    {
+        "code":  "workplace_thing",
+        "group":  "dailyLife"
+    },
+    {
+        "code":  "travel_item",
+        "group":  "dailyLife"
+    },
+    {
+        "code":  "rain_item",
+        "group":  "dailyLife"
+    },
+    {
+        "code":  "darkness_item",
+        "group":  "dailyLife"
+    },
+    {
+        "code":  "weekend_activity",
+        "group":  "dailyLife"
+    },
+    {
+        "code":  "breakdown_thing",
+        "group":  "dailyLife"
+    },
+    {
+        "code":  "breakable_thing",
+        "group":  "dailyLife"
+    },
+    {
+        "code":  "late_excuse",
+        "group":  "familyFriends"
+    },
+    {
+        "code":  "school_absence_excuse",
+        "group":  "familyFriends"
+    },
+    {
+        "code":  "work_absence_excuse",
+        "group":  "familyFriends"
+    },
+    {
+        "code":  "parents_annoyance",
+        "group":  "familyFriends"
+    },
+    {
+        "code":  "hidden_from_parents",
+        "group":  "familyFriends"
+    },
+    {
+        "code":  "baby_laugh_thing",
+        "group":  "familyFriends"
+    },
+    {
+        "code":  "forbidden_at_school",
+        "group":  "familyFriends"
+    },
+    {
+        "code":  "not_said_to_teacher",
+        "group":  "familyFriends"
+    },
+    {
+        "code":  "unwanted_gift",
+        "group":  "familyFriends"
+    },
+    {
+        "code":  "vacation_spoiler",
+        "group":  "familyFriends"
+    },
+    {
+        "code":  "offline_activity",
+        "group":  "familyFriends"
+    },
+    {
+        "code":  "sibling_argument",
+        "group":  "familyFriends"
+    },
+    {
+        "code":  "not_said_at_wedding",
+        "group":  "familyFriends"
+    },
+    {
+        "code":  "cry_thing",
+        "group":  "familyFriends"
+    },
+    {
+        "code":  "job_loss_cause",
+        "group":  "familyFriends"
+    },
+    {
+        "code":  "insect",
+        "group":  "natureKnowledge"
+    },
+    {
+        "code":  "reptile",
+        "group":  "natureKnowledge"
+    },
+    {
+        "code":  "flower",
+        "group":  "natureKnowledge"
+    },
+    {
+        "code":  "tree",
+        "group":  "natureKnowledge"
+    },
+    {
+        "code":  "fruit_tree",
+        "group":  "natureKnowledge"
+    },
+    {
+        "code":  "spice",
+        "group":  "natureKnowledge"
+    },
+    {
+        "code":  "lake",
+        "group":  "natureKnowledge"
+    },
+    {
+        "code":  "waterfall",
+        "group":  "natureKnowledge"
+    },
+    {
+        "code":  "desert",
+        "group":  "natureKnowledge"
+    },
+    {
+        "code":  "forest",
+        "group":  "natureKnowledge"
+    },
+    {
+        "code":  "volcano",
+        "group":  "natureKnowledge"
+    },
+    {
+        "code":  "tourist_attraction",
+        "group":  "natureKnowledge"
+    },
+    {
+        "code":  "famous_monument",
+        "group":  "natureKnowledge"
+    },
+    {
+        "code":  "world_language",
+        "group":  "natureKnowledge"
+    },
+    {
+        "code":  "invention",
+        "group":  "natureKnowledge"
+    }
+]
