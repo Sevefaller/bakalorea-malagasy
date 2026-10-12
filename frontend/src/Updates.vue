@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Sparkles, X } from 'lucide-vue-next'
 
 const { t, locale } = useI18n()
+const props = withDefaults(defineProps<{ autoOpen?: boolean }>(), { autoOpen: true })
 // Add future updates first, with a unique ID, an ISO date and translated content.
 const releases = [
   { id: '2026-10-12-optional-presence', date: '2026-10-12', key: 'strict', features: ['flow'] },
@@ -15,10 +16,16 @@ const seen = ref('')
 try { seen.value = localStorage.getItem(storageKey) || '' } catch { /* Reading updates still works without storage. */ }
 const unread = computed(() => seen.value !== releases[0]?.id)
 function open() {
-  dialog.value?.showModal()
+  if (!dialog.value || dialog.value.open) return
+  dialog.value.showModal()
   seen.value = releases[0]?.id || ''
   try { localStorage.setItem(storageKey, seen.value) } catch { /* Keep the read state for this visit. */ }
 }
+function openUnread() {
+  if (props.autoOpen && unread.value) open()
+}
+onMounted(openUnread)
+watch(() => props.autoOpen, openUnread)
 function formatDate(date: string) {
   return new Intl.DateTimeFormat(locale.value, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${date}T00:00:00Z`))
 }

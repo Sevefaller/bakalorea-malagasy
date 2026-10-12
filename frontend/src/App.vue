@@ -242,7 +242,7 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
     <header class="topbar">
       <a href="/" class="brand brand-illustrated" :aria-label="`Bakalorea · ${t('tagline')}`" @click.prevent="inRoom ? null : router.push('/')"><img class="family-logo" src="/images/bakalorea-family-logo.png" :alt="`Bakalorea · ${t('tagline')}`" width="1440" height="1080" fetchpriority="high"></a>
       <div class="header-actions">
-        <Updates />
+        <Updates :auto-open="!inRoom" />
         <button class="text-button rules-link" @click="rulesDialog?.showModal()"><HelpCircle :size="18"/>{{ t('rules') }}</button>
         <button v-if="installPrompt" class="icon-button" :aria-label="t('install')" @click="install"><Download :size="19"/></button>
         <button class="icon-button" :aria-label="t('sound')" :aria-pressed="soundOn" @click="toggleSound"><Volume2 v-if="soundOn" :size="20"/><VolumeX v-else :size="20"/></button>
