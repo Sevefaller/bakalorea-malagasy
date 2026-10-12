@@ -25,8 +25,8 @@ const pendingComment = ref<PendingComment | null>(null)
 const showMission = ref(false), categoryView = ref('popular')
 const roomNotice = ref('')
 const waitingMusic = ref(false)
-const waitingMusicUrl = 'https://www.youtube.com/watch?v=VC4x50pjZY8'
-const waitingMusicEmbed = 'https://www.youtube-nocookie.com/embed/VC4x50pjZY8?autoplay=1&playsinline=1&controls=1&loop=1&playlist=VC4x50pjZY8'
+const waitingMusicUrl = 'https://www.youtube.com/watch?v=hFqC4yFZwec&list=RDhFqC4yFZwec&start_radio=1'
+const waitingMusicEmbed = 'https://www.youtube-nocookie.com/embed/hFqC4yFZwec?autoplay=1&playsinline=1&controls=1&loop=1&playlist=hFqC4yFZwec'
 let clock: ReturnType<typeof setInterval>, noticeTimer: ReturnType<typeof setTimeout> | undefined, lastBeep = -1, away = false, activeSave = 0
 const categories = [ { code: 'male_name', icon: UserRound, color: 'purple' }, { code: 'female_name', icon: UserRound, color: 'pink' }, { code: 'plant', icon: Leaf, color: 'green' }, { code: 'fruit', icon: Apple, color: 'orange' }, { code: 'malagasy_artist', icon: Mic2, color: 'pink' }, { code: 'international_artist', icon: Music2, color: 'purple' }, { code: 'malagasy_place', icon: MapPin, color: 'orange' }, { code: 'international_place', icon: Globe2, color: 'blue' },
   ...[
