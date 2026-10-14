@@ -1,6 +1,6 @@
 <?php
 
-// Editorial difficulty estimates: all other categories are level 1.
+// Initial estimates used by the migration. Manage live levels in /admin afterwards.
 return [
     2 => [
         'bird','fish','vegetable','profession','capital_city','island','mountain','river',

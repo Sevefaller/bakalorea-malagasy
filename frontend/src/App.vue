@@ -10,6 +10,7 @@ import Updates from './Updates.vue'
 import ChatPhoto from './ChatPhoto.vue'
 import additionalCategories from './additionalCategories.json'
 import PresenceCheck from './PresenceCheck.vue'
+import { loadCategoryCatalog } from './categoryCatalog'
 const presenceChecks = ref(true)
 
 const { t, te, locale } = useI18n(), store = useGame(), router = useRouter(), route = useRoute()
@@ -35,7 +36,7 @@ const waitingMusic = ref(false)
 const waitingMusicUrl = 'https://www.youtube.com/watch?v=hFqC4yFZwec&list=RDhFqC4yFZwec&start_radio=1'
 const waitingMusicEmbed = 'https://www.youtube-nocookie.com/embed/hFqC4yFZwec?autoplay=1&playsinline=1&controls=1&loop=1&playlist=hFqC4yFZwec'
 let clock: ReturnType<typeof setInterval>, noticeTimer: ReturnType<typeof setTimeout> | undefined, lastBeep = -1, away = false, activeSave = 0
-const categories = [ { code: 'male_name', icon: UserRound, color: 'purple' }, { code: 'female_name', icon: UserRound, color: 'pink' }, { code: 'plant', icon: Leaf, color: 'green' }, { code: 'fruit', icon: Apple, color: 'orange' }, { code: 'malagasy_artist', icon: Mic2, color: 'pink' }, { code: 'international_artist', icon: Music2, color: 'purple' }, { code: 'malagasy_place', icon: MapPin, color: 'orange' }, { code: 'international_place', icon: Globe2, color: 'blue' },
+const defaultCategories = [ { code: 'male_name', icon: UserRound, color: 'purple' }, { code: 'female_name', icon: UserRound, color: 'pink' }, { code: 'plant', icon: Leaf, color: 'green' }, { code: 'fruit', icon: Apple, color: 'orange' }, { code: 'malagasy_artist', icon: Mic2, color: 'pink' }, { code: 'international_artist', icon: Music2, color: 'purple' }, { code: 'malagasy_place', icon: MapPin, color: 'orange' }, { code: 'international_place', icon: Globe2, color: 'blue' },
   ...[
   'animal',
   'bird',
@@ -94,6 +95,8 @@ const categories = [ { code: 'male_name', icon: UserRound, color: 'purple' }, { 
   ...additionalCategories.map(({ code }, index) => ({ code, icon: Sparkles, color: ['green', 'blue', 'orange', 'purple', 'pink'][index % 5] }))
 ]
 const popularCategoryCodes = ['male_name', 'female_name', 'fruit', 'animal', 'malagasy_place', 'malagasy_artist']
+const catalogCodes = ref<string[] | null>(null)
+const categories = computed(() => catalogCodes.value ? catalogCodes.value.map(code => defaultCategories.find(category => category.code === code) || { code, icon: Sparkles, color: 'green' }) : defaultCategories)
 const categoryGroups = [
   { id: 'names', codes: ['male_name', 'female_name'] },
   { id: 'places', codes: ['malagasy_place', 'international_place', 'country', 'capital_city', 'city', 'island', 'mountain', 'river', 'sea'] },
@@ -105,9 +108,9 @@ const categoryGroups = [
   ...['malagasyCulture', 'dailyLife', 'familyFriends', 'natureKnowledge'].map(id => ({ id, codes: additionalCategories.filter(category => category.group === id).map(category => category.code) }))
 ]
 const visibleCategories = computed(() => {
-  if (categoryView.value === 'all') return categories
+  if (categoryView.value === 'all') return categories.value
   const codes = categoryView.value === 'popular' ? popularCategoryCodes : categoryGroups.find(group => group.id === categoryView.value)?.codes || []
-  return codes.map(code => categories.find(category => category.code === code)).filter((category): category is typeof categories[number] => !!category)
+  return codes.map(code => categories.value.find(category => category.code === code)).filter((category): category is typeof defaultCategories[number] => !!category)
 })
 const g = computed(() => store.game), round = computed(() => g.value?.round)
 const inRoom = computed(() => route.path.startsWith('/salle/') && !!store.token)
@@ -268,6 +271,7 @@ const onFocus = () => { reportAway(false); void unlockSound(); store.refresh() }
 const captureInstall = (e: Event) => { e.preventDefault(); installPrompt.value = e }
 async function install() { await installPrompt.value?.prompt(); installPrompt.value = null }
 onMounted(async () => {
+  loadCategoryCatalog().then(codes => { catalogCodes.value = codes }).catch(() => {})
   document.documentElement.lang = locale.value
   document.addEventListener('pointerdown', unlockSound, { once: true })
   document.addEventListener('keydown', unlockSound, { once: true })

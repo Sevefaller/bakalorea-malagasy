@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
 import { Activity, ArrowLeft, Eye, EyeOff, Gamepad2, LockKeyhole, LogOut, RefreshCw, ShieldCheck, Trash2, Trophy, Users, X } from 'lucide-vue-next'
+import CategoryManager from './CategoryManager.vue'
 
 interface GameSummary {
   id: number; code: string; name: string; status: string; created_at: string; can_delete: boolean
@@ -172,6 +173,7 @@ onMounted(async () => {
         <div class="admin-stat card"><Trophy :size="22"/><span>Terminées</span><strong>{{ dashboard.totals.finished_games }}</strong></div>
       </div>
       <section v-if="dashboard" class="admin-retention card"><div><h2>Conservation des parties terminées</h2><p>La purge s’exécute chaque jour. Saisissez 0 pour la désactiver.</p></div><form @submit.prevent="saveRetention"><label for="retention-days">Durée</label><input id="retention-days" v-model.number="retentionDays" type="number" min="0" max="3650" step="1" required><span>jours</span><button class="secondary" type="submit" :disabled="savingRetention || loading">{{ savingRetention ? 'Enregistrement…' : 'Enregistrer' }}</button></form></section>
+      <CategoryManager :csrf="csrf" @expired="authenticated = false" />
       <section class="admin-games card">
         <div class="admin-games-heading"><div><h2>Historique des parties</h2><small>20 parties par page · suppression possible en attente, terminée ou en cours depuis plus de 3 h</small><small v-if="dashboard?.finished_retention_days">Les parties terminées sont supprimées après {{ dashboard.finished_retention_days }} jours.</small></div><button class="admin-danger" :disabled="deleting || !dashboard?.totals.finished_games" @click="deleteAllFinished"><Trash2 :size="15"/> Supprimer toutes les parties terminées</button></div>
         <div class="admin-filters"><button :class="{ selected: filter === 'all' }" :disabled="loading || deleting" @click="changeFilter('all')">Toutes</button><button :class="{ selected: filter === 'lobby' }" :disabled="loading || deleting" @click="changeFilter('lobby')">En attente</button><button :class="{ selected: filter === 'stale' }" :disabled="loading || deleting" @click="changeFilter('stale')">En cours &gt; 3 h</button><button :class="{ selected: filter === 'finished' }" :disabled="loading || deleting" @click="changeFilter('finished')">Terminées</button></div>

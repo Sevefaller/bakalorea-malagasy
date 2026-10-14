@@ -6,10 +6,16 @@ use App\Http\Middleware\ActiveSession;
 
 Route::get('/health',function () { DB::select('SELECT 1'); return ['status'=>'ok']; });
 Route::get('/config',fn()=> ['realtime'=>config('broadcasting.default')==='reverb','key'=>env('REVERB_APP_KEY'),'host'=>env('REVERB_PUBLIC_HOST'),'port'=>(int)env('REVERB_PUBLIC_PORT',8080),'scheme'=>env('REVERB_PUBLIC_SCHEME','http')]);
+Route::get('/categories', fn (\App\Services\CategoryCatalog $catalog) => response()->json(['categories' => $catalog->all()])->header('Cache-Control', 'no-store'));
 Route::prefix('admin')->group(function () {
     Route::post('/login', [AdminController::class, 'login'])->middleware('throttle:5,1,admin-login:');
     Route::get('/status', [AdminController::class, 'status']);
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
+    Route::get('/categories', [AdminController::class, 'categories']);
+    Route::get('/categories/template', [AdminController::class, 'categoryTemplate']);
+    Route::post('/categories/import', [AdminController::class, 'importCategories']);
+    Route::post('/categories', [AdminController::class, 'createCategory']);
+    Route::put('/categories/{category}', [AdminController::class, 'updateCategory'])->whereNumber('category');
     Route::put('/retention', [AdminController::class, 'updateRetention']);
     Route::delete('/games/finished', [AdminController::class, 'destroyFinished']);
     Route::get('/games/{game}/players', [AdminController::class, 'players']);

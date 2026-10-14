@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import Echo from 'laravel-echo'
 import Pusher from 'pusher-js'
+import { applyCategoryNames } from './categoryCatalog'
 
 export interface Player { id: number; nickname: string; score: number; online: boolean; left: boolean }
 export type Reaction = 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'
@@ -50,6 +51,8 @@ export const useGame = defineStore('game', () => {
     const before = performance.now()
     try {
       const data: Game = await request(`/games/${code.value}`, 'GET', undefined, true)
+      const names = (data as Game & { category_names?: Record<string, Record<string, string>> }).category_names
+      if (names) applyCategoryNames(names)
       anchorServer = data.server_now + (performance.now() - before) / 2; anchorPerf = performance.now()
       if (!left.value) { game.value = data; disconnected.value = false }
     } catch { if (!left.value) disconnected.value = true }

@@ -65,14 +65,10 @@ class GameEngine {
             $progress = (int)$players->max('score') / max(1, (int)$game->target_score);
             $minimumDifficulty = $progress >= 0.8 ? 3 : ($progress >= 0.5 ? 2 : 1);
             if ($minimumDifficulty > 1) {
-                $codes = DB::table('categories')->whereIn('id',$availableCategories)->pluck('code','id');
-                $levels = [];
-                foreach (config('category_difficulty') as $level => $categoryCodes) {
-                    foreach ($categoryCodes as $code) $levels[$code] = (int)$level;
-                }
-                $highestAvailable = $codes->map(fn ($code) => $levels[$code] ?? 1)->max();
+                $levels = DB::table('categories')->whereIn('id',$availableCategories)->pluck('difficulty','id');
+                $highestAvailable = $levels->max();
                 $required = min($minimumDifficulty, $highestAvailable);
-                $availableCategories = array_values(array_filter($availableCategories, fn ($id) => ($levels[$codes[$id]] ?? 1) >= $required));
+                $availableCategories = array_values(array_filter($availableCategories, fn ($id) => ($levels[$id] ?? 1) >= $required));
             }
             // Favor pairs absent from recent rounds, including rounds in other rooms.
             // The random choice remains uniform among equally eligible pairs.
@@ -285,6 +281,10 @@ class GameEngine {
                 })->values();
             }
             $data['history'] = $game->rounds()->where('status','finished')->orderByDesc('number')->limit(50)->get()->map(fn ($r) => ['number'=>$r->number,'letter'=>$r->letter,'category'=>DB::table('categories')->where('id',$r->category_id)->value('code'),'answers'=>$r->answers()->get(['player_id','answer','points_awarded','verdict'])]);
+            $codes = $data['history']->pluck('category')->push($data['round']['category'] ?? null)->filter()->unique();
+            $data['category_names'] = DB::table('category_translations')->join('categories', 'categories.id', '=', 'category_translations.category_id')
+                ->whereIn('categories.code', $codes)->get(['categories.code', 'locale', 'category_translations.name'])
+                ->groupBy('code')->map(fn ($rows) => $rows->pluck('name', 'locale')->all())->all();
             return $data;
         });
     }

@@ -3,7 +3,7 @@ namespace App\Http\Controllers;
 use App\Models\{Game,GamePlayer,Round,Answer};
 use App\Services\GameEngine;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{DB,Log};
+use Illuminate\Support\Facades\{Cache,DB,Log};
 use Illuminate\Support\Str;
 
 class GameController extends Controller {
@@ -20,14 +20,14 @@ class GameController extends Controller {
         $settings['presence_checks'] = ($presence['presence_checks'] ?? true) && $settings['anti_cheat_mode'] === 'strict' && (int)$settings['answer_duration'] === 15;
         $settings['letters']=implode('',array_unique(str_split($settings['letters'])));
         abort_if(strlen($settings['letters'])<2,422,'invalid_letters');
-        return DB::transaction(function () use ($identity,$settings) {
+        return Cache::lock('category-catalog', 60)->block(5, fn () => DB::transaction(function () use ($identity,$settings) {
             do { $code=Str::upper(Str::random(6)); } while (Game::where('code',$code)->exists());
             $game=Game::create([...$settings,'code'=>$code]);
             $p=$game->players()->create([...$identity,'nickname_key'=>GameEngine::normalize($identity['nickname']),'last_seen_at'=>now()]);
             $game->update(['host_id'=>$p->id]);
             foreach (DB::table('categories')->orderBy('sort_order')->get() as $c) DB::table('game_categories')->insert(['game_id'=>$game->id,'category_id'=>$c->id,'position'=>$c->sort_order]);
             return response()->json($this->credentials($game,$p),201);
-        });
+        }));
     }
     public function join(Request $r,string $code) {
         $identity=$this->identity($r); $game=Game::where('code',strtoupper($code))->firstOrFail();
