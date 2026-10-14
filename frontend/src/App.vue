@@ -32,9 +32,6 @@ type PendingComment = { image?: File; preview?: string; id: string; roundId: num
 const pendingComment = ref<PendingComment | null>(null)
 const showMission = ref(false), categoryView = ref('popular')
 const roomNotice = ref('')
-const waitingMusic = ref(false)
-const waitingMusicUrl = 'https://www.youtube.com/watch?v=hFqC4yFZwec&list=RDhFqC4yFZwec&start_radio=1'
-const waitingMusicEmbed = 'https://www.youtube-nocookie.com/embed/hFqC4yFZwec?autoplay=1&playsinline=1&controls=1&loop=1&playlist=hFqC4yFZwec'
 let clock: ReturnType<typeof setInterval>, noticeTimer: ReturnType<typeof setTimeout> | undefined, lastBeep = -1, away = false, activeSave = 0
 const defaultCategories = [ { code: 'male_name', icon: UserRound, color: 'purple' }, { code: 'female_name', icon: UserRound, color: 'pink' }, { code: 'plant', icon: Leaf, color: 'green' }, { code: 'fruit', icon: Apple, color: 'orange' }, { code: 'malagasy_artist', icon: Mic2, color: 'pink' }, { code: 'international_artist', icon: Music2, color: 'purple' }, { code: 'malagasy_place', icon: MapPin, color: 'orange' }, { code: 'international_place', icon: Globe2, color: 'blue' },
   ...[
@@ -160,9 +157,7 @@ watch(locale, value => { localStorage.setItem('bakalorea.locale', value); docume
 watch(() => round.value?.id, async () => { reactionDetails.value = null; draft.value = round.value?.own_answer || ''; commentDraft.value = ''; clearChatPhoto(); pendingComment.value = null; revision.value = round.value?.own_revision || 0; savedState.value = draft.value ? 'saved' : ''; lastBeep = -1; away = false; if (spinning.value) { await unlockSound(); playSound('start') } await nextTick() })
 watch(answering, async value => { if (value) { await nextTick(); answerInput.value?.focus(); if(document.hidden || !document.hasFocus()) reportAway(true) } })
 watch(seconds, value => { if (answering.value && value <= 5 && value !== lastBeep) { lastBeep = value; playSound('tick') } if (value === 0 && round.value?.status === 'answering') { playSound('stop'); store.refresh() } })
-watch(() => g.value?.status, value => { if (value === 'lobby' && soundOn.value) waitingMusic.value = true; else if (value !== 'lobby') waitingMusic.value = false; if (value === 'finished') playSound('win') })
-watch(() => g.value?.code, (code, previous) => { if (code && code !== previous && g.value?.status === 'lobby') waitingMusic.value = soundOn.value })
-watch(soundOn, value => { if (!value) waitingMusic.value = false })
+watch(() => g.value?.status, value => { if (value === 'finished') playSound('win') })
 watch([() => round.value?.comments?.at(-1)?.id, () => pendingComment.value?.id, () => pendingComment.value?.serverId], async () => { if (pendingComment.value && round.value?.comments?.some(comment => comment.id === pendingComment.value?.serverId || comment.client_id === pendingComment.value?.id)) pendingComment.value = null; await nextTick(); if (chatMessages.value) chatMessages.value.scrollTop = chatMessages.value.scrollHeight })
 watch(() => g.value?.players, (players, previous) => {
   if (!players || !previous) return
@@ -348,12 +343,6 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
           <template v-if="g.status === 'lobby'">
             <div class="eyebrow"><Users :size="17"/>{{ t('privateRooms') }}</div><h1>{{ t('ready') }}</h1><p class="intro">{{ t('lobbyText') }}</p>
             <div class="card lobby-card"><div class="invite-block"><span class="eyebrow">{{ t('invite') }}</span><div class="room-code" data-testid="room-code">{{ g.code }}</div><button class="secondary" @click="copyCode"><Check v-if="copied" :size="17"/><Copy v-else :size="17"/>{{ t(copied ? 'copied' : 'copy') }}</button></div><div class="player-heading"><h2>{{ t('players') }}</h2><span class="pill">{{ onlineCount }} / 12</span></div><div class="lobby-players"><div v-for="(p, index) in g.players" :key="p.id" class="lobby-player"><span :class="['avatar', 'avatar-' + index % 5]">{{ initials(p.nickname) }}</span><span class="player-info"><strong>{{ p.nickname }} <small v-if="p.id === g.me_id">({{ t('you') }})</small></strong><small>{{ p.left ? t('leftRoom') : p.id === g.host_id ? t('host') : t(p.online ? 'online' : 'offline') }}</small></span><Crown v-if="p.id === g.host_id" :size="18" class="gold"/><span v-else-if="p.online" class="online-dot" :aria-label="t('online')"></span></div><div v-if="onlineCount < 2" class="empty-player"><Plus :size="22"/>{{ t('waitingPlayer') }}</div></div><button v-if="store.isHost" class="primary full" :disabled="store.busy || onlineCount < 2 || store.disconnected" @click="start"><Sparkles :size="19"/>{{ t('start') }}</button><p v-else class="wait-message">{{ t('waitingHost') }}</p><p v-if="onlineCount < 2" class="hint center">{{ t('needPlayers') }}</p></div>
-            <section class="card waiting-music" :aria-label="t('waitingMusic')">
-              <div class="waiting-music-heading"><Music2 :size="20"/><strong>{{ t('waitingMusic') }}</strong></div>
-              <button class="secondary waiting-music-button" :disabled="!soundOn" :aria-pressed="waitingMusic" @click="waitingMusic = !waitingMusic"><VolumeX v-if="waitingMusic" :size="17"/><Volume2 v-else :size="17"/>{{ t(waitingMusic ? 'stopWaitingMusic' : 'playWaitingMusic') }}</button>
-              <p v-if="!soundOn" class="hint">{{ t('waitingMusicSoundOff') }}</p>
-              <div v-if="waitingMusic" class="waiting-music-player"><iframe :src="waitingMusicEmbed" :title="t('waitingMusic')" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><p class="hint">{{ t('musicAutoplayHint') }}</p><a :href="waitingMusicUrl" target="_blank" rel="noopener noreferrer">{{ t('openOnYouTube') }} ↗</a></div>
-            </section>
           </template>
 
           <template v-else-if="g.status === 'finished'">
@@ -405,6 +394,5 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
 .chat-photo-preview .text-button{min-width:0;overflow-wrap:anywhere;text-align:left}
 .chat-form{flex-wrap:nowrap;min-width:0}.chat-form #judging-comment{min-width:0;flex:1}
 .check-field{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:start;font-size:.85rem}.check-field input{width:16px;height:16px;margin:2px 0;accent-color:var(--accent)}.check-field small{grid-column:2;color:var(--muted);line-height:1.5}
-.waiting-music{margin-top:16px;padding:18px 20px}.waiting-music-heading{display:flex;align-items:center;gap:9px;color:var(--accent);margin-bottom:12px;font-size:.9rem}.waiting-music-button{min-height:40px;font-size:.82rem}.waiting-music .hint{margin-top:10px}.waiting-music-player{margin-top:14px}.waiting-music-player iframe{display:block;width:100%;aspect-ratio:16/9;min-height:200px;border:0;border-radius:10px;background:#edf1f0}.waiting-music-player a{display:inline-block;margin-top:9px;color:var(--accent);font-size:.78rem;text-decoration:underline;text-underline-offset:3px}
 .chat-message.pending{border:1px dashed #a9cdbb}.chat-message.pending small{display:block;margin-top:6px;color:#5c8073;font-size:.72rem}.chat-retry{display:flex;gap:12px;margin-top:8px}.chat-retry button{border:0;background:transparent;color:#286e5c;padding:2px 0;font-size:.75rem;font-weight:700;text-decoration:underline;text-underline-offset:2px}.chat-retry button:disabled{opacity:.5}
 </style>
