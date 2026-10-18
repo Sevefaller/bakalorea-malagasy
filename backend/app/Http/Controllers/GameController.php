@@ -16,8 +16,7 @@ class GameController extends Controller {
         $identity=$this->identity($r);
         $settings=$r->validate(['name'=>'required|string|max:60','target_score'=>'required|integer|min:10|max:2000','answer_duration'=>'required|integer|in:10,15,30','anti_cheat_mode'=>'sometimes|in:soft,normal,strict','letters'=>'required|string|regex:/^[A-Z]{2,26}$/','no_repeat'=>'required|boolean','unique_points'=>'required|integer|min:1|max:100','duplicate_points'=>'required|integer|min:0|lte:unique_points']);
         $settings['anti_cheat_mode'] ??= 'strict';
-        $presence=$r->validate(['presence_checks'=>'sometimes|boolean']);
-        $settings['presence_checks'] = ($presence['presence_checks'] ?? true) && $settings['anti_cheat_mode'] === 'strict' && (int)$settings['answer_duration'] === 15;
+        $settings['presence_checks'] = false;
         $settings['letters']=implode('',array_unique(str_split($settings['letters'])));
         abort_if(strlen($settings['letters'])<2,422,'invalid_letters');
         return Cache::lock('category-catalog', 60)->block(5, fn () => DB::transaction(function () use ($identity,$settings) {
@@ -82,7 +81,6 @@ class GameController extends Controller {
         $this->member($r,$round->game);
         return response(base64_decode($row->image_data),200,['Content-Type'=>$row->image_mime,'Cache-Control'=>'private, no-store','X-Content-Type-Options'=>'nosniff']);
     }
-    public function presence(Request $r,Round $round) { $this->engine->confirmPresence($round,$this->member($r,$round->game)); return response()->json(['ok'=>true]); }
     public function finish(Request $r,Round $round) { $this->engine->finish($round,$this->member($r,$round->game)); return response()->json(['ok'=>true]); }
     public function antiCheat(Request $r) { $v=$r->validate(['round_id'=>'required|integer','event'=>'required|in:away,back,paste']); $round=Round::findOrFail($v['round_id']); $this->engine->antiCheat($round,$this->member($r,$round->game),$v['event']); return response()->json(['ok'=>true]); }
     public function leave(Request $r,Game $game) {

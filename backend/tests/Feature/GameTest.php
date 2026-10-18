@@ -49,47 +49,24 @@ class GameTest extends TestCase {
             $this->travelTo($round->started_at->copy()->addSeconds(9));
             $this->submit($round,$this->host,$round->letter.'ina')->assertOk();
             $snapshot=$this->getJson('/api/games/'.$this->code,$this->host)->assertOk();
-            $snapshot->assertJsonPath('round.presence',null);
+            $snapshot->assertJsonMissingPath('round.presence');
             $this->stopRound($round);
             $this->assertNull($round->answers()->where('player_id',$this->game->host_id)->first()->invalid_reason);
             $round->update(['status'=>'finished']);
         }
     }
 
-    public function test_optional_presence_checks_pause_and_report_without_invalidating_answers(): void {
-        $this->game->update(['anti_cheat_mode'=>'strict','presence_checks'=>true,'presence_next_round'=>2]);
-        $first=$this->startRound();
-        $this->assertNull($first->presence_at);
-        $this->stopRound($first);
-        $first->update(['status'=>'finished']);
+    public function test_legacy_presence_settings_do_not_pause_rounds(): void {
+        $this->game->update(['anti_cheat_mode'=>'strict','presence_checks'=>true,'presence_next_round'=>1]);
         $round=$this->startRound();
-        $this->assertNotNull($round->presence_at);
-        $this->assertEquals(20000,$round->started_at->diffInMilliseconds($round->answer_deadline));
-        $next=$this->game->fresh()->presence_next_round;
-        $this->assertGreaterThanOrEqual(2,$next - $round->number);
-        $this->assertLessThanOrEqual(5,$next - $round->number);
-        $this->assertGreaterThanOrEqual(8000,$round->started_at->diffInMilliseconds($round->presence_at));
-        $this->assertLessThanOrEqual(10000,$round->started_at->diffInMilliseconds($round->presence_at));
-        $url='/api/rounds/'.$round->id.'/presence';
-        $this->postJson($url,[],$this->host)->assertStatus(409);
+        $this->assertNull($round->presence_at);
+        $this->assertEquals(15000,$round->started_at->diffInMilliseconds($round->answer_deadline));
+        $this->travelTo($round->started_at->copy()->addSeconds(9));
         $this->submit($round,$this->host,$round->letter.'ina')->assertOk();
-        $this->submit($round,$this->guest,$round->letter.'ilo')->assertOk();
-        $this->travelTo($round->presence_at);
-        $this->submit($round,$this->host,'Paused',2)->assertStatus(409);
-        $this->postJson($url,[],$this->host)->assertOk();
-        $this->postJson($url,[],$this->host)->assertOk();
-        $this->getJson('/api/games/'.$this->code,$this->host)->assertJsonPath('round.presence.confirmed',true);
-        $this->travelTo($round->presence_at->copy()->addSeconds(5));
-        $this->postJson($url,[],$this->guest)->assertStatus(409);
-        $guestId=$this->game->players()->where('nickname','Mialy')->value('id');
-        $this->getJson('/api/games/'.$this->code,$this->host)->assertJsonPath('presence_missing',[$guestId]);
-        $this->getJson('/api/games/'.$this->code,$this->host)
-            ->assertJsonFragment(['player_id'=>$guestId,'event_type'=>'presence','count'=>1]);
-        $this->submit($round,$this->host,$round->letter.'ina',2)->assertOk();
-        $this->stopRound($round);
-        foreach ($round->answers()->get() as $answer) $this->assertNull($answer->invalid_reason);
+        $this->getJson('/api/games/'.$this->code,$this->host)->assertOk()
+            ->assertJsonMissingPath('round.presence')
+            ->assertJsonMissingPath('presence_missing');
     }
-
     public function test_new_categories_are_translated_and_attached_to_existing_rooms_without_duplicates(): void {
         $catalog=json_decode(file_get_contents(base_path('../frontend/src/additionalCategories.json')),true,512,JSON_THROW_ON_ERROR);
         $this->assertCount(94,$catalog);
@@ -286,11 +263,11 @@ class GameTest extends TestCase {
     public function test_game_creation_defaults_to_strict_mode(): void {
         $response=$this->postJson('/api/games',['nickname'=>'Strict host','locale'=>'fr','session_id'=>(string)Str::uuid(),'name'=>'Strict room','target_score'=>20,'answer_duration'=>15,'letters'=>'AB','no_repeat'=>true,'unique_points'=>10,'duplicate_points'=>5])->assertCreated();
         $this->assertSame('strict',Game::where('code',$response->json('code'))->firstOrFail()->anti_cheat_mode);
-        $this->assertTrue((bool)Game::where('code',$response->json('code'))->firstOrFail()->presence_checks);
+        $this->assertFalse((bool)Game::where('code',$response->json('code'))->firstOrFail()->presence_checks);
     }
 
-    public function test_presence_default_respects_duration_mode_and_explicit_opt_out(): void {
-        foreach ([['strict',15,false,false],['strict',15,null,true],['strict',10,null,false],['strict',30,null,false],['normal',15,true,false],['soft',15,null,false]] as [$mode,$duration,$setting,$expected]) {
+    public function test_presence_checks_remain_disabled_for_all_creation_settings(): void {
+        foreach ([['strict',15,false,false],['strict',15,null,false],['strict',15,true,false],['strict',10,null,false],['strict',30,null,false],['normal',15,true,false],['soft',15,null,false]] as [$mode,$duration,$setting,$expected]) {
             $payload=['nickname'=>'Host','locale'=>'fr','session_id'=>(string)Str::uuid(),'name'=>'Room','target_score'=>20,'answer_duration'=>$duration,'anti_cheat_mode'=>$mode,'letters'=>'AB','no_repeat'=>true,'unique_points'=>10,'duplicate_points'=>5];
             if ($setting !== null) $payload['presence_checks']=$setting;
             $response=$this->postJson('/api/games',$payload)->assertCreated();

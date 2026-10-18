@@ -12,7 +12,7 @@ Application multijoueur construite à partir de **Cahier_des_charges_Jeu_Familia
 
 Le sélecteur MG / FR / EN change uniquement la langue du joueur. Les sons peuvent être désactivés dans la barre supérieure.
 
-Les manches durent 10, 15 ou 30 secondes. Pour les manches de 15 secondes en mode strict, les vérifications de présence sont activées par défaut ; le créateur peut les désactiver dans les réglages avancés. Le serveur choisit aléatoirement un intervalle de 2 à 5 manches entre les contrôles. Le bouton « Je suis là » apparaît entre la 8e et la 10e seconde ; le chrono et la saisie sont suspendus pour tous pendant 5 secondes. Sans confirmation, une activité suspecte est signalée dans les alertes anti-triche, mais la réponse reste valide. Cette vérification ne prouve pas une absence de triche. Appliquer les migrations Laravel avec `php artisan migrate --force` depuis `backend`.
+Les manches durent 10, 15 ou 30 secondes, sans contrôle de présence ni pause pendant la saisie. Appliquer les migrations Laravel avec `php artisan migrate --force` depuis `backend`.
 
 Le catalogue comprend aussi 94 catégories supplémentaires issues de la liste trilingue : culture malgache, humour, vie quotidienne, famille et amis, nature et connaissances. « Chose qu’on peut offrir » utilise la catégorie existante « Idée de cadeau ». La migration `2026_10_12_000003_add_cultural_and_fun_categories` les ajoute aux salles existantes ; appliquer les migrations depuis `backend` avec `php artisan migrate --force`. Les réponses restent soumises à la lettre imposée et à la validation collective, y compris pour les proverbes et les excuses.
 

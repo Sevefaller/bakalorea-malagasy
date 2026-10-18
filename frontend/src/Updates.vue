@@ -10,7 +10,6 @@ const releases = [
   { id: '2026-10-12-chat-photos', date: '2026-10-12', key: 'chatPhotos', features: ['photos'] },
   { id: '2026-10-12-progressive-difficulty', date: '2026-10-12', key: 'difficulty', features: ['progression'] },
   { id: '2026-10-12-categories', date: '2026-10-12', key: 'expansion', features: ['categories'] },
-  { id: '2026-10-12-optional-presence', date: '2026-10-12', key: 'strict', features: ['flow'] },
   { id: '2026-10-11', date: '2026-10-11', key: 'launch', features: ['categories', 'reactions', 'chat', 'guide'] }
 ]
 const storageKey = 'bakalorea.updates.seen'
