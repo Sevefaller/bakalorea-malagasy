@@ -100,6 +100,8 @@ jobs:
               "sudo -i bash -c \"aws s3 cp --only-show-errors s3://bakalorea-prod-storage-5lowozadiq3h/releases/bakalorea-aws.zip /tmp/bakalorea-aws.zip\"",
               "sudo -i bash -c \"rm -rf /tmp/bakalorea-release && mkdir -p /tmp/bakalorea-release\"",
               "sudo -i bash -c \"unzip -oq /tmp/bakalorea-aws.zip -d /tmp/bakalorea-release\"",
+              "sudo -i bash -c \"command -v rsync >/dev/null || dnf install -y rsync\"",
+              "sudo -i bash -c \"test -d /tmp/bakalorea-release/frontend/src && mkdir -p /opt/bakalorea/frontend/src && rsync -a --delete /tmp/bakalorea-release/frontend/src/ /opt/bakalorea/frontend/src/\"",
               "sudo -i bash -c \"cp -a /tmp/bakalorea-release/. /opt/bakalorea/\"",
               "sudo -i bash -c \"cd /opt/bakalorea && bash deploy/aws/deploy.sh bakalorea.duckdns.org\""
             ]' \

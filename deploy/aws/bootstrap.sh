@@ -3,7 +3,7 @@
 set -euo pipefail
 [[ $EUID -eq 0 ]] || { echo 'Utiliser sudo bash deploy/aws/bootstrap.sh'; exit 1; }
 [[ $(uname -m) == x86_64 ]] || { echo 'Ce paquet cible EC2 x86_64 (t3/t3a).'; exit 1; }
-dnf install -y docker unzip openssl
+dnf install -y docker unzip openssl rsync
 systemctl enable --now docker
 plugin_dir=/usr/local/lib/docker/cli-plugins
 install -d -m 755 "$plugin_dir"
