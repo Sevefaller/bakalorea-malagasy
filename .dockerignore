@@ -10,6 +10,7 @@ release
 artifacts
 frontend/node_modules
 frontend/dist
+**/*.tsbuildinfo
 backend/vendor
 backend/.env
 backend/database/*.sqlite*

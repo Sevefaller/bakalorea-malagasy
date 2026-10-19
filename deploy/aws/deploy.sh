@@ -85,7 +85,16 @@ compose=(
 "${compose[@]}" config --quiet
 
 # Construire avant de modifier les services en cours.
-"${compose[@]}" build backend caddy
+build_log=$(mktemp /tmp/bakalorea-build.XXXXXX.log)
+if "${compose[@]}" --progress plain build backend caddy >"$build_log" 2>&1; then
+    echo "Images construites. Journal : $build_log"
+else
+    build_status=$?
+    echo "Echec de construction (code $build_status). Journal complet : $build_log"
+    # Keep the error at the end visible within the SSM inline output limit.
+    tail -c 18000 "$build_log"
+    exit "$build_status"
+fi
 
 # PostgreSQL + Redis
 "${compose[@]}" up -d --wait postgres redis

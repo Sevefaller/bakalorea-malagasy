@@ -17,6 +17,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Validate frontend build on Linux
+        run: |
+          npm --prefix frontend ci --no-audit --no-fund
+          npm --prefix frontend run build
+
       - name: Show GitHub OIDC claims
         shell: bash
         run: |
@@ -65,6 +77,8 @@ jobs:
             -x ".github/*" \
             -x "node_modules/*" \
             -x "frontend/node_modules/*" \
+            -x "frontend/dist/*" \
+            -x "*.tsbuildinfo" \
             -x "backend/vendor/*" \
             -x ".env" \
             -x ".env.aws"
@@ -83,9 +97,9 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --parameters 'commands=[
               "set -e",
-              "sudo -i bash -c \"aws s3 cp s3://bakalorea-prod-storage-5lowozadiq3h/releases/bakalorea-aws.zip /tmp/bakalorea-aws.zip\"",
+              "sudo -i bash -c \"aws s3 cp --only-show-errors s3://bakalorea-prod-storage-5lowozadiq3h/releases/bakalorea-aws.zip /tmp/bakalorea-aws.zip\"",
               "sudo -i bash -c \"rm -rf /tmp/bakalorea-release && mkdir -p /tmp/bakalorea-release\"",
-              "sudo -i bash -c \"unzip -o /tmp/bakalorea-aws.zip -d /tmp/bakalorea-release\"",
+              "sudo -i bash -c \"unzip -oq /tmp/bakalorea-aws.zip -d /tmp/bakalorea-release\"",
               "sudo -i bash -c \"cp -a /tmp/bakalorea-release/. /opt/bakalorea/\"",
               "sudo -i bash -c \"cd /opt/bakalorea && bash deploy/aws/deploy.sh bakalorea.duckdns.org\""
             ]' \
