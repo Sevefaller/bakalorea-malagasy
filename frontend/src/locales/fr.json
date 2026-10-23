@@ -233,6 +233,8 @@
   "waitingResults": "En attente du maître du jeu pour les résultats.",
   "noVotes": "Aucun vote",
   "footer": "Un petit jeu. De grands souvenirs.",
+  "chatOpen": "Ouvrir le chat",
+  "chatUnread": "{count} nouveau(x) message(s) dans le chat",
   "chatTitle": "Discussion",
   "chatEmpty": "Aucun message. Lancez la discussion !",
   "chatPlaceholder": "Écrivez votre commentaire…",

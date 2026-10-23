@@ -233,6 +233,8 @@
   "waitingResults": "Waiting for the host to show results.",
   "noVotes": "No votes",
   "footer": "A little game. Big memories.",
+  "chatOpen": "Open chat",
+  "chatUnread": "{count} new chat message(s)",
   "chatTitle": "Discussion",
   "chatEmpty": "No messages yet. Start the conversation!",
   "chatPlaceholder": "Write a comment…",

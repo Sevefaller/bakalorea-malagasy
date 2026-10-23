@@ -28,6 +28,9 @@ const installPrompt = ref<any>(null), showHistory = ref(false), commentDraft = r
 const chatFileInput = ref<HTMLInputElement>(), chatPhoto = ref<File | null>(null), chatPreview = ref(''), photoError = ref('')
 type PendingComment = { image?: File; preview?: string; id: string; roundId: number; body: string; status: 'sending' | 'sent' | 'failed'; serverId?: number }
 const pendingComment = ref<PendingComment | null>(null)
+const mobileChatMedia = window.matchMedia('(max-width: 800px)')
+const isMobileChat = ref(mobileChatMedia.matches), mobileChatOpen = ref(false), lastReadCommentId = ref(0)
+const chatLauncher = ref<HTMLButtonElement>(), chatClose = ref<HTMLButtonElement>()
 const showMission = ref(false), categoryView = ref('popular')
 const roomNotice = ref('')
 let clock: ReturnType<typeof setInterval>, noticeTimer: ReturnType<typeof setTimeout> | undefined, lastBeep = -1, away = false, activeSave = 0
@@ -108,6 +111,24 @@ const visibleCategories = computed(() => {
   return codes.map(code => categories.value.find(category => category.code === code)).filter((category): category is typeof defaultCategories[number] => !!category)
 })
 const g = computed(() => store.game), round = computed(() => g.value?.round)
+const unreadChatCount = computed(() => round.value?.comments?.filter(comment => comment.player_id !== g.value?.me_id && comment.id > lastReadCommentId.value).length || 0)
+function markChatRead() {
+  if (document.hidden || (isMobileChat.value && !mobileChatOpen.value)) return
+  lastReadCommentId.value = round.value?.comments?.at(-1)?.id || 0
+}
+async function toggleMobileChat() {
+  mobileChatOpen.value = !mobileChatOpen.value
+  markChatRead()
+  await nextTick()
+  if (mobileChatOpen.value) {
+    chatClose.value?.focus()
+    if (chatMessages.value) chatMessages.value.scrollTop = chatMessages.value.scrollHeight
+  } else chatLauncher.value?.focus()
+}
+function closeMobileChat() { if (isMobileChat.value && mobileChatOpen.value) void toggleMobileChat() }
+const onChatKeydown = (event: KeyboardEvent) => { if (event.key === 'Escape') closeMobileChat() }
+const onChatViewportChange = (event: MediaQueryListEvent) => { isMobileChat.value = event.matches; markChatRead() }
+watch([() => round.value?.comments?.at(-1)?.id, mobileChatOpen, isMobileChat], markChatRead)
 const inRoom = computed(() => route.path.startsWith('/salle/') && !!store.token)
 const spinning = computed(() => round.value?.status === 'answering' && now.value < round.value.started_at)
 const seconds = computed(() => {
@@ -148,7 +169,7 @@ const guideTipKey = computed(() => {
 const guideTip = computed(() => t(guideTipKey.value, { category: round.value ? t(`category.${round.value.category}`) : '', letter: round.value?.letter || '' }))
 
 watch(locale, value => { localStorage.setItem('bakalorea.locale', value); document.documentElement.lang = value })
-watch(() => round.value?.id, async () => { reactionDetails.value = null; draft.value = round.value?.own_answer || ''; commentDraft.value = ''; clearChatPhoto(); pendingComment.value = null; revision.value = round.value?.own_revision || 0; savedState.value = draft.value ? 'saved' : ''; lastBeep = -1; away = false; if (spinning.value) { await unlockSound(); playSound('start') } await nextTick() })
+watch(() => round.value?.id, async () => { mobileChatOpen.value = false; lastReadCommentId.value = 0; markChatRead(); reactionDetails.value = null; draft.value = round.value?.own_answer || ''; commentDraft.value = ''; clearChatPhoto(); pendingComment.value = null; revision.value = round.value?.own_revision || 0; savedState.value = draft.value ? 'saved' : ''; lastBeep = -1; away = false; if (spinning.value) { await unlockSound(); playSound('start') } await nextTick() })
 watch(answering, async value => { if (value) { await nextTick(); answerInput.value?.focus(); if(document.hidden || !document.hasFocus()) reportAway(true) } })
 watch(seconds, value => { if (answering.value && value <= 5 && value !== lastBeep) { lastBeep = value; playSound('tick') } if (value === 0 && round.value?.status === 'answering') { playSound('stop'); store.refresh() } })
 watch(() => g.value?.status, value => { if (value === 'finished') playSound('win') })
@@ -254,14 +275,16 @@ function reportPaste() {
   if (!answering.value || !round.value?.participating || store.replaced) return
   store.request('/anti-cheat/events', 'POST', { round_id: round.value.id, event: 'paste' }, true).then(() => store.refresh()).catch(() => {})
 }
-const onVisibility = () => reportAway(document.hidden || !document.hasFocus())
+const onVisibility = () => { reportAway(document.hidden || !document.hasFocus()); markChatRead() }
 const onBlur = () => reportAway(true)
-const onFocus = () => { reportAway(false); void unlockSound(); store.refresh() }
+const onFocus = () => { reportAway(false); markChatRead(); void unlockSound(); store.refresh() }
 const captureInstall = (e: Event) => { e.preventDefault(); installPrompt.value = e }
 async function install() { await installPrompt.value?.prompt(); installPrompt.value = null }
 onMounted(async () => {
   loadCategoryCatalog().then(codes => { catalogCodes.value = codes }).catch(() => {})
   document.documentElement.lang = locale.value
+  mobileChatMedia.addEventListener('change', onChatViewportChange)
+  document.addEventListener('keydown', onChatKeydown)
   document.addEventListener('pointerdown', unlockSound, { once: true })
   document.addEventListener('keydown', unlockSound, { once: true })
   clock = setInterval(() => now.value = store.serverNow(), 80)
@@ -271,6 +294,7 @@ onMounted(async () => {
   else if (route.params.code) { roomCode.value = String(route.params.code); mode.value = 'join'; router.replace('/') }
 })
 onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTimer); store.stop(); document.removeEventListener('pointerdown', unlockSound); document.removeEventListener('keydown', unlockSound); document.removeEventListener('visibilitychange', onVisibility); window.removeEventListener('blur', onBlur); window.removeEventListener('focus', onFocus); window.removeEventListener('beforeinstallprompt', captureInstall) })
+onUnmounted(() => { mobileChatMedia.removeEventListener('change', onChatViewportChange); document.removeEventListener('keydown', onChatKeydown) })
 </script>
 
 <template>
@@ -357,7 +381,8 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
               <div class="section-title judging-heading"><div><h1>{{ t('judging') }}<span class="title-dot">.</span></h1><p class="intro">{{ t('judgingText') }}</p><p class="sr-only" data-testid="judging-category">{{ t(`category.${round.category}`) }}</p></div><div class="judging-letter-card"><span>{{ t('judgingLetterCue') }}</span><strong data-testid="judging-letter">{{ round.letter }}</strong></div></div>
               <div class="stop-banner"><LockKeyhole :size="22"/><div><strong>{{ t('stopHeading') }}</strong><span>{{ t('judgingStopHelp') }}</span></div></div>
               <div class="answer-cards"><article v-for="a in round.answers" :key="a.id" class="card judgment-card"><div class="judgment-top"><span class="avatar avatar-small">{{ initials(playerName(a.player_id)) }}</span><strong>{{ playerName(a.player_id) }}</strong><span v-if="a.player_id === g.me_id" class="pill">{{ t('you') }}</span><span v-if="a.flagged" class="flag" :title="t('flagged')"><Flag :size="17"/><span>{{ t('flagged') }}</span></span></div><h3 class="revealed-answer">{{ a.answer || t('empty') }}</h3><a v-if="a.answer && !a.invalid_reason" class="google-check" :href="googleSearchUrl(a.answer)" target="_blank" rel="noopener noreferrer" :aria-label="t('googleCheckAnswer', { answer: a.answer })"><Globe2 :size="15"/>{{ t('googleCheck') }}</a><p v-if="a.invalid_reason" class="invalid-reason"><X :size="16"/>{{ reasonLabel(a.invalid_reason) }}</p><template v-else><div v-if="a.player_id !== g.me_id && round.participating" class="vote-buttons"><button v-for="(icon, key) in { valid: Check, invalid: X, uncertain: HelpCircle }" :key="key" :class="['vote', key, { selected: a.my_vote === key }]" :disabled="store.busy || store.disconnected" :aria-pressed="a.my_vote === key" @click="store.action(`/answers/${a.id}/votes`, { vote: key })"><component :is="icon" :size="18"/>{{ t(key) }}</button></div><p v-else class="own-answer"><LockKeyhole :size="14"/>{{ t(round.participating ? 'ownAnswer' : 'spectating') }}</p><div class="vote-counts"><span><Check :size="14"/>{{ a.votes.valid }}</span><span><X :size="14"/>{{ a.votes.invalid }}</span><span><HelpCircle :size="14"/>{{ a.votes.uncertain }}</span></div><div v-if="round.ready && a.votes.tied" class="tie-box"><span>{{ t('tie') }} · {{ t('referee', { name: playerName(a.referee_id) }) }}</span><div v-if="a.referee_id === g.me_id"><button class="secondary small" :class="{ chosen: a.tie_decision === true }" :disabled="store.busy" @click="store.action(`/answers/${a.id}/decision`, { valid: true })">{{ t('valid') }}</button><button class="secondary small" :class="{ chosen: a.tie_decision === false }" :disabled="store.busy" @click="store.action(`/answers/${a.id}/decision`, { valid: false })">{{ t('invalid') }}</button></div><strong v-else-if="a.tie_decision !== null">{{ t(a.tie_decision ? 'valid' : 'invalid') }}</strong></div></template><div class="answer-reactions" role="group" :aria-label="t('reactions.title')"><span v-for="reaction in reactions" :key="reaction.key" class="reaction-option" @mouseenter="canHover() && a.reactions?.[reaction.key] && (reactionDetails = { answerId: a.id, key: reaction.key })" @mouseleave="canHover() && reactionDetails?.answerId === a.id && reactionDetails.key === reaction.key && (reactionDetails = null)"><button type="button" :class="['reaction-button', { selected: a.my_reaction === reaction.key }]" :aria-label="t('reactions.' + reaction.key) + ' · ' + (a.reactions?.[reaction.key] || 0)" :aria-pressed="a.my_reaction === reaction.key" :disabled="store.busy || store.disconnected" @click="store.action(`/answers/${a.id}/reactions`, { reaction: a.my_reaction === reaction.key ? null : reaction.key })"><span class="reaction-emoji" aria-hidden="true">{{ reaction.emoji }}</span><span class="reaction-label">{{ t('reactions.' + reaction.key) }}</span></button><button v-if="a.reactions?.[reaction.key]" type="button" class="reaction-count-button" :aria-label="t('reactions.viewPeople') + ' · ' + t('reactions.' + reaction.key) + ' · ' + a.reactions[reaction.key]" :aria-expanded="reactionDetails?.answerId === a.id && reactionDetails.key === reaction.key" :aria-controls="`reaction-people-${a.id}`" @click="toggleReactionDetails(a.id, reaction.key)">{{ a.reactions[reaction.key] }}</button><div v-if="reactionDetails?.answerId === a.id && reactionDetails.key === reaction.key" :id="`reaction-people-${a.id}`" class="reaction-people" role="region" :aria-label="t('reactions.viewPeople')"><strong>{{ t('reactions.' + reactionDetails.key) }}</strong><span v-for="playerId in a.reaction_players?.[reactionDetails.key] || []" :key="playerId">{{ playerName(playerId) }}</span><span v-if="!a.reaction_players?.[reactionDetails.key]?.length">{{ t('reactions.noPeople') }}</span></div></span></div></article></div>
-              <section class="card judging-chat" :aria-label="t('chatTitle')"><h2><MessageCircle :size="19"/>{{ t('chatTitle') }}</h2><div ref="chatMessages" class="chat-messages" role="log" aria-live="polite"><p v-if="!round.comments?.length && !pendingComment" class="hint">{{ t('chatEmpty') }}</p><div v-for="comment in round.comments" :key="comment.id" :class="['chat-message', { mine: comment.player_id === g.me_id }]"><strong>{{ playerName(comment.player_id) }}</strong><p v-if="comment.body">{{ comment.body }}</p><ChatPhoto v-if="comment.has_image" :comment-id="comment.id" /></div><div v-if="pendingComment?.roundId === round.id" class="chat-message mine pending" role="status"><strong>{{ playerName(g.me_id) }}</strong><p v-if="pendingComment.body">{{ pendingComment.body }}</p><img v-if="pendingComment.preview" class="chat-photo" :src="pendingComment.preview" :alt="t('chatPhoto.preview')"><small>{{ t(pendingComment.status === 'sending' ? 'chatSending' : pendingComment.status === 'sent' ? 'chatSent' : 'chatFailed') }}</small><div v-if="pendingComment.status === 'failed'" class="chat-retry"><button type="button" :disabled="store.disconnected" @click="sendComment">{{ t('chatRetry') }}</button><button type="button" @click="editFailedComment">{{ t('chatEdit') }}</button></div></div></div><div v-if="chatPreview" class="chat-photo-preview"><img class="chat-photo" :src="chatPreview" :alt="t('chatPhoto.preview')"><button type="button" class="text-button" @click="clearChatPhoto">{{ t('chatPhoto.remove') }}</button></div><p v-if="photoError" class="danger" role="alert">{{ t(photoError) }}</p><form class="chat-form" @submit.prevent="sendComment" @paste="pasteChatPhoto"><input ref="chatFileInput" type="file" class="sr-only" accept="image/jpeg,image/png,image/webp,image/gif" :aria-label="t('chatPhoto.add')" @change="selectChatPhoto"><button type="button" class="icon-button" :aria-label="t('chatPhoto.add')" :title="t('chatPhoto.add')" :disabled="(!!pendingComment && pendingComment.status !== 'sent') || store.disconnected" @click="chatFileInput?.click()"><ImagePlus :size="20"/></button><label class="sr-only" for="judging-comment">{{ t('chatPlaceholder') }}</label><input id="judging-comment" v-model="commentDraft" :placeholder="t('chatPlaceholder')" maxlength="300" :disabled="(!!pendingComment && pendingComment.status !== 'sent') || store.disconnected" autocomplete="off"><button class="primary" type="submit" :disabled="(!commentDraft.trim() && !chatPhoto) || (!!pendingComment && pendingComment.status !== 'sent') || store.disconnected" :aria-label="t('chatSend')"><Send :size="18"/><span>{{ t('chatSend') }}</span></button></form></section>
+              <button ref="chatLauncher" type="button" :class="['mobile-chat-launcher', { unread: unreadChatCount > 0 }]" :aria-label="mobileChatOpen ? t('close') : unreadChatCount ? t('chatUnread', { count: unreadChatCount }) : t('chatOpen')" :aria-expanded="mobileChatOpen" aria-controls="judging-chat-panel" @click="toggleMobileChat"><X v-if="mobileChatOpen" :size="25"/><MessageCircle v-else :size="27"/><span v-if="unreadChatCount && !mobileChatOpen" class="chat-unread-badge" aria-hidden="true">{{ unreadChatCount > 99 ? '99+' : unreadChatCount }}</span><span class="sr-only" role="status">{{ unreadChatCount ? t('chatUnread', { count: unreadChatCount }) : '' }}</span></button>
+              <section id="judging-chat-panel" :class="['card', 'judging-chat', { 'mobile-open': mobileChatOpen }]" :role="isMobileChat ? 'dialog' : 'region'" aria-labelledby="judging-chat-title" @keydown.esc="closeMobileChat"><h2 id="judging-chat-title"><MessageCircle :size="19"/><span>{{ t('chatTitle') }}</span><button ref="chatClose" type="button" class="icon-button mobile-chat-close" :aria-label="t('close')" @click="closeMobileChat"><X :size="20"/></button></h2><div ref="chatMessages" class="chat-messages" role="log" aria-live="polite"><p v-if="!round.comments?.length && !pendingComment" class="hint">{{ t('chatEmpty') }}</p><div v-for="comment in round.comments" :key="comment.id" :class="['chat-message', { mine: comment.player_id === g.me_id }]"><strong>{{ playerName(comment.player_id) }}</strong><p v-if="comment.body">{{ comment.body }}</p><ChatPhoto v-if="comment.has_image" :comment-id="comment.id" /></div><div v-if="pendingComment?.roundId === round.id" class="chat-message mine pending" role="status"><strong>{{ playerName(g.me_id) }}</strong><p v-if="pendingComment.body">{{ pendingComment.body }}</p><img v-if="pendingComment.preview" class="chat-photo" :src="pendingComment.preview" :alt="t('chatPhoto.preview')"><small>{{ t(pendingComment.status === 'sending' ? 'chatSending' : pendingComment.status === 'sent' ? 'chatSent' : 'chatFailed') }}</small><div v-if="pendingComment.status === 'failed'" class="chat-retry"><button type="button" :disabled="store.disconnected" @click="sendComment">{{ t('chatRetry') }}</button><button type="button" @click="editFailedComment">{{ t('chatEdit') }}</button></div></div></div><div v-if="chatPreview" class="chat-photo-preview"><img class="chat-photo" :src="chatPreview" :alt="t('chatPhoto.preview')"><button type="button" class="text-button" @click="clearChatPhoto">{{ t('chatPhoto.remove') }}</button></div><p v-if="photoError" class="danger" role="alert">{{ t(photoError) }}</p><form class="chat-form" @submit.prevent="sendComment" @paste="pasteChatPhoto"><input ref="chatFileInput" type="file" class="sr-only" accept="image/jpeg,image/png,image/webp,image/gif" :aria-label="t('chatPhoto.add')" @change="selectChatPhoto"><button type="button" class="icon-button" :aria-label="t('chatPhoto.add')" :title="t('chatPhoto.add')" :disabled="(!!pendingComment && pendingComment.status !== 'sent') || store.disconnected" @click="chatFileInput?.click()"><ImagePlus :size="20"/></button><label class="sr-only" for="judging-comment">{{ t('chatPlaceholder') }}</label><input id="judging-comment" v-model="commentDraft" :placeholder="t('chatPlaceholder')" maxlength="300" :disabled="(!!pendingComment && pendingComment.status !== 'sent') || store.disconnected" autocomplete="off"><button class="primary" type="submit" :disabled="(!commentDraft.trim() && !chatPhoto) || (!!pendingComment && pendingComment.status !== 'sent') || store.disconnected" :aria-label="t('chatSend')"><Send :size="18"/><span>{{ t('chatSend') }}</span></button></form></section>
               <div class="judging-actions"><p class="hint">{{ t(!round.ready ? 'votesPending' : ties ? 'tiesPending' : 'waitingResults') }}</p><button v-if="store.isHost" class="primary full" :disabled="store.busy || !round.ready || ties || store.disconnected" @click="store.action(`/rounds/${round.id}/finish-judging`)"><Trophy :size="18"/>{{ t('finishJudging') }}</button></div>
             </template>
 
@@ -374,7 +399,7 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
     </template>
 
     <footer><span>BAKALOREA <span class="footer-dot">✳</span> {{ t('footer') }}</span><span class="developer-credit">Développer par RATIAZAFY Séverin</span><a class="text-button" href="/admin">Admin</a><button class="text-button" @click="rulesDialog?.showModal()">{{ t('rules') }}</button></footer>
-    <HelpAgent :context-tip="guideTip" :game="g || null" :remaining-seconds="seconds" />
+    <HelpAgent v-if="!inRoom || round?.status !== 'judging'" :context-tip="guideTip" :game="g || null" :remaining-seconds="seconds" />
     <div v-if="soundBlocked" class="sound-notice" role="status">{{ t('soundBlocked') }}</div>
     <dialog ref="rulesDialog" class="modal"><div class="modal-heading"><h2>{{ t('rulesTitle') }}</h2><button class="icon-button" :aria-label="t('close')" @click="rulesDialog?.close()"><X :size="20"/></button></div><div v-for="n in 3" :key="n" class="modal-rule"><h3>{{ n }}. {{ t(`rule${n}Title`) }}</h3><p>{{ t(`rule${n}`) }}</p></div><p>{{ t('scoring') }}</p><p>{{ t('tieHelp') }}</p><button class="primary full" @click="rulesDialog?.close()">{{ t('close') }}</button></dialog>
     <dialog ref="leaveDialog" class="modal"><h2>{{ t('leaveTitle') }}</h2><p>{{ t('leaveText') }}</p><div class="dialog-actions"><button class="secondary" @click="leaveDialog?.close()">{{ t('cancel') }}</button><button class="primary" :disabled="store.busy" @click="leave">{{ t('leave') }}</button></div></dialog>
@@ -382,6 +407,22 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
 </template>
 
 <style scoped>
+.mobile-chat-launcher,.mobile-chat-close{display:none}
+.judging-chat h2>span{flex:1}
+@media(max-width:800px){
+  .mobile-chat-launcher{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:120;display:grid;place-items:center;width:58px;height:58px;border:0;border-radius:50%;background:var(--accent);color:#fff;box-shadow:0 5px 20px #173b3540}
+  .mobile-chat-launcher.unread{background:#c92d3a;animation:chat-unread-pulse 1.8s ease-out infinite}
+  .chat-unread-badge{position:absolute;top:-4px;right:-4px;display:grid;place-items:center;min-width:25px;height:25px;padding:0 5px;border:2px solid #fff;border-radius:20px;background:#a71926;color:#fff;font-size:.7rem;font-weight:800}
+  .judging-room .judging-chat{display:none}
+  .judging-room .judging-chat.mobile-open{position:fixed;top:auto;right:12px;bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:121;display:flex;width:min(380px,calc(100vw - 24px));height:min(520px,calc(100dvh - 112px - env(safe-area-inset-bottom,0px)));min-height:0;margin:0;border-radius:16px;background:#fff;box-shadow:0 12px 40px #172c2540}
+  .judging-room .judging-chat .mobile-chat-close{display:inline-flex;flex-shrink:0;width:36px;min-width:36px;height:36px;padding:6px}
+  .judging-room .judging-chat .mobile-chat-close svg{display:block}
+  .judging-room .judging-chat h2{padding:8px 12px}
+  .judging-room .chat-form{padding:10px}
+  .judging-room .chat-messages{overscroll-behavior:contain}
+}
+@keyframes chat-unread-pulse{0%{box-shadow:0 0 0 0 #c92d3a70}100%{box-shadow:0 0 0 14px #c92d3a00}}
+@media(prefers-reduced-motion:reduce){.mobile-chat-launcher.unread{animation:none}}
 .chat-photo{display:block;max-width:100%;max-height:260px;border-radius:10px;object-fit:contain;margin:8px 0}
 .chat-photo-preview{display:flex;align-items:center;gap:12px;flex:none;min-width:0;padding:8px 12px;border-top:1px solid var(--border)}
 .chat-photo-preview .chat-photo{width:72px;height:72px;max-height:72px;flex:none;margin:0;object-fit:cover}
