@@ -21,7 +21,7 @@ function toggleReactionDetails(answerId: number, key: Reaction) {
 }
 const mode = ref('create'), advanced = ref(false), rulesDialog = ref<HTMLDialogElement>(), leaveDialog = ref<HTMLDialogElement>()
 const nickname = ref(localStorage.getItem('bakalorea.nickname') || ''), roomName = ref(''), roomCode = ref('')
-const target = ref(200), duration = ref(15), antiCheat = ref('strict'), letters = ref('ABDEFGHIJKLMNOPRSTV'), noRepeat = ref(true), uniquePoints = ref(10), duplicatePoints = ref(5)
+const target = ref(200), duration = ref(15), antiCheat = ref('strict'), letters = ref('ABDEFGHIJKLMNOPRSTV'), uniquePoints = ref(10), duplicatePoints = ref(5)
 const durationOptions = [{ seconds: 10, key: 'speed' }, { seconds: 15, key: 'normal' }, { seconds: 30, key: 'relax' }]
 const copied = ref(false), now = ref(0), draft = ref(''), savedState = ref(''), answerInput = ref<HTMLInputElement>(), revision = ref(0)
 const installPrompt = ref<any>(null), showHistory = ref(false), commentDraft = ref(''), sendingComment = ref(false), chatMessages = ref<HTMLElement>()
@@ -168,7 +168,7 @@ watch(() => g.value?.players, (players, previous) => {
 async function enter() {
   if (mode.value === 'join' && store.left && roomCode.value.trim().toUpperCase() === store.code) { await rejoin(); return }
   await unlockSound(); localStorage.setItem('bakalorea.nickname', nickname.value.trim())
-  const ok = await store.enter(mode.value, { nickname: nickname.value.trim(), locale: locale.value, code: roomCode.value.trim(), name: roomName.value.trim() || t('defaultRoomName'), target_score: Number(target.value), answer_duration: Number(duration.value), anti_cheat_mode: antiCheat.value, letters: letters.value.toUpperCase().replace(/[^A-Z]/g, ''), no_repeat: noRepeat.value, unique_points: Number(uniquePoints.value), duplicate_points: Number(duplicatePoints.value) })
+  const ok = await store.enter(mode.value, { nickname: nickname.value.trim(), locale: locale.value, code: roomCode.value.trim(), name: roomName.value.trim() || t('defaultRoomName'), target_score: Number(target.value), answer_duration: Number(duration.value), anti_cheat_mode: antiCheat.value, letters: letters.value.toUpperCase().replace(/[^A-Z]/g, ''), no_repeat: true, unique_points: Number(uniquePoints.value), duplicate_points: Number(duplicatePoints.value) })
   if (ok) router.push(`/salle/${store.code}`)
 }
 function changedAnswer() { savedState.value = '' }
@@ -312,7 +312,7 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
                 <div v-if="advanced" class="advanced-settings">
                   <label class="field">{{ t('antiCheat') }}<select v-model="antiCheat"><option value="soft">{{ t('soft') }}</option><option value="normal">{{ t('normal') }}</option><option value="strict">{{ t('strict') }}</option></select><small>{{ t(`${antiCheat}Help`) }}</small></label>
                   <label class="field">{{ t('letters') }}<input v-model="letters" required minlength="2" maxlength="26" pattern="[a-zA-Z]{2,26}" autocapitalize="characters" data-testid="letters"></label>
-                  <label class="checkbox"><input v-model="noRepeat" type="checkbox">{{ t('noRepeat') }}</label>
+                  <p class="checkbox">{{ t('noRepeat') }}</p>
                   <div class="quick-settings"><label class="field">{{ t('uniquePoints') }}<input v-model="uniquePoints" required type="number" min="1" max="100"></label><label class="field">{{ t('duplicatePoints') }}<input v-model="duplicatePoints" required type="number" min="0" :max="uniquePoints"></label></div>
                 </div>
               </template>

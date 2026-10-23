@@ -11,6 +11,38 @@ class CategoryExpansionTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_advanced_expansion_is_level_three_translated_and_safe_to_repeat(): void
+    {
+        $lastPreviousPosition = DB::table('categories')->where('code', 'celebration_decoration')->value('sort_order');
+        $advanced = DB::table('categories')->where('sort_order', '>', $lastPreviousPosition)->get();
+        $this->assertCount(80, $advanced);
+        $this->assertTrue($advanced->every(fn ($category) => (int) $category->difficulty === 3));
+        foreach (['mg', 'fr', 'en'] as $locale) {
+            $this->assertSame(80, DB::table('category_translations')->whereIn('category_id', $advanced->pluck('id'))->where('locale', $locale)->where('name', '<>', '')->count());
+        }
+        $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
+        $this->assertSame('Constellation', $catalog['constellation']['names']['fr']);
+        $this->assertSame('Sarin-teny', $catalog['rhetorical_figure']['names']['mg']);
+        $this->assertSame(3, $catalog['programming_language']['difficulty']);
+
+        $open = Game::create(['code' => 'HARD12', 'name' => 'Open', 'status' => 'lobby']);
+        $finished = Game::create(['code' => 'DONE12', 'name' => 'Finished', 'status' => 'finished']);
+        $id = $catalog['constellation']['id'];
+        DB::table('categories')->where('id', $id)->update(['difficulty' => 2]);
+        DB::table('category_translations')->where('category_id', $id)->where('locale', 'fr')->update(['name' => 'Constellation personnalisée']);
+        DB::table('game_categories')->insert(['game_id' => $open->id, 'category_id' => $id, 'position' => 0]);
+        $before = DB::table('categories')->count();
+        $migration = require database_path('migrations/2026_10_23_000003_add_advanced_categories.php');
+        $migration->up();
+        $migration->up();
+        $this->assertSame($before, DB::table('categories')->count());
+        $this->assertSame(80, DB::table('game_categories')->where('game_id', $open->id)->count());
+        $this->assertSame(80, DB::table('game_categories')->where('game_id', $open->id)->distinct()->count('position'));
+        $this->assertSame(0, DB::table('game_categories')->where('game_id', $finished->id)->count());
+        $this->assertDatabaseHas('categories', ['id' => $id, 'difficulty' => 2]);
+        $this->assertDatabaseHas('category_translations', ['category_id' => $id, 'locale' => 'fr', 'name' => 'Constellation personnalisée']);
+    }
+
     public function test_expansion_is_translated_and_available_in_public_catalog(): void
     {
         $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');

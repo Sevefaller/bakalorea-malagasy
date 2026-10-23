@@ -17,6 +17,7 @@ class GameController extends Controller {
         $settings=$r->validate(['name'=>'required|string|max:60','target_score'=>'required|integer|min:10|max:2000','answer_duration'=>'required|integer|in:10,15,30','anti_cheat_mode'=>'sometimes|in:soft,normal,strict','letters'=>'required|string|regex:/^[A-Z]{2,26}$/','no_repeat'=>'required|boolean','unique_points'=>'required|integer|min:1|max:100','duplicate_points'=>'required|integer|min:0|lte:unique_points']);
         $settings['anti_cheat_mode'] ??= 'strict';
         $settings['presence_checks'] = false;
+        $settings['no_repeat'] = true;
         $settings['letters']=implode('',array_unique(str_split($settings['letters'])));
         abort_if(strlen($settings['letters'])<2,422,'invalid_letters');
         return Cache::lock('category-catalog', 60)->block(5, fn () => DB::transaction(function () use ($identity,$settings) {

@@ -69,6 +69,8 @@ class GameTest extends TestCase {
     }
     public function test_new_categories_are_translated_and_attached_to_existing_rooms_without_duplicates(): void {
         $catalog=json_decode(file_get_contents(base_path('../frontend/src/additionalCategories.json')),true,512,JSON_THROW_ON_ERROR);
+        // This test reruns the original cultural expansion only.
+        $catalog=array_slice($catalog,0,94);
         $this->assertCount(94,$catalog);
         $codes=array_column($catalog,'code');
         $ids=DB::table('categories')->whereIn('code',$codes)->pluck('id');
@@ -224,6 +226,63 @@ class GameTest extends TestCase {
         $second = $other->rounds()->firstOrFail();
         $this->assertNotSame([$first->category_id, $first->letter], [$second->category_id, $second->letter]);
     }
+    private function reservePairInOtherRoom(int $categoryId, string $letter): Round {
+        $other=Game::create(['code'=>Str::upper(Str::random(6)),'name'=>'Reserved room','status'=>'playing']);
+        return $other->rounds()->create(['number'=>1,'category_id'=>$categoryId,'letter'=>$letter,'status'=>'answering','started_at'=>now(),'answer_deadline'=>now()->addSeconds(15)]);
+    }
+
+    public function test_active_pair_in_another_room_is_excluded_from_the_draw(): void {
+        $category=DB::table('categories')->where('code','furniture')->value('id');
+        DB::table('game_categories')->where('game_id',$this->game->id)->where('category_id','<>',$category)->delete();
+        $this->game->update(['letters'=>'AI']);
+        $this->reservePairInOtherRoom($category,'I');
+        $round=$this->startRound();
+        $this->assertEquals($category,$round->category_id);
+        $this->assertSame('A',$round->letter);
+    }
+
+    public function test_draw_uses_an_available_category_when_preferred_difficulty_is_busy(): void {
+        $pool=DB::table('categories')->whereIn('code',['fruit','malagasy_monarch'])->pluck('id','code');
+        DB::table('game_categories')->where('game_id',$this->game->id)->whereNotIn('category_id',$pool->values())->delete();
+        $this->game->update(['target_score'=>100]);
+        $this->game->players()->whereKey($this->game->host_id)->update(['score'=>80]);
+        $this->reservePairInOtherRoom($pool['malagasy_monarch'],'A');
+        $this->reservePairInOtherRoom($pool['malagasy_monarch'],'B');
+        $this->assertEquals($pool['fruit'],$this->startRound()->category_id);
+    }
+
+    public function test_busy_pair_remains_reserved_past_recent_history_until_judging_finishes(): void {
+        $category=DB::table('categories')->where('code','furniture')->value('id');
+        DB::table('game_categories')->where('game_id',$this->game->id)->where('category_id','<>',$category)->delete();
+        $this->game->update(['letters'=>'AI','used_letters'=>['A']]);
+        $reserved=$this->reservePairInOtherRoom($category,'I');
+        // Push the active pair out of the last 100 rounds used for recency ranking.
+        for ($i=2; $i<=102; $i++) {
+            $reserved->game->rounds()->create(['number'=>$i,'category_id'=>$category,'letter'=>'A','status'=>'finished','started_at'=>now(),'answer_deadline'=>now()]);
+        }
+        foreach (['answering','judging'] as $status) {
+            $reserved->update(['status'=>$status]);
+            $this->postJson('/api/games/'.$this->game->id.'/start',[],$this->host)
+                ->assertStatus(409)->assertJsonPath('message','draw_pairs_busy');
+            $this->assertSame(0,$this->game->rounds()->count());
+            $this->assertSame(['A'],$this->game->fresh()->used_letters);
+            $this->assertNull($this->game->fresh()->used_categories);
+        }
+        $reserved->update(['status'=>'finished']);
+        $round=$this->startRound();
+        $this->assertSame('I',$round->letter);
+        $this->assertEquals($category,$round->category_id);
+    }
+
+    public function test_finished_room_does_not_reserve_pairs(): void {
+        $category=DB::table('categories')->where('code','furniture')->value('id');
+        DB::table('game_categories')->where('game_id',$this->game->id)->where('category_id','<>',$category)->delete();
+        $this->game->update(['letters'=>'AI','used_letters'=>['A']]);
+        $reserved=$this->reservePairInOtherRoom($category,'I');
+        $reserved->game->update(['status'=>'finished']);
+        $this->assertSame('I',$this->startRound()->letter);
+    }
+
     public function test_letters_and_categories_change_even_when_their_cycles_restart(): void {
         $pool = DB::table('game_categories')->where('game_id', $this->game->id)->orderBy('position')->limit(2)->pluck('category_id')->all();
         DB::table('game_categories')->where('game_id', $this->game->id)->whereNotIn('category_id', $pool)->delete();
@@ -238,15 +297,96 @@ class GameTest extends TestCase {
             $round->update(['status'=>'finished']);
         }
     }
-    public function test_consecutive_letters_change_when_no_repeat_is_disabled(): void {
-        $this->game->update(['no_repeat'=>false]);
+    public function test_letter_cycles_are_complete_even_for_legacy_repeat_settings(): void {
+        $this->game->update(['no_repeat'=>false,'letters'=>'ABCD']);
         $previous = null;
-        for ($i = 0; $i < 5; $i++) {
+        $selected = [];
+        for ($i = 0; $i < 12; $i++) {
             $round = $this->startRound();
             if ($previous) $this->assertNotSame($previous->letter, $round->letter);
+            $selected[] = $round->letter;
             $previous = $round;
             $round->update(['status'=>'finished']);
         }
+        foreach (array_chunk($selected,4) as $cycle) $this->assertEqualsCanonicalizing(str_split('ABCD'),$cycle);
+        $this->assertTrue($this->game->fresh()->no_repeat);
+    }
+
+    public function test_letter_and_category_cycles_run_independently_across_multiple_cycles(): void {
+        $pool=DB::table('categories')->whereIn('code',['fruit','male_name','female_name'])->pluck('id')->all();
+        DB::table('game_categories')->where('game_id',$this->game->id)->whereNotIn('category_id',$pool)->delete();
+        $this->game->update(['letters'=>'ABCDE']);
+        $letters=[]; $categories=[]; $previous=null;
+        for ($i=0; $i<15; $i++) {
+            $this->game->players()->update(['last_seen_at'=>now()]);
+            $round=$this->startRound();
+            $letters[]=$round->letter; $categories[]=$round->category_id;
+            if ($previous) {
+                $this->assertNotSame($previous->letter,$round->letter);
+                $this->assertNotSame($previous->category_id,$round->category_id);
+            }
+            $previous=$round;
+            $round->update(['status'=>'finished']);
+        }
+        foreach (array_chunk($letters,5) as $cycle) $this->assertEqualsCanonicalizing(str_split('ABCDE'),$cycle);
+        foreach (array_chunk($categories,3) as $cycle) $this->assertEqualsCanonicalizing($pool,$cycle);
+    }
+
+    public function test_categories_added_mid_cycle_are_drawn_before_any_repeat(): void {
+        $pool=DB::table('categories')->whereIn('code',['fruit','male_name','female_name'])->pluck('id')->all();
+        DB::table('game_categories')->where('game_id',$this->game->id)->whereNotIn('category_id',$pool)->delete();
+        for ($i=0; $i<3; $i++) $this->startRound()->update(['status'=>'finished']);
+        $first=$this->startRound();
+        $first->update(['status'=>'finished']);
+        $new=DB::table('categories')->where('code','plant')->value('id');
+        DB::table('game_categories')->insert(['game_id'=>$this->game->id,'category_id'=>$new,'position'=>999]);
+        $cycle=[$first->category_id];
+        for ($i=0; $i<3; $i++) {
+            $round=$this->startRound();
+            $cycle[]=$round->category_id;
+            $round->update(['status'=>'finished']);
+        }
+        $this->assertEqualsCanonicalizing([...$pool,$new],$cycle);
+        $this->assertCount(4,$this->game->fresh()->used_categories);
+        $this->startRound();
+        $this->assertCount(1,$this->game->fresh()->used_categories);
+    }
+
+    public function test_difficulty_changes_do_not_skip_remaining_categories_in_a_cycle(): void {
+        $pool=DB::table('categories')->whereIn('code',['fruit','spice','malagasy_monarch'])->pluck('id','code');
+        DB::table('game_categories')->where('game_id',$this->game->id)->whereNotIn('category_id',$pool->values())->delete();
+        $this->game->update(['target_score'=>100,'letters'=>'ABCD']);
+        for ($cycle=0; $cycle<2; $cycle++) {
+            $selected=[];
+            foreach ([80,50,80] as $score) {
+                $this->game->players()->whereKey($this->game->host_id)->update(['score'=>$score]);
+                $round=$this->startRound();
+                $selected[]=$round->category_id;
+                $round->update(['status'=>'finished']);
+            }
+            $this->assertSame([$pool['malagasy_monarch'],$pool['spice'],$pool['fruit']],$selected);
+        }
+    }
+
+    public function test_cycle_migration_recovers_existing_history_and_newly_added_categories(): void {
+        $pool=DB::table('categories')->whereIn('code',['fruit','male_name','female_name'])->pluck('id')->all();
+        DB::table('game_categories')->where('game_id',$this->game->id)->whereNotIn('category_id',$pool)->delete();
+        $this->game->update(['letters'=>'ABC','no_repeat'=>false]);
+        foreach ([0,1,2,0,1] as $index=>$categoryIndex) {
+            $this->game->rounds()->create(['number'=>$index+1,'category_id'=>$pool[$categoryIndex],'letter'=>['A','A','B','C','A'][$index],'status'=>'finished','started_at'=>now(),'answer_deadline'=>now()]);
+        }
+        $new=DB::table('categories')->where('code','plant')->value('id');
+        DB::table('game_categories')->insert(['game_id'=>$this->game->id,'category_id'=>$new,'position'=>999]);
+        $migration=require database_path('migrations/2026_10_23_000004_track_random_draw_cycles.php');
+        $migration->down();
+        $migration->up();
+        $restored=$this->game->fresh();
+        $this->assertEqualsCanonicalizing($pool,$restored->used_categories);
+        $this->assertSame(['A'],$restored->used_letters);
+        $this->assertTrue($restored->no_repeat);
+        $round=$this->startRound();
+        $this->assertEquals($new,$round->category_id);
+        $this->assertContains($round->letter,['B','C']);
     }
     public function test_a_single_category_remains_playable_across_rounds(): void {
         $category = DB::table('game_categories')->where('game_id', $this->game->id)->value('category_id');

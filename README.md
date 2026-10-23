@@ -54,7 +54,8 @@ Sur le même Wi-Fi, ouvrir `http://ADRESSE-IP-DU-PC:8088` pour Docker (ou le por
 
 - Salles de 2 à 12 joueurs, code d’invitation, présence et transfert du rôle de maître du jeu après 45 secondes d’absence.
 - 61 catégories traduites dans les trois langues, tirées au hasard sans répétition avant la fin du cycle.
-- Tirage serveur et animation, lettres configurables et mode sans répétition.
+- Tirage serveur et animation, lettres configurables et cycles sans répétition obligatoires : toutes les lettres choisies et toutes les catégories du salon passent avant de recommencer leur cycle respectif. Les deux cycles sont indépendants et leur ordre reste aléatoire. Une catégorie ajoutée pendant la partie rejoint le cycle en cours. Au changement de cycle, le tirage évite aussi de reprendre immédiatement la dernière lettre ou catégorie, lorsque plusieurs choix existent.
+- Un couple catégorie + lettre déjà en réponse ou en validation dans un autre salon en partie est exclu du tirage. Les cycles restent respectés et la difficulté privilégie les catégories encore disponibles. Si aucune combinaison restante n’est libre, le démarrage affiche un message invitant à réessayer après la fin des autres manches. La combinaison est libérée à la fin de sa manche ou de son salon.
 - Modes 10 / 15 / 30 secondes, compte à rebours fondé sur l’heure du serveur, sons.
 - Sauvegarde avec numéros de révision, reprise de session, réponses privées avant STOP.
 - Votes valide / incorrect / incertain, arbitrage des égalités et détection des doublons.
