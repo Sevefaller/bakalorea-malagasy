@@ -45,6 +45,7 @@ test('chat sends by button and Enter without crypto.randomUUID', async ({ page }
   const answers = await page.locator('.answer-cards').boundingBox()
   const ranking = await page.locator('.judging-room .scoreboard').boundingBox()
   const chat = await page.locator('.judging-chat').boundingBox()
+  const regularCard = await page.locator('.judgment-card').nth(1).boundingBox()
   expect(answers && ranking && chat && answers.x + answers.width < ranking.x).toBeTruthy()
   expect(ranking && chat && ranking.y + ranking.height < chat.y).toBeTruthy()
   await page.locator('#judging-comment').fill('Salama')
@@ -74,10 +75,21 @@ test('chat sends by button and Enter without crypto.randomUUID', async ({ page }
   const mobileRanking = await page.locator('.judging-room .scoreboard').boundingBox()
   expect(mobileAnswers && mobileRanking && mobileAnswers.y + mobileAnswers.height < mobileRanking.y).toBeTruthy()
 
-  playerCount = 12
+  playerCount = 4
   await page.setViewportSize({ width: 1280, height: 720 })
   await page.reload()
+  await expect(page.locator('.judging-room.compact-judging .judgment-card')).toHaveCount(4)
+  const compactCard = await page.locator('.judgment-card').nth(1).boundingBox()
+  expect(compactCard!.height).toBeLessThan(regularCard!.height)
+  const firstCard = await page.locator('.judgment-card').first().boundingBox()
+  expect(compactCard!.y).toBe(firstCard!.y)
+  expect(compactCard!.x).toBeGreaterThan(firstCard!.x)
+
+  playerCount = 12
+  await page.reload()
   await expect(page.locator('.judging-room.dense-judging .judgment-card')).toHaveCount(12)
+  const denseCard = await page.locator('.judgment-card').nth(1).boundingBox()
+  expect(denseCard!.height).toBeLessThan(compactCard!.height)
   const scrollArea = page.locator('.answer-cards')
   expect(await scrollArea.evaluate(element => element.scrollHeight > element.clientHeight)).toBeTruthy()
   await page.locator('.judgment-card').last().scrollIntoViewIfNeeded()

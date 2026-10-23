@@ -55,6 +55,9 @@ class GameEngine {
             $used = $game->used_letters ?? [];
             $available = $game->no_repeat ? array_values(array_diff($letters,$used)) : $letters;
             if (!$available) { $available = $letters; $used = []; }
+            if ($previous && count($available) > 1) {
+                $available = array_values(array_diff($available, [$previous->letter]));
+            }
             $number = ($previous?->number ?? 0) + 1;
             $categories = DB::table('game_categories')->where('game_id',$game->id)->orderBy('position')->pluck('category_id')->all();
             abort_if(!$categories, 409, 'no_categories');
@@ -62,6 +65,9 @@ class GameEngine {
             $usedCategories = $game->rounds()->where('number','>=',$cycleStart)->pluck('category_id')->all();
             $availableCategories = array_values(array_diff($categories, $usedCategories));
             if (!$availableCategories) $availableCategories = $categories;
+            if ($previous && count($availableCategories) > 1) {
+                $availableCategories = array_values(array_diff($availableCategories, [$previous->category_id]));
+            }
             $progress = (int)$players->max('score') / max(1, (int)$game->target_score);
             $minimumDifficulty = $progress >= 0.8 ? 3 : ($progress >= 0.5 ? 2 : 1);
             if ($minimumDifficulty > 1) {

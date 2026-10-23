@@ -328,7 +328,7 @@ onUnmounted(() => { clearInterval(clock); if (noticeTimer) clearTimeout(noticeTi
         </aside>
       </main>
 
-      <main v-else-if="g" :class="['room-layout', { 'judging-room': round?.status === 'judging', 'dense-judging': round?.status === 'judging' && (round.answers?.length ?? 0) >= 6 }]">
+      <main v-else-if="g" :class="['room-layout', { 'judging-room': round?.status === 'judging', 'compact-judging': round?.status === 'judging' && (round.answers?.length ?? 0) >= 4, 'dense-judging': round?.status === 'judging' && (round.answers?.length ?? 0) >= 6 }]">
         <div v-if="store.disconnected" class="connection-banner" role="status"><WifiOff :size="18"/>{{ t('connectionLost') }}</div>
         <div v-if="roomNotice" class="room-notice" role="status">{{ roomNotice }}</div>
         <section v-if="g.anti_cheat_alerts?.length" class="room-notice anti-cheat-alerts" aria-live="polite"><strong>{{ t('integrity.title') }}</strong><p v-for="alert in g.anti_cheat_alerts" :key="`${alert.player_id}-${alert.event_type}`">{{ playerName(alert.player_id) }} · {{ t(alert.event_type === 'paste' ? 'integrity.paste' : 'integrity.away') }} × {{ alert.count }}</p></section>

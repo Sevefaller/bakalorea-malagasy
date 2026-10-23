@@ -142,10 +142,22 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline-color:#65a99b
 /* Keep every answer reachable without making twelve-player judging excessively tall. */
 .judging-room .judging-player-count{margin-left:auto;color:#5d6d78;font-size:.75rem;font-weight:700}
 .judging-room.dense-judging .answer-cards{max-height:min(72vh,720px);overflow-y:auto;overscroll-behavior:contain;padding-right:8px;scrollbar-width:thin;scrollbar-color:#8bbdb5 transparent}
-.judging-room.dense-judging .judgment-card{padding:12px 15px}
-.judging-room.dense-judging .revealed-answer{margin:8px 0;font-size:1.3rem}
-.judging-room.dense-judging .vote{min-height:36px;padding:7px 4px}
-.judging-room.dense-judging .vote-counts{margin-top:8px}
+.judging-room.compact-judging .answer-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));align-content:start;align-items:start;gap:8px}
+.judging-room.compact-judging .judgment-card{min-width:0;padding:11px 12px}
+.judging-room.compact-judging .judgment-top{gap:6px;flex-wrap:wrap}
+.judging-room.compact-judging .judgment-top>strong{font-size:.78rem;min-width:0}
+.judging-room.compact-judging .judgment-top .avatar-small{width:25px;height:25px;font-size:.6rem}
+.judging-room.compact-judging .revealed-answer{margin:7px 0;font-size:1.2rem}
+.judging-room.compact-judging .google-check{margin:0 0 7px;font-size:.7rem}
+.judging-room.compact-judging .vote{min-height:36px;padding:6px 4px;font-size:.7rem;gap:3px}
+.judging-room.compact-judging .vote-buttons{gap:5px}
+.judging-room.compact-judging .vote-counts{margin-top:6px;gap:5px}
+.judging-room.compact-judging .vote-counts>span{padding:2px 6px}
+.judging-room.compact-judging .own-answer{padding:5px 8px}
+.judging-room.compact-judging .answer-reactions{margin-top:5px;gap:2px}
+.judging-room.dense-judging .judgment-card{padding:8px 10px}
+.judging-room.dense-judging .revealed-answer{margin:5px 0;font-size:1.1rem}
+.judging-room.dense-judging .tie-box{padding:8px;gap:6px;margin-top:6px}
 .judging-room.dense-judging .scoreboard{max-height:280px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#8bbdb5 transparent}
 .google-check{display:inline-flex;align-items:center;gap:5px;max-width:100%;margin:-5px 0 12px;color:#237a67;font-size:.76rem;font-weight:700;text-decoration:underline;text-underline-offset:2px}
 .google-check:hover{color:#145648}

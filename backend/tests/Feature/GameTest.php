@@ -224,16 +224,38 @@ class GameTest extends TestCase {
         $second = $other->rounds()->firstOrFail();
         $this->assertNotSame([$first->category_id, $first->letter], [$second->category_id, $second->letter]);
     }
-    public function test_pair_pool_is_exhausted_before_a_pair_repeats(): void {
+    public function test_letters_and_categories_change_even_when_their_cycles_restart(): void {
         $pool = DB::table('game_categories')->where('game_id', $this->game->id)->orderBy('position')->limit(2)->pluck('category_id')->all();
         DB::table('game_categories')->where('game_id', $this->game->id)->whereNotIn('category_id', $pool)->delete();
-        $pairs = [];
-        for ($i = 0; $i < 4; $i++) {
+        $previous = null;
+        for ($i = 0; $i < 8; $i++) {
             $round = $this->startRound();
-            $pairs[] = $round->category_id.':'.$round->letter;
+            if ($previous) {
+                $this->assertNotSame($previous->letter, $round->letter);
+                $this->assertNotSame($previous->category_id, $round->category_id);
+            }
+            $previous = $round;
             $round->update(['status'=>'finished']);
         }
-        $this->assertCount(4, array_unique($pairs));
+    }
+    public function test_consecutive_letters_change_when_no_repeat_is_disabled(): void {
+        $this->game->update(['no_repeat'=>false]);
+        $previous = null;
+        for ($i = 0; $i < 5; $i++) {
+            $round = $this->startRound();
+            if ($previous) $this->assertNotSame($previous->letter, $round->letter);
+            $previous = $round;
+            $round->update(['status'=>'finished']);
+        }
+    }
+    public function test_a_single_category_remains_playable_across_rounds(): void {
+        $category = DB::table('game_categories')->where('game_id', $this->game->id)->value('category_id');
+        DB::table('game_categories')->where('game_id', $this->game->id)->where('category_id', '!=', $category)->delete();
+        for ($i = 0; $i < 3; $i++) {
+            $round = $this->startRound();
+            $this->assertEquals($category, $round->category_id);
+            $round->update(['status'=>'finished']);
+        }
     }
     public function test_votes_before_stop_and_self_votes_are_forbidden(): void {
         $round=$this->startRound(); $this->submit($round,$this->host,$round->letter.'ina'); $a=$round->answers()->first();
