@@ -56,6 +56,22 @@ Le script refuse de déployer si `.env.aws` contient encore les anciennes valeur
 
 Ouvrir ensuite **https://jeu.votre-domaine.fr** et tester une partie depuis deux appareils. Les WebSockets passent par le même domaine HTTPS. L’installation PWA est disponible depuis un navigateur compatible.
 
+### Suivi du déploiement GitHub Actions
+
+Le workflow attend la commande SSM jusqu’à 70 minutes (10 minutes pour la livraison et 60 minutes pour l’exécution), avec un état affiché toutes les 10 secondes. Il affiche le résultat et les sorties SSM à la fin. Le waiter AWS `command-executed` standard s’arrête après environ 100 secondes, même si la commande est encore `InProgress`.
+
+Si une ancienne exécution GitHub échoue avec `Max attempts exceeded`, consulter d’abord la commande existante depuis AWS CloudShell avant de relancer le déploiement :
+
+```bash
+aws ssm get-command-invocation \
+  --region eu-north-1 \
+  --command-id ID-DE-LA-COMMANDE \
+  --instance-id i-01212aa95e08908e8 \
+  --query '{Status:Status,StatusDetails:StatusDetails,ResponseCode:ResponseCode,StandardOutput:StandardOutputContent,StandardError:StandardErrorContent}'
+```
+
+Une attente expirée côté GitHub n’annule pas la commande distante. Pendant la construction Docker, le journal détaillé reste sur l’instance dans `/tmp/bakalorea-build.*.log`.
+
 ## 4. Commandes d’exploitation
 
 Toutes les commandes doivent employer `.env.aws` et le fichier de surcharge AWS :
