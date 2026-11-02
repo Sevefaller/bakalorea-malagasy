@@ -25,7 +25,7 @@ class GameController extends Controller {
             $game=Game::create([...$settings,'code'=>$code]);
             $p=$game->players()->create([...$identity,'nickname_key'=>GameEngine::normalize($identity['nickname']),'last_seen_at'=>now()]);
             $game->update(['host_id'=>$p->id]);
-            foreach (DB::table('categories')->orderBy('sort_order')->get() as $c) DB::table('game_categories')->insert(['game_id'=>$game->id,'category_id'=>$c->id,'position'=>$c->sort_order]);
+            foreach (DB::table('categories')->whereNotIn('code', config('retired_categories', []))->orderBy('sort_order')->get() as $c) DB::table('game_categories')->insert(['game_id'=>$game->id,'category_id'=>$c->id,'position'=>$c->sort_order]);
             return response()->json($this->credentials($game,$p),201);
         }));
     }

@@ -11,6 +11,52 @@ class CategoryExpansionTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_fun_everyday_categories_are_translated_and_accessible(): void
+    {
+        $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
+        $start = DB::table('categories')->where('code', 'snack_to_share')->value('sort_order');
+        $added = DB::table('categories')->where('sort_order', '>=', $start)->get();
+        $this->assertCount(30, $added);
+        foreach ($added as $category) {
+            $this->assertContains($catalog[$category->code]['difficulty'], [1, 2]);
+            foreach (['mg', 'fr', 'en'] as $locale) {
+                $this->assertNotEmpty($catalog[$category->code]['names'][$locale]);
+            }
+        }
+        $this->assertSame('Chose qui peut interrompre une sieste', $catalog['nap_interruption']['names']['fr']);
+        $this->assertSame('Hery manokana tiana hananana', $catalog['superpower_wish']['names']['mg']);
+        $this->assertSame('Object used as a pretend microphone', $catalog['pretend_microphone']['names']['en']);
+    }
+
+    public function test_fun_expansion_extends_open_rooms_once_without_resetting_cycles_or_admin_edits(): void
+    {
+        $id = DB::table('categories')->where('code', 'nap_interruption')->value('id');
+        DB::table('categories')->where('id', $id)->update(['difficulty' => 2]);
+        DB::table('category_translations')->where('category_id', $id)->where('locale', 'fr')->update(['name' => 'Sieste personnalisée']);
+        $open = [];
+        foreach (['lobby', 'playing'] as $i => $status) {
+            $game = Game::create(['code' => 'FUN00'.$i, 'name' => 'Open', 'status' => $status, 'used_categories' => [$id], 'used_letters' => ['A']]);
+            DB::table('game_categories')->insert(['game_id' => $game->id, 'category_id' => $id, 'position' => 4]);
+            $open[] = $game;
+        }
+        $finished = Game::create(['code' => 'FUNDON', 'name' => 'Finished', 'status' => 'finished']);
+        $before = DB::table('categories')->count();
+        $migration = require database_path('migrations/2026_11_02_000001_add_fun_everyday_categories.php');
+        $migration->up();
+        $migration->up();
+        $this->assertSame($before, DB::table('categories')->count());
+        foreach ($open as $game) {
+            $this->assertSame(30, DB::table('game_categories')->where('game_id', $game->id)->count());
+            $this->assertSame(30, DB::table('game_categories')->where('game_id', $game->id)->distinct()->count('position'));
+            $this->assertSame([$id], $game->fresh()->used_categories);
+            $this->assertSame(['A'], $game->fresh()->used_letters);
+            $this->assertDatabaseHas('game_categories', ['game_id' => $game->id, 'category_id' => $id, 'position' => 4]);
+        }
+        $this->assertSame(0, DB::table('game_categories')->where('game_id', $finished->id)->count());
+        $this->assertDatabaseHas('categories', ['id' => $id, 'difficulty' => 2]);
+        $this->assertDatabaseHas('category_translations', ['category_id' => $id, 'locale' => 'fr', 'name' => 'Sieste personnalisée']);
+    }
+
     public function test_establishment_names_are_available_in_all_three_languages_and_levels(): void
     {
         $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
@@ -21,7 +67,7 @@ class CategoryExpansionTest extends TestCase
         $this->assertSame(1, $catalog['karaoke_venue_name']['difficulty']);
         $this->assertSame(1, $catalog['bar_name']['difficulty']);
         $this->assertSame(2, $catalog['nightclub_name']['difficulty']);
-        $this->assertSame(3, $catalog['tea_room_name']['difficulty']);
+        $this->assertFalse($catalog->has('tea_room_name'));
 
         $open = Game::create(['code' => 'PLACE1', 'name' => 'Open', 'status' => 'playing']);
         $before = DB::table('categories')->count();
@@ -38,9 +84,8 @@ class CategoryExpansionTest extends TestCase
         $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
         $this->assertSame('Marque de vêtements', $catalog['clothing_brand']['names']['fr']);
         $this->assertSame('Marika sôkôla', $catalog['chocolate_brand']['names']['mg']);
-        $this->assertSame('Watch brand', $catalog['watch_brand']['names']['en']);
+        $this->assertFalse($catalog->has('watch_brand'));
         $this->assertSame(2, $catalog['clothing_brand']['difficulty']);
-        $this->assertSame(3, $catalog['watch_brand']['difficulty']);
 
         $open = Game::create(['code' => 'BRAND1', 'name' => 'Open', 'status' => 'lobby']);
         $finished = Game::create(['code' => 'BRAND2', 'name' => 'Finished', 'status' => 'finished']);
@@ -71,13 +116,13 @@ class CategoryExpansionTest extends TestCase
             $this->assertSame(80, DB::table('category_translations')->whereIn('category_id', $advanced->pluck('id'))->where('locale', $locale)->where('name', '<>', '')->count());
         }
         $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
-        $this->assertSame('Constellation', $catalog['constellation']['names']['fr']);
-        $this->assertSame('Sarin-teny', $catalog['rhetorical_figure']['names']['mg']);
-        $this->assertSame(3, $catalog['programming_language']['difficulty']);
+        foreach ($advanced as $category) {
+            $this->assertFalse($catalog->has($category->code));
+        }
 
         $open = Game::create(['code' => 'HARD12', 'name' => 'Open', 'status' => 'lobby']);
         $finished = Game::create(['code' => 'DONE12', 'name' => 'Finished', 'status' => 'finished']);
-        $id = $catalog['constellation']['id'];
+        $id = DB::table('categories')->where('code', 'constellation')->value('id');
         DB::table('categories')->where('id', $id)->update(['difficulty' => 2]);
         DB::table('category_translations')->where('category_id', $id)->where('locale', 'fr')->update(['name' => 'Constellation personnalisée']);
         DB::table('game_categories')->insert(['game_id' => $open->id, 'category_id' => $id, 'position' => 0]);
@@ -97,10 +142,9 @@ class CategoryExpansionTest extends TestCase
     {
         $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
         $this->assertSame('Matière scolaire', $catalog['school_subject']['names']['fr']);
-        $this->assertSame('Vatosoa', $catalog['gemstone']['names']['mg']);
-        $this->assertSame('Chemical element', $catalog['chemical_element']['names']['en']);
+        $this->assertFalse($catalog->has('gemstone'));
+        $this->assertFalse($catalog->has('chemical_element'));
         $this->assertSame(1, $catalog['school_subject']['difficulty']);
-        $this->assertSame(3, $catalog['chemical_element']['difficulty']);
         $this->assertSame('Pâtisserie', $catalog['pastry']['names']['fr']);
         $this->assertSame('Biby mampinono', $catalog['mammal']['names']['mg']);
         $this->assertSame('Party decoration', $catalog['celebration_decoration']['names']['en']);

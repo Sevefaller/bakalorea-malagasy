@@ -1,17 +1,15 @@
 {
   "chatPhoto": {"add":"Ampio sary","preview":"Topimaso ny sary","remove":"Esory ny sary","photo":"Sary nozaraina tao amin’ny resaka","open":"Sokafy ny sary","retry":"Andramo alaina indray ny sary","invalid":"Misafidiana sary JPG, PNG, WebP na GIF.","tooLarge":"Tsy tokony hihoatra ny 1 Mo ny sary."},
   "updates": {
-    "chatPhotos": {"photos":{"description":"Manafara sary na apetaho avy amin’ny takelaka kopia, dia jereo ny topimaso alohan’ny handefasana. JPG, PNG, WebP ary GIF hatramin’ny 1 Mo sy 4096 × 4096 teboka.","title":"Sary ao amin’ny resaka"},"title":"Sary ao amin’ny resaka"},
-    "difficulty": {"progression":{"description":"Amin’ny voalohany dia azo fidina kisendrasendra ny sokajy rehetra. Rehefa mahatratra 50 % amin’ny isa kendrena ny mpitarika dia omena vahana ny sokajy antonony; amin’ny 80 % dia ireo sarotra indrindra. Mitovy ho an’ny rehetra ny sokajy ary sorohina ny famerimberenana araka izay mbola azo fidina. Tsy miverina ny litera voafidy na ny sokajy raha tsy efa lany avokoa ny ao amin’ny tsingeriny, na dia misy sokajy vaovao ampiana aza.","title":"Mifanaraka amin’ny isa ny fahasarotana"},"title":"Mihasarotra ny fiafaran’ny lalao"},
-    "expansion": {"categories":{"description":"Andramo ireo sokajy vaovao 94 momba ny kolontsaina malagasy, hatsikana, fiainana andavanandro, fianakaviana, namana ary zavaboary. Efa misy ny hevitra fanomezana.","title":"Kolontsaina malagasy sy lohahevitra vaovao"},"title":"Sokajy vaovao 94"},
-    "strict": {"flow":{"description":"Mandeha ho azy amin’ny fomba hentitra 15 segondra ary azo vonoina ao amin’ny fikirana: fanamarinana isaky ny fihodinana 2 hatramin’ny 5, miaraka amin’ny fiatoana 5 segondra.","title":"Alefaso ny fanamarinana ny fisiana"},"title":"Fanamarinana fa eo ianao"},
-    "title": "Vaovao", "unreadLabel": "Vaovao: misy fanavaozana hojerena", "intro": "Jereo eto ireo fiasa vaovao sy fanatsarana ny lalao.",
-    "launch": {
-      "title": "Ireo fiasa azonao andramana",
-      "categories": { "title": "Sokajy maro kokoa", "description": "Misafidiana sokajy be mpitia na mikaroha lohahevitra hafa hanovana ny lalao." },
-      "reactions": { "title": "Fihetseham-po amin’ny valiny", "description": "Manehoa fihetseham-po amin’ny emoji ary jereo izay naneho izany." },
-      "chat": { "title": "Resaka mandritra ny fifidianana", "description": "Miresaha amin’ny mpilalao hafa rehefa manamarina ny valiny." },
-      "guide": { "title": "Fanampiana mandritra ny lalao", "description": "Jereo ireo torohevitra mifanaraka amin’ny dingana tsirairay amin’ny lalao." }
+    "title": "Vaovao",
+    "unreadLabel": "Vaovao: misy fanavaozana hojerena",
+    "intro": "Ny fanavaozana farany amin’ny lalao.",
+    "randomReferee": {
+      "title": "Mpitsara fidina antsapaka ao amin’ny Mitsara",
+      "draw": {
+        "title": "Misy mpitsara isaky ny fihodinana",
+        "description": "Mandritra ny Mitsara, fidina antsapaka amin’ireo mpandray anjara mbola mifandray ny mpitsara hanapaka raha mitovy ny vato. Olona hafa no mitsara ny valin’ilay mpitsara. Raha tapaka ny fifandraisany dia misy antsapaka vaovao. Ny mpitarika hatrany no manomboka ny fihodinana sy mampiseho ny vokatra."
+      }
     }
   },
   "integrity": {"title":"Hetsika hita tamin’ity fihodinana ity","away":"Niala tamin’ny efijery na varavarankely tsy mavitrika","paste":"Lahatsoratra napetaka tao amin’ny valiny","limit":"Tsy azo fantarina ny finday hafa na fanampiana avy any ivelany. Tsy porofon’ny fitaka ireo fampitandremana ireo."},
@@ -200,6 +198,7 @@
   "strictReason": "Niala tamin’ny efijery na nametaka lahatsoratra: 0 isa amin’ny fomba hentitra",
   "tie": "Mitovy ny vato",
   "referee": "{name} no manapa-kevitra",
+  "roundReferee": "Mpitsara voafidy antsapaka amin’ity fihodinana ity: {name}",
   "decide": "Hanapaka",
   "finishJudging": "Hijery ny vokatra",
   "votesPending": "Miandry ny vato. Afaka mifarana rehefa afaka 30 segondra.",
@@ -226,7 +225,7 @@
   "softHelp": "Voarakitra ny fialana amin’ny efijery, tsy misy sazy.",
   "normalHelp": "Ampahafantarina ny mpilalao ny fialana amin’ny efijery sy ny fametahana lahatsoratra mandritra ny fihodinana.",
   "strictHelp": "Foanana ny valiny raha miala amin’ny efijery, mifindra varavarankely na mametaka lahatsoratra mandritra ny famaliana.",
-  "tieHelp": "Ny mpitarika no manapaka raha mitovy ny vato. Mpilalao hafa no mitsara ny valin’ny mpitarika.",
+  "tieHelp": "Fidina antsapaka amin’ireo mpandray anjara mbola mifandray ny mpitsara. Olona hafa no fidina hitsara ny valin’ilay mpitsara. Raha tsy eo intsony izy dia mifidy mpitsara vaovao.",
   "spectating": "Handray anjara amin’ny fihodinana manaraka ianao.",
   "rulesTitle": "Ahoana ny filalaovana?",
   "close": "Hidio",

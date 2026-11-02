@@ -17,7 +17,7 @@
 - Chaque participant vote une seule fois par réponse, avec modification possible jusqu’à la clôture. Il ne peut pas voter pour lui-même.
 - **Incertain** compte comme participation mais pas comme vote pour ou contre. La majorité est le nombre de votes valide comparé au nombre de votes incorrect.
 - Le jugement peut être clôturé lorsque tous les joueurs présents ont voté ou après 30 secondes. Les votes absents valent abstention.
-- À égalité, le maître du jeu arbitre. Pour sa propre réponse, le premier autre participant encore connecté arbitre. Si aucun n’est disponible après le délai, cette réponse reçoit zéro pour éviter un blocage et une auto-validation.
+- À chaque passage à « Mitsara », un arbitre est tiré au sort parmi les participants de la manche encore connectés. Il tranche les égalités ; pour sa propre réponse, un autre participant connecté est tiré au sort. Les choix sont conservés pendant la manche. Si l’arbitre devient absent ou quitte la salle, un nouveau tirage a lieu parmi les participants présents, sans modifier les décisions déjà prises. Si aucun autre participant n’est disponible après le délai, la réponse reçoit zéro pour éviter un blocage et une auto-validation. Le maître du jeu continue à lancer les manches et à afficher les résultats.
 - Les doublons sont comptés parmi les réponses finalement acceptées uniquement.
 - Le calcul des points est transactionnel et ne peut être effectué qu’une fois par manche.
 - Si plusieurs joueurs sont à égalité en tête au-dessus de l’objectif, tous poursuivent une nouvelle manche jusqu’à obtenir un leader unique.

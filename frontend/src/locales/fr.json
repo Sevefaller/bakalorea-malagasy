@@ -1,17 +1,15 @@
 {
   "chatPhoto": {"add":"Ajouter une photo","preview":"Aperçu de la photo","remove":"Retirer la photo","photo":"Photo partagée dans le chat","open":"Ouvrir la photo","retry":"Réessayer de charger la photo","invalid":"Choisis une image JPG, PNG, WebP ou GIF.","tooLarge":"La photo doit faire au maximum 1 Mo."},
   "updates": {
-    "chatPhotos": {"photos":{"description":"Importe une photo ou colle-la depuis le presse-papiers, puis vérifie son aperçu avant de l’envoyer. Formats JPG, PNG, WebP et GIF, jusqu’à 1 Mo et 4096 × 4096 pixels.","title":"Photos dans le chat"},"title":"Photos dans le chat"},
-    "difficulty": {"progression":{"description":"Au début, toutes les catégories peuvent être tirées au hasard. À 50 % du score cible, le jeu favorise les catégories intermédiaires ; à 80 %, les plus difficiles. La même catégorie s’applique à tous et les répétitions restent évitées selon les catégories disponibles. Chaque lettre choisie et chaque catégorie doit passer avant le redémarrage de son cycle, même si de nouvelles catégories sont ajoutées.","title":"La difficulté suit le score"},"title":"Une fin de partie plus difficile"},
-    "expansion": {"categories":{"description":"Découvre 94 nouvelles catégories : culture malgache, humour, vie quotidienne, famille, amis et nature. Les idées de cadeau sont déjà disponibles.","title":"Culture malgache et nouveaux thèmes"},"title":"94 nouvelles catégories"},
-    "strict": {"flow":{"description":"Activé par défaut en mode strict de 15 secondes, désactivable dans les réglages : une vérification toutes les 2 à 5 manches, avec 5 secondes de pause.","title":"Activer les vérifications de présence"},"title":"Vérification de présence"},
-    "title": "Nouveautés", "unreadLabel": "Nouveautés : des mises à jour à découvrir", "intro": "Retrouve ici les nouvelles fonctionnalités et les améliorations du jeu.",
-    "launch": {
-      "title": "Les fonctionnalités à découvrir",
-      "categories": { "title": "Plus de catégories", "description": "Choisis parmi les catégories populaires ou explore les thèmes pour varier les parties." },
-      "reactions": { "title": "Réactions aux réponses", "description": "Réagis aux réponses avec des emojis et découvre qui a réagi." },
-      "chat": { "title": "Discussion pendant les votes", "description": "Échange avec les autres joueurs pendant la validation des réponses." },
-      "guide": { "title": "Aide pendant la partie", "description": "Consulte les conseils adaptés à chaque étape du jeu." }
+    "title": "Nouveautés",
+    "unreadLabel": "Nouveautés : une mise à jour à découvrir",
+    "intro": "La nouveauté du jeu.",
+    "randomReferee": {
+      "title": "Un arbitre tiré au sort dans Mitsara",
+      "draw": {
+        "title": "Chaque manche a son arbitre",
+        "description": "Pendant « Mitsara », un arbitre est tiré au sort parmi les participants de la manche encore connectés pour trancher les égalités. Pour sa propre réponse, un autre participant est choisi. Si l’arbitre se déconnecte, un nouveau tirage a lieu. Le maître du jeu continue à lancer les manches et à afficher les résultats."
+      }
     }
   },
   "integrity": {"title":"Activité détectée pendant cette manche","away":"Écran quitté ou fenêtre inactive","paste":"Texte collé dans la réponse","limit":"Un autre téléphone ou une aide extérieure ne peuvent pas être détectés. Ces alertes ne prouvent pas une triche."},
@@ -200,6 +198,7 @@
   "strictReason": "Écran quitté ou texte collé : 0 point en mode strict",
   "tie": "Égalité des votes",
   "referee": "{name} doit trancher",
+  "roundReferee": "Arbitre tiré au sort pour cette manche : {name}",
   "decide": "Trancher",
   "finishJudging": "Afficher les résultats",
   "votesPending": "En attente des votes. Clôture possible après 30 secondes.",
@@ -226,7 +225,7 @@
   "softHelp": "Les sorties d’écran sont enregistrées sans pénalité.",
   "normalHelp": "Les sorties d’écran et les collages sont signalés aux joueurs pendant la manche.",
   "strictHelp": "Quitter l’écran, changer de fenêtre ou coller du texte pendant la saisie annule la réponse.",
-  "tieHelp": "Le maître du jeu tranche les égalités. Pour sa propre réponse, un autre joueur arbitre.",
+  "tieHelp": "Un arbitre est tiré au sort parmi les participants connectés de la manche. Pour sa propre réponse, un autre participant est tiré au sort. S’il devient absent, un nouvel arbitre est choisi.",
   "spectating": "Tu participeras à la prochaine manche.",
   "rulesTitle": "Comment jouer ?",
   "close": "Fermer",

@@ -41,6 +41,32 @@ class GameTest extends TestCase {
     }
     private function submit(Round $round,array $headers,string $text,int $revision=1) { return $this->patchJson('/api/rounds/'.$round->id.'/answer',['answer'=>$text,'revision'=>$revision],$headers); }
 
+    public function test_retired_categories_are_excluded_from_new_and_existing_rooms_without_losing_history(): void {
+        $retired = DB::table('categories')->whereIn('code', config('retired_categories'))->pluck('id')->all();
+        $this->assertNotEmpty($retired);
+        $this->assertSame(0, DB::table('game_categories')->where('game_id', $this->game->id)->whereIn('category_id', $retired)->count());
+        $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
+        $this->assertCount(288, $catalog);
+        $this->assertTrue($catalog->has('late_excuse'));
+        $this->assertTrue($catalog->has('movie'));
+        $this->assertTrue($catalog->has('pretend_microphone'));
+        $this->assertDatabaseHas('game_categories', ['game_id' => $this->game->id, 'category_id' => $catalog['pretend_microphone']['id']]);
+
+        // An old room may still contain retired category IDs and a used-category cycle.
+        $kept = DB::table('categories')->where('code', 'animal')->value('id');
+        DB::table('game_categories')->where('game_id', $this->game->id)->delete();
+        foreach ([$retired[0], $kept] as $position => $id) {
+            DB::table('game_categories')->insert(['game_id' => $this->game->id, 'category_id' => $id, 'position' => $position]);
+        }
+        $past = $this->game->rounds()->create(['number' => 1, 'category_id' => $retired[0], 'letter' => 'A', 'status' => 'finished', 'started_at' => now()->subMinute(), 'answer_deadline' => now()->subSeconds(45)]);
+        $this->game->update(['used_categories' => [$kept, $retired[0]]]);
+        $this->game->players()->update(['score' => 18]);
+        $this->startRound();
+        $this->assertSame($kept, $this->game->rounds()->latest('number')->first()->category_id);
+        $this->assertDatabaseHas('rounds', ['id' => $past->id, 'category_id' => $retired[0]]);
+        $this->getJson('/api/games/'.$this->code, $this->host)->assertOk()->assertJsonPath('history.0.category', DB::table('categories')->where('id', $retired[0])->value('code'));
+    }
+
     public function test_strict_rounds_keep_the_selected_duration_and_accept_answers_without_presence_checks(): void {
         foreach ([10, 15, 30] as $duration) {
             $this->game->update(['anti_cheat_mode'=>'strict','answer_duration'=>$duration]);
@@ -482,6 +508,93 @@ class GameTest extends TestCase {
         $this->postJson('/api/rounds/'.$round->id.'/finish-judging',[],$this->host)->assertOk();
         $this->assertSame([10,0],$this->game->players()->orderBy('id')->pluck('score')->all());
     }
+
+    public function test_judging_draws_a_stable_referee_from_present_round_participants(): void {
+        $thirdSession = (string) Str::uuid();
+        $third = $this->postJson('/api/games/'.$this->code.'/join', ['nickname' => 'Fara', 'locale' => 'fr', 'session_id' => $thirdSession])->assertCreated()->json();
+        $round = $this->startRound();
+        $this->submit($round, $this->host, $round->letter.'ina')->assertOk();
+        $this->submit($round, $this->guest, $round->letter.'ob')->assertOk();
+        $thirdId = $this->game->players()->where('nickname', 'Fara')->value('id');
+        GamePlayer::find($thirdId)->update(['last_seen_at' => now()->subMinute()]);
+        // This online player joined too late to take part in this round.
+        $late = $this->postJson('/api/games/'.$this->code.'/join', ['nickname' => 'Tiana', 'locale' => 'fr', 'session_id' => (string) Str::uuid()])->assertCreated()->json();
+        $this->stopRound($round);
+        $hostId = $this->game->host_id;
+        $guestId = $this->game->players()->where('nickname', 'Mialy')->value('id');
+        $selected = $round->fresh()->referee_id;
+        $this->assertContains($selected, [$hostId, $guestId]);
+        $this->assertNotContains($selected, [$thirdId, $this->game->players()->where('nickname', 'Tiana')->value('id')]);
+        foreach ([$this->host, $this->guest, $this->host] as $headers) {
+            $snapshot = $this->getJson('/api/games/'.$this->code, $headers)->assertOk()->assertJsonPath('round.referee_id', $selected)->json();
+            foreach ($snapshot['round']['answers'] as $answer) {
+                $this->assertContains($answer['referee_id'], [$hostId, $guestId]);
+                $this->assertNotSame($answer['player_id'], $answer['referee_id']);
+                if ($answer['player_id'] !== $selected) $this->assertSame($selected, $answer['referee_id']);
+            }
+        }
+        $before = $round->answers()->orderBy('id')->pluck('referee_id')->all();
+        $this->getJson('/api/games/'.$this->code, $this->guest)->assertOk();
+        $this->assertSame($before, $round->answers()->orderBy('id')->pluck('referee_id')->all());
+    }
+
+    public function test_only_the_selected_participant_can_break_ties_and_they_cannot_judge_themselves(): void {
+        $thirdSession = (string) Str::uuid();
+        $third = $this->postJson('/api/games/'.$this->code.'/join', ['nickname' => 'Fara', 'locale' => 'fr', 'session_id' => $thirdSession])->assertCreated()->json();
+        $thirdHeaders = ['Authorization' => 'Bearer '.$third['token'], 'X-Session-ID' => $thirdSession];
+        $round = $this->startRound();
+        $this->submit($round, $this->host, $round->letter.'ina')->assertOk();
+        $this->submit($round, $this->guest, $round->letter.'ob')->assertOk();
+        $this->stopRound($round);
+        $guestId = $this->game->players()->where('nickname', 'Mialy')->value('id');
+        $round->update(['referee_id' => $guestId]);
+        $hostAnswer = $round->answers()->where('player_id', $this->game->host_id)->firstOrFail();
+        foreach ([$this->guest, $thirdHeaders] as $headers) {
+            $this->postJson('/api/answers/'.$hostAnswer->id.'/votes', ['vote' => 'uncertain'], $headers)->assertOk();
+        }
+        $guestAnswer = $round->answers()->where('player_id', $guestId)->firstOrFail();
+        foreach ([$this->host, $thirdHeaders] as $headers) {
+            $this->postJson('/api/answers/'.$guestAnswer->id.'/votes', ['vote' => 'uncertain'], $headers)->assertOk();
+        }
+        $this->postJson('/api/answers/'.$hostAnswer->id.'/decision', ['valid' => true], $this->host)->assertForbidden();
+        $this->postJson('/api/answers/'.$hostAnswer->id.'/decision', ['valid' => true], $thirdHeaders)->assertForbidden();
+        $this->postJson('/api/answers/'.$hostAnswer->id.'/decision', ['valid' => true], $this->guest)->assertOk();
+        $this->postJson('/api/answers/'.$guestAnswer->id.'/decision', ['valid' => true], $this->guest)->assertForbidden();
+        $this->assertContains($guestAnswer->fresh()->referee_id, [$this->game->host_id, $this->game->players()->where('nickname', 'Fara')->value('id')]);
+    }
+
+    public function test_referee_is_redrawn_after_absence_without_changing_completed_decisions(): void {
+        $round = $this->startRound();
+        $this->submit($round, $this->host, $round->letter.'ina')->assertOk();
+        $this->submit($round, $this->guest, $round->letter.'ob')->assertOk();
+        $this->stopRound($round);
+        $hostId = $this->game->host_id;
+        $guestId = $this->game->players()->where('nickname', 'Mialy')->value('id');
+        $round->update(['referee_id' => $guestId]);
+        $a = $round->answers()->orderBy('id')->get();
+        $this->postJson('/api/answers/'.$a[0]->id.'/votes', ['vote' => 'uncertain'], $this->guest)->assertOk();
+        $this->postJson('/api/answers/'.$a[1]->id.'/votes', ['vote' => 'uncertain'], $this->host)->assertOk();
+        $this->postJson('/api/answers/'.$a[0]->id.'/decision', ['valid' => true], $this->guest)->assertOk();
+        // A new spectator cannot become referee when the selected player disappears.
+        $this->postJson('/api/games/'.$this->code.'/join', ['nickname' => 'Late', 'locale' => 'fr', 'session_id' => (string) Str::uuid()])->assertCreated();
+        GamePlayer::find($guestId)->update(['last_seen_at' => now()->subMinute()]);
+        $snapshot = $this->getJson('/api/games/'.$this->code, $this->host)->assertOk()->assertJsonPath('round.referee_id', $hostId)->json();
+        $this->assertTrue($snapshot['round']['answers'][0]['tie_decision']);
+        $this->assertSame($guestId, $snapshot['round']['answers'][0]['referee_id']);
+        $this->assertSame($hostId, $snapshot['round']['answers'][1]['referee_id']);
+        // A player who explicitly leaves is also removed from the candidate pool.
+        GamePlayer::find($guestId)->update(['last_seen_at' => now(), 'left_at' => now()]);
+        $round->update(['referee_id' => $guestId]);
+        $this->getJson('/api/games/'.$this->code, $this->host)->assertOk()->assertJsonPath('round.referee_id', $hostId);
+        // A decision made before the migration has no recorded referee ID.
+        $a[0]->update(['tie_decision' => true, 'referee_id' => null]);
+        $this->travel(31)->seconds();
+        $this->getJson('/api/games/'.$this->code, $this->host)->assertOk()->assertJsonPath('round.answers.0.tie_decision', true);
+        $this->postJson('/api/answers/'.$a[1]->id.'/decision', ['valid' => false], $this->host)->assertOk();
+        $this->postJson('/api/rounds/'.$round->id.'/finish-judging', [], $this->host)->assertOk();
+        $this->assertTrue($a[0]->fresh()->verdict);
+    }
+
     public function test_target_score_tie_continues_then_unique_leader_wins(): void {
         $this->game->update(['target_score'=>10]);
         $used=[];

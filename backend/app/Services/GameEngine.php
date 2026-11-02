@@ -26,6 +26,7 @@ class GameEngine {
         $round = $game->rounds()->latest('number')->first();
         if ($round && $round->status === 'answering' && now()->gte($round->answer_deadline)) {
             $round->update(['status'=>'judging']);
+            $this->roundReferee($round);
             foreach ($round->answers()->get() as $answer) {
                 $reason = $answer->normalized === '' ? 'empty' : (!str_starts_with($answer->normalized, strtolower($round->letter)) ? 'letter' : null);
                 if ($game->anti_cheat_mode === 'strict' && $answer->flagged) $reason = 'strict';
@@ -59,7 +60,9 @@ class GameEngine {
                 $available = array_values(array_diff($available, [$previous->letter]));
             }
             $number = ($previous?->number ?? 0) + 1;
-            $categories = DB::table('game_categories')->where('game_id',$game->id)->orderBy('position')->pluck('category_id')->all();
+            $categories = DB::table('game_categories')->join('categories', 'categories.id', '=', 'game_categories.category_id')
+                ->where('game_id',$game->id)->whereNotIn('categories.code', config('retired_categories', []))
+                ->orderBy('position')->pluck('category_id')->all();
             abort_if(!$categories, 409, 'no_categories');
             // Persist the current bag: adding a category must not restart its cycle.
             $usedCategories = array_values(array_intersect($game->used_categories ?? [], $categories));
@@ -171,9 +174,38 @@ class GameEngine {
         return $result;
     }
 
+    private function presentParticipants(Round $round): array {
+        return GamePlayer::where('game_id', $round->game_id)->whereIn('id', $round->answers()->pluck('player_id'))
+            ->whereNull('left_at')->where('last_seen_at', '>=', now()->subSeconds(45))->pluck('id')->all();
+    }
+
+    private function drawReferee(array $candidates): ?int {
+        return $candidates ? $candidates[random_int(0, count($candidates) - 1)] : null;
+    }
+
+    private function roundReferee(Round $round): ?int {
+        if ($round->status !== 'judging') return $round->referee_id;
+        $present = $this->presentParticipants($round);
+        if (in_array($round->referee_id, $present, true)) return $round->referee_id;
+        $id = $this->drawReferee($present);
+        if ($round->referee_id !== $id) $round->update(['referee_id' => $id]);
+        return $id;
+    }
+
     public function referee(Game $game, Answer $answer): ?int {
-        if ($answer->player_id !== $game->host_id) return $game->host_id;
-        return GamePlayer::whereIn('id',$answer->round->answers()->pluck('player_id'))->where('id','!=',$answer->player_id)->whereNull('left_at')->where('last_seen_at','>=',now()->subSeconds(45))->orderBy('id')->value('id');
+        $round = $answer->round()->firstOrFail();
+        // Keep completed decisions and finished-round assignments intact.
+        if ($round->status !== 'judging' || $answer->tie_decision !== null) return $answer->referee_id;
+        $primary = $this->roundReferee($round);
+        if ($primary !== null && $primary !== $answer->player_id) {
+            $id = $primary;
+        } else {
+            // Nobody may decide their own answer, including the drawn referee.
+            $candidates = array_values(array_diff($this->presentParticipants($round), [$answer->player_id]));
+            $id = in_array($answer->referee_id, $candidates, true) ? $answer->referee_id : $this->drawReferee($candidates);
+        }
+        if ($answer->referee_id !== $id) $answer->update(['referee_id' => $id]);
+        return $id;
     }
 
     public function tally(Answer $answer): array {
@@ -215,8 +247,8 @@ class GameEngine {
             foreach ($answers as $a) {
                 $t = $this->tally($a);
                 // An absent referee cannot block a remaining player indefinitely.
-                // The host never gains points by judging their own answer.
-                if (!$a->invalid_reason && $t['tied'] && $this->referee($game,$a) === null && now()->gte($round->answer_deadline->copy()->addSeconds(30))) $a->tie_decision = false;
+                // Nobody gains points by judging their own answer.
+                if (!$a->invalid_reason && $t['tied'] && $a->tie_decision === null && $this->referee($game,$a) === null && now()->gte($round->answer_deadline->copy()->addSeconds(30))) $a->tie_decision = false;
                 abort_if(!$a->invalid_reason && $t['tied'] && $a->tie_decision === null,409,'ties_pending');
                 $a->verdict = !$a->invalid_reason && ($t['tied'] ? $a->tie_decision : $t['result']);
             }
@@ -262,6 +294,7 @@ class GameEngine {
                 $data['anti_cheat_alerts'] = $alerts;
                 $own = $round->answers()->where('player_id',$player->id)->first();
                 $data['round'] = ['id'=>$round->id,'number'=>$round->number,'category'=>DB::table('categories')->where('id',$round->category_id)->value('code'),'letter'=>$round->letter,'status'=>$round->status,'started_at'=>$round->started_at->getTimestampMs(),'answer_deadline'=>$round->answer_deadline->getTimestampMs(),'own_answer'=>$own?->answer ?? '','own_revision'=>$own?->revision ?? 0,'participating'=>(bool)$own,'ready'=>$round->status === 'judging' && $this->ready($round)];
+                $data['round']['referee_id'] = $this->roundReferee($round);
                 if ($round->status === 'judging') {
                     $columns = ['id','player_id','body','created_at'];
                     $columns[] = DB::raw('CASE WHEN image_data IS NULL THEN 0 ELSE 1 END AS has_image');
@@ -272,7 +305,7 @@ class GameEngine {
                     $reactionRows = DB::table('answer_reactions')->where('answer_id',$a->id)->orderBy('player_id')->get();
                     $referee = $this->referee($game,$a);
                     $decision = $a->tie_decision;
-                    if ($referee === null && now()->gte($a->round->answer_deadline->copy()->addSeconds(30))) $decision = false;
+                    if ($decision === null && $referee === null && now()->gte($a->round->answer_deadline->copy()->addSeconds(30))) $decision = false;
                     return ['id'=>$a->id,'player_id'=>$a->player_id,'answer'=>$a->answer,'flagged'=>$game->anti_cheat_mode !== 'soft' && $a->flagged,'invalid_reason'=>$a->invalid_reason,'verdict'=>$a->verdict,'points'=>$a->points_awarded,'tie_decision'=>$decision,'referee_id'=>$referee,'votes'=>$this->tally($a),'reactions'=>$reactionRows->countBy('reaction')->all(),'reaction_players'=>$reactionRows->groupBy('reaction')->map(fn ($rows) => $rows->pluck('player_id')->values())->all(),'my_reaction'=>DB::table('answer_reactions')->where('answer_id',$a->id)->where('player_id',$player->id)->value('reaction'),'my_vote'=>DB::table('votes')->where('answer_id',$a->id)->where('voter_player_id',$player->id)->value('vote')];
                 })->values();
             }

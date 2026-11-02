@@ -1,17 +1,15 @@
 {
   "chatPhoto": {"add":"Add a photo","preview":"Photo preview","remove":"Remove photo","photo":"Photo shared in chat","open":"Open photo","retry":"Retry loading photo","invalid":"Choose a JPG, PNG, WebP or GIF image.","tooLarge":"The photo must be no larger than 1 MB."},
   "updates": {
-    "chatPhotos": {"photos":{"description":"Upload a photo or paste it from your clipboard, then check the preview before sending. JPG, PNG, WebP and GIF, up to 1 MB and 4096 × 4096 pixels.","title":"Photos in chat"},"title":"Photos in chat"},
-    "difficulty": {"progression":{"description":"At the start, any category can be drawn randomly. At 50% of the target score, the game favours intermediate categories; at 80%, the hardest ones. Everyone gets the same category, with repeats avoided according to the available categories. Every selected letter and every category must be used before its cycle restarts, even when new categories are added.","title":"Difficulty follows the score"},"title":"A more challenging finish"},
-    "expansion": {"categories":{"description":"Explore 94 new categories covering Malagasy culture, humour, daily life, family, friends and nature. Gift ideas are already available.","title":"Malagasy culture and new themes"},"title":"94 new categories"},
-    "strict": {"flow":{"description":"Enabled by default for strict 15-second rounds; you can disable it in settings. A check every 2 to 5 rounds, with a 5-second pause.","title":"Enable presence checks"},"title":"Presence check"},
-    "title": "What’s new", "unreadLabel": "What’s new: updates to discover", "intro": "Find new features and game improvements here.",
-    "launch": {
-      "title": "Features to discover",
-      "categories": { "title": "More categories", "description": "Choose popular categories or explore themes to keep each game fresh." },
-      "reactions": { "title": "Answer reactions", "description": "React to answers with emojis and see who reacted." },
-      "chat": { "title": "Chat during voting", "description": "Talk with other players while reviewing answers." },
-      "guide": { "title": "Help during the game", "description": "Find tips for each stage of the game." }
+    "title": "What’s new",
+    "unreadLabel": "What’s new: an update to discover",
+    "intro": "The latest game update.",
+    "randomReferee": {
+      "title": "A randomly selected referee in Mitsara",
+      "draw": {
+        "title": "A referee for each round",
+        "description": "During Mitsara, a referee is randomly selected from the round’s connected participants to break tied votes. Another participant decides on the referee’s own answer. If the referee goes offline, a new draw takes place. The host still starts rounds and shows the results."
+      }
     }
   },
   "integrity": {"title":"Activity detected this round","away":"Screen left or window inactive","paste":"Text pasted into the answer","limit":"Another phone or outside help cannot be detected. These alerts do not prove cheating."},
@@ -200,6 +198,7 @@
   "strictReason": "Screen left or text pasted: 0 points in strict mode",
   "tie": "Tied votes",
   "referee": "{name} must decide",
+  "roundReferee": "Randomly selected referee for this round: {name}",
   "decide": "Decide",
   "finishJudging": "Show results",
   "votesPending": "Waiting for votes. Voting can close after 30 seconds.",
@@ -226,7 +225,7 @@
   "softHelp": "Leaving the screen is logged without a penalty.",
   "normalHelp": "Screen departures and pasted text are reported to players during the round.",
   "strictHelp": "Leaving the screen, switching windows or pasting text while answering disqualifies your answer.",
-  "tieHelp": "The host breaks ties. Another player decides ties on the host’s own answer.",
+  "tieHelp": "A referee is drawn from this round’s connected participants. Another participant is drawn for the referee’s own answer. If the referee goes offline, a new one is selected.",
   "spectating": "You’ll play in the next round.",
   "rulesTitle": "How to play",
   "close": "Close",

@@ -7,7 +7,7 @@ use Illuminate\Validation\ValidationException;
 class CategoryCatalog {
     public function all(): array {
         $translations = DB::table('category_translations')->get()->groupBy('category_id');
-        return DB::table('categories')->orderBy('sort_order')->orderBy('id')->get()->map(fn ($category) => [
+        return DB::table('categories')->whereNotIn('code', config('retired_categories', []))->orderBy('sort_order')->orderBy('id')->get()->map(fn ($category) => [
             'id' => $category->id,
             'code' => $category->code,
             'difficulty' => (int) $category->difficulty,
