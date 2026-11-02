@@ -120,6 +120,16 @@ const newStandardCategoryCodes = [
   'reflective_thing', 'striped_thing', 'spotted_thing', 'square_thing', 'triangular_thing'
 ]
 const categories = computed(() => catalogCodes.value ? catalogCodes.value.map(code => defaultCategories.find(category => category.code === code) || { code, icon: Sparkles, color: 'green' }) : defaultCategories)
+const challengeCategoryGroups: Record<string, string[]> = {
+  fun: ['uniform_profession', 'ball_sport', 'five_letter_french_word', 'adjective_french', 'adjective_malagasy', 'adjective_english', 'night_job', 'helping_profession', 'five_letter_malagasy_word', 'five_letter_english_word', 'travel_job', 'outdoor_job', 'gloved_job', 'sports_club', 'four_letter_french_word'],
+  nature: ['egg_laying_animal', 'horned_animal', 'social_animal', 'jumping_animal', 'legless_animal', 'shelled_animal', 'burrowing_animal', 'big_eared_animal'],
+  food: ['raw_food', 'peelable_fruit', 'hot_food', 'spoon_food', 'canned_food', 'rice_dish', 'steamed_food', 'stone_fruit', 'sandwich_ingredient', 'pizza_topping', 'frozen_food'],
+  things: ['car_interior_item', 'cleaning_item', 'pocket_item', 'measuring_object', 'screen_object', 'scissors_cut_thing', 'hair_accessory', 'rechargeable_object', 'zippered_object', 'toothed_object', 'bicycle_accessory', 'writing_object', 'sun_protection_item', 'pocketed_clothing'],
+  dailyLife: ['pharmacy_item', 'beach_packing_item', 'hotel_item', 'bakery_item', 'public_transport'],
+  places: ['quiet_place'],
+  familyFriends: ['child_gift'],
+  culture: ['masked_character', 'horror_movie', 'dance_song', 'powered_character', 'singer_instrumentalist', 'flying_character', 'singer_stage_name', 'video_game_character', 'newspaper_magazine', 'fairy_tale_character']
+}
 const categoryGroups = [
   { id: 'names', codes: ['male_name', 'female_name'] },
   { id: 'places', codes: ['malagasy_place', 'international_place', 'country', 'capital_city', 'city', 'island', 'mountain', 'river', 'sea'] },
@@ -127,9 +137,9 @@ const categoryGroups = [
   { id: 'nature', codes: ['plant', 'animal', 'bird', 'fish', 'sea_animal', 'domestic_animal', 'wild_animal'] },
   { id: 'culture', codes: ['malagasy_artist', 'international_artist', 'movie', 'actor', 'singer', 'music_group', 'song', 'book', 'writer', 'cartoon', ...entertainmentCategoryCodes] },
   { id: 'things', codes: ['household_item', 'furniture', 'clothing', 'footwear', 'vehicle', 'car_brand', 'color', 'school_item', 'kitchen_item', 'bedroom_item', 'office_item', 'electronic_device', 'phone_brand', 'big_thing', 'small_thing', 'round_thing', 'street_thing', 'school_thing', 'market_thing', 'beach_thing'] },
-  { id: 'fun', codes: ['profession', 'sport', 'adjective', 'verb', 'gift_idea', ...additionalCategories.filter(category => category.group === 'fun').map(category => category.code), ...newFunCategoryCodes] },
+  { id: 'fun', codes: ['profession', 'sport', 'adjective', 'verb', 'verb_french', 'verb_malagasy', 'verb_english', 'gift_idea', ...additionalCategories.filter(category => category.group === 'fun').map(category => category.code), ...newFunCategoryCodes] },
   ...['malagasyCulture', 'dailyLife', 'familyFriends', 'natureKnowledge'].map(id => ({ id, codes: [...additionalCategories.filter(category => category.group === id).map(category => category.code), ...(id === 'dailyLife' ? newStandardCategoryCodes : [])] }))
-]
+].map(group => ({ ...group, codes: [...group.codes, ...(challengeCategoryGroups[group.id] || [])] }))
 const visibleCategories = computed(() => {
   if (categoryView.value === 'all') return categories.value
   const codes = categoryView.value === 'popular' ? popularCategoryCodes : categoryGroups.find(group => group.id === categoryView.value)?.codes || []

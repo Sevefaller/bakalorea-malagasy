@@ -89,16 +89,22 @@ test('new everyday categories appear in Fun with their catalogue translations', 
     { id: 1, code: 'animal', difficulty: 1, names: { mg: 'Biby', fr: 'Animal', en: 'Animal' } },
     { id: 2, code: 'nap_interruption', difficulty: 1, names: { mg: 'Zavatra mety hanapaka torimaso atoandro', fr: 'Chose qui peut interrompre une sieste', en: 'Something that can interrupt a nap' } },
     { id: 3, code: 'robot_chore', difficulty: 2, names: { mg: 'Asa ao an-trano tiana hampanaovina robot', fr: 'Tâche ménagère qu’on confierait à un robot', en: 'Household chore you would give a robot' } },
+    { id: 4, code: 'adjective_english', difficulty: 3, names: { mg: 'Mpamaritra amin’ny teny anglisy', fr: 'Adjectif en anglais', en: 'Adjective in English' } },
+    { id: 5, code: 'five_letter_french_word', difficulty: 3, names: { mg: 'Teny frantsay misy litera dimy', fr: 'Mot français de cinq lettres', en: 'Five-letter French word' } },
   ] } }))
   await page.goto('/')
   await page.getByRole('button', { name: 'Fun', exact: true }).click()
-  await expect(page.locator('.category-item')).toHaveCount(2)
+  await expect(page.locator('.category-item')).toHaveCount(4)
+  await expect(page.locator('.category-item').filter({ hasText: 'Adjectif en anglais' })).toBeVisible()
+  await expect(page.locator('.category-item').filter({ hasText: 'Mot français de cinq lettres' })).toBeVisible()
   await expect(page.locator('.category-item').filter({ hasText: 'Chose qui peut interrompre une sieste' })).toBeVisible()
   await expect(page.locator('.category-item').filter({ hasText: 'Tâche ménagère qu’on confierait à un robot' })).toBeVisible()
   await page.getByRole('button', { name: 'MG', exact: true }).click()
   await expect(page.locator('.category-item').filter({ hasText: 'Zavatra mety hanapaka torimaso atoandro' })).toBeVisible()
+  await expect(page.locator('.category-item').filter({ hasText: 'Mpamaritra amin’ny teny anglisy' })).toBeVisible()
   await page.getByRole('button', { name: 'EN', exact: true }).click()
   await expect(page.locator('.category-item').filter({ hasText: 'Household chore you would give a robot' })).toBeVisible()
+  await expect(page.locator('.category-item').filter({ hasText: 'Five-letter French word' })).toBeVisible()
 })
 
 test('standard level-three categories appear under daily life', async ({ page }) => {

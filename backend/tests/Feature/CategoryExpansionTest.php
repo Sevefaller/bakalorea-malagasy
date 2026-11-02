@@ -11,6 +11,133 @@ class CategoryExpansionTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_more_everyday_challenges_reuse_noise_and_keep_room_cycles_and_admin_edits(): void
+    {
+        $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
+        $start = DB::table('categories')->where('code', 'horned_animal')->value('sort_order');
+        $end = DB::table('categories')->where('code', 'fairy_tale_character')->value('sort_order');
+        $added = DB::table('categories')->whereBetween('sort_order', [$start, $end])->get();
+        $this->assertCount(51, $added);
+        foreach ($added as $category) {
+            $this->assertSame(3, $catalog[$category->code]['difficulty']);
+            foreach (['mg', 'fr', 'en'] as $locale) $this->assertNotEmpty($catalog[$category->code]['names'][$locale]);
+        }
+        $this->assertSame('Five-letter Malagasy word', $catalog['five_letter_malagasy_word']['names']['en']);
+        $this->assertSame('Teny anglisy misy litera dimy', $catalog['five_letter_english_word']['names']['mg']);
+        $this->assertSame('Plat à base de riz', $catalog['rice_dish']['names']['fr']);
+        $this->assertSame('Biby mitsambikina', $catalog['jumping_animal']['names']['mg']);
+        $this->assertSame('Singer who uses a stage name', $catalog['singer_stage_name']['names']['en']);
+        $this->assertSame('Objet avec une fermeture éclair', $catalog['zippered_object']['names']['fr']);
+        $this->assertSame('Biby misy akorany', $catalog['shelled_animal']['names']['mg']);
+        $this->assertSame('Four-letter French word', $catalog['four_letter_french_word']['names']['en']);
+        $this->assertSame('Nom de journal ou de magazine', $catalog['newspaper_magazine']['names']['fr']);
+        $this->assertSame('Fitaterana iombonana', $catalog['public_transport']['names']['mg']);
+        $this->assertSame('Sandwich ingredient', $catalog['sandwich_ingredient']['names']['en']);
+        $this->assertSame(3, $catalog['noisy_thing']['difficulty']);
+        $this->assertSame(1, DB::table('categories')->where('code', 'noisy_thing')->count());
+
+        $noiseId = $catalog['noisy_thing']['id'];
+        $id = $catalog['horned_animal']['id'];
+        $game = Game::create(['code' => 'MORE01', 'name' => 'Open', 'status' => 'playing', 'used_categories' => [$noiseId], 'used_letters' => ['A']]);
+        $finished = Game::create(['code' => 'MORE02', 'name' => 'Finished', 'status' => 'finished']);
+        DB::table('game_categories')->insert(['game_id' => $game->id, 'category_id' => $noiseId, 'position' => 0]);
+        DB::table('categories')->where('id', $noiseId)->update(['difficulty' => 1]);
+        DB::table('categories')->where('id', $id)->update(['difficulty' => 2]);
+        DB::table('category_translations')->where('category_id', $id)->where('locale', 'fr')->update(['name' => 'Animal personnalisé']);
+        $before = DB::table('categories')->count();
+        $migration = require database_path('migrations/2026_11_02_000006_add_more_everyday_challenges.php');
+        $migration->up();
+        $migration->up();
+        $this->assertSame($before, DB::table('categories')->count());
+        $this->assertSame(52, DB::table('game_categories')->where('game_id', $game->id)->count());
+        $this->assertSame(52, DB::table('game_categories')->where('game_id', $game->id)->distinct()->count('position'));
+        $this->assertSame(0, DB::table('game_categories')->where('game_id', $finished->id)->count());
+        $this->assertSame([$noiseId], $game->fresh()->used_categories);
+        $this->assertSame(['A'], $game->fresh()->used_letters);
+        $this->assertDatabaseHas('categories', ['id' => $noiseId, 'code' => 'noisy_thing', 'difficulty' => 3]);
+        $this->assertDatabaseHas('categories', ['id' => $id, 'difficulty' => 2]);
+        $this->assertDatabaseHas('category_translations', ['category_id' => $id, 'locale' => 'fr', 'name' => 'Animal personnalisé']);
+    }
+
+    public function test_accessible_challenges_are_level_three_and_extend_rooms_without_duplicates_or_resets(): void
+    {
+        $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
+        $start = DB::table('categories')->where('code', 'uniform_profession')->value('sort_order');
+        $end = DB::table('categories')->where('code', 'adjective_english')->value('sort_order');
+        $added = DB::table('categories')->whereBetween('sort_order', [$start, $end])->get();
+        $this->assertCount(14, $added);
+        foreach ($added as $category) {
+            $this->assertSame(3, $catalog[$category->code]['difficulty']);
+            foreach (['mg', 'fr', 'en'] as $locale) $this->assertNotEmpty($catalog[$category->code]['names'][$locale]);
+        }
+        $this->assertSame('Five-letter French word', $catalog['five_letter_french_word']['names']['en']);
+        $this->assertSame('Adjectif en français', $catalog['adjective_french']['names']['fr']);
+        $this->assertSame('Mpamaritra amin’ny teny malagasy', $catalog['adjective_malagasy']['names']['mg']);
+        $this->assertSame('Adjective in English', $catalog['adjective_english']['names']['en']);
+
+        $id = $catalog['uniform_profession']['id'];
+        DB::table('categories')->where('id', $id)->update(['difficulty' => 2]);
+        DB::table('category_translations')->where('category_id', $id)->where('locale', 'fr')->update(['name' => 'Métier personnalisé']);
+        $open = [];
+        foreach (['lobby', 'playing'] as $i => $status) {
+            $game = Game::create(['code' => 'EASY0'.$i, 'name' => 'Open', 'status' => $status, 'used_categories' => [$id], 'used_letters' => ['A']]);
+            DB::table('game_categories')->insert(['game_id' => $game->id, 'category_id' => $id, 'position' => 4]);
+            $open[] = $game;
+        }
+        $finished = Game::create(['code' => 'EASY99', 'name' => 'Finished', 'status' => 'finished']);
+        $before = DB::table('categories')->count();
+        $migration = require database_path('migrations/2026_11_02_000005_add_accessible_challenge_categories.php');
+        $migration->up();
+        $migration->up();
+        $this->assertSame($before, DB::table('categories')->count());
+        foreach ($open as $game) {
+            $this->assertSame(14, DB::table('game_categories')->where('game_id', $game->id)->count());
+            $this->assertSame(14, DB::table('game_categories')->where('game_id', $game->id)->distinct()->count('position'));
+            $this->assertSame([$id], $game->fresh()->used_categories);
+            $this->assertSame(['A'], $game->fresh()->used_letters);
+            $this->assertDatabaseHas('game_categories', ['game_id' => $game->id, 'category_id' => $id, 'position' => 4]);
+        }
+        $this->assertSame(0, DB::table('game_categories')->where('game_id', $finished->id)->count());
+        $this->assertDatabaseHas('categories', ['id' => $id, 'difficulty' => 2]);
+        $this->assertDatabaseHas('category_translations', ['category_id' => $id, 'locale' => 'fr', 'name' => 'Métier personnalisé']);
+    }
+
+    public function test_separate_verb_languages_are_level_three_and_preserve_existing_categories_and_rooms(): void
+    {
+        $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
+        $names = [
+            'verb_french' => ['mg' => 'Matoanteny amin’ny teny frantsay', 'fr' => 'Verbe en français', 'en' => 'Verb in French'],
+            'verb_malagasy' => ['mg' => 'Matoanteny amin’ny teny malagasy', 'fr' => 'Verbe en malagasy', 'en' => 'Verb in Malagasy'],
+            'verb_english' => ['mg' => 'Matoanteny amin’ny teny anglisy', 'fr' => 'Verbe en anglais', 'en' => 'Verb in English'],
+        ];
+        foreach ($names as $code => $translations) {
+            $this->assertSame(3, $catalog[$code]['difficulty']);
+            foreach ($translations as $locale => $name) $this->assertSame($name, $catalog[$code]['names'][$locale]);
+        }
+        $this->assertSame(2, $catalog['verb']['difficulty']);
+        $id = $catalog['verb_french']['id'];
+        $game = Game::create(['code' => 'VERB01', 'name' => 'Verbs', 'status' => 'playing', 'used_categories' => [$id]]);
+        $finished = Game::create(['code' => 'VERB02', 'name' => 'Finished', 'status' => 'finished']);
+        DB::table('game_categories')->insert(['game_id' => $game->id, 'category_id' => $id, 'position' => 4]);
+        // Re-running the migration must preserve subsequent administrator edits.
+        DB::table('categories')->where('id', $id)->update(['difficulty' => 2]);
+        DB::table('category_translations')->where('category_id', $id)->where('locale', 'fr')->update(['name' => 'Verbe personnalisé']);
+        $before = DB::table('categories')->count();
+        $migration = require database_path('migrations/2026_11_02_000004_add_language_specific_verb_categories.php');
+        $migration->up();
+        $migration->up();
+        $this->assertSame($before, DB::table('categories')->count());
+        $this->assertSame(3, DB::table('categories')->whereIn('code', array_keys($names))->count());
+        $this->assertDatabaseHas('categories', ['id' => $id, 'code' => 'verb_french', 'difficulty' => 2]);
+        $this->assertDatabaseHas('category_translations', ['category_id' => $id, 'locale' => 'fr', 'name' => 'Verbe personnalisé']);
+        $this->assertDatabaseHas('game_categories', ['game_id' => $game->id, 'category_id' => $id, 'position' => 4]);
+        $this->assertSame(3, DB::table('game_categories')->where('game_id', $game->id)->count());
+        $this->assertSame(3, DB::table('game_categories')->where('game_id', $game->id)->distinct()->count('position'));
+        $this->assertSame(0, DB::table('game_categories')->where('game_id', $finished->id)->count());
+        $this->assertSame([$id], $game->fresh()->used_categories);
+        $this->assertDatabaseHas('categories', ['code' => 'verb', 'difficulty' => 2]);
+    }
+
     public function test_standard_categories_are_available_at_level_three_in_all_languages(): void
     {
         $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');

@@ -46,7 +46,7 @@ class GameTest extends TestCase {
         $this->assertNotEmpty($retired);
         $this->assertSame(0, DB::table('game_categories')->where('game_id', $this->game->id)->whereIn('category_id', $retired)->count());
         $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
-        $this->assertCount(349, $catalog);
+        $this->assertCount(417, $catalog);
         $this->assertTrue($catalog->has('late_excuse'));
         $this->assertTrue($catalog->has('movie'));
         $this->assertTrue($catalog->has('pretend_microphone'));
