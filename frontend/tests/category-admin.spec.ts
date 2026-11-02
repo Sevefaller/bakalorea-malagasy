@@ -74,8 +74,61 @@ test('custom catalogue names appear in all three game languages', async ({ page 
   await page.goto('/')
   await page.locator('.all-categories-button').click()
   await expect(page.locator('.category-item').filter({ hasText: 'Instrument de musique' })).toBeVisible()
-  await page.getByRole('combobox', { name: 'Langue', exact: true }).selectOption('mg')
+  await page.getByRole('button', { name: 'MG', exact: true }).click()
   await expect(page.locator('.category-item').filter({ hasText: 'Zavamaneno' })).toBeVisible()
-  await page.getByRole('combobox', { name: 'Fiteny', exact: true }).selectOption('en')
+  await page.getByRole('button', { name: 'EN', exact: true }).click()
   await expect(page.locator('.category-item').filter({ hasText: 'Musical instrument' })).toBeVisible()
+})
+
+test('new everyday categories appear in Fun with their catalogue translations', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('bakalorea.locale', 'fr')
+    localStorage.setItem('bakalorea.updates.seen', '2026-11-02-random-referee')
+  })
+  await page.route('**/api/categories', route => route.fulfill({ json: { categories: [
+    { id: 1, code: 'animal', difficulty: 1, names: { mg: 'Biby', fr: 'Animal', en: 'Animal' } },
+    { id: 2, code: 'nap_interruption', difficulty: 1, names: { mg: 'Zavatra mety hanapaka torimaso atoandro', fr: 'Chose qui peut interrompre une sieste', en: 'Something that can interrupt a nap' } },
+    { id: 3, code: 'robot_chore', difficulty: 2, names: { mg: 'Asa ao an-trano tiana hampanaovina robot', fr: 'Tâche ménagère qu’on confierait à un robot', en: 'Household chore you would give a robot' } },
+  ] } }))
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Fun', exact: true }).click()
+  await expect(page.locator('.category-item')).toHaveCount(2)
+  await expect(page.locator('.category-item').filter({ hasText: 'Chose qui peut interrompre une sieste' })).toBeVisible()
+  await expect(page.locator('.category-item').filter({ hasText: 'Tâche ménagère qu’on confierait à un robot' })).toBeVisible()
+  await page.getByRole('button', { name: 'MG', exact: true }).click()
+  await expect(page.locator('.category-item').filter({ hasText: 'Zavatra mety hanapaka torimaso atoandro' })).toBeVisible()
+  await page.getByRole('button', { name: 'EN', exact: true }).click()
+  await expect(page.locator('.category-item').filter({ hasText: 'Household chore you would give a robot' })).toBeVisible()
+})
+
+test('standard level-three categories appear under daily life', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('bakalorea.locale', 'fr')
+    localStorage.setItem('bakalorea.updates.seen', '2026-11-02-random-referee')
+  })
+  await page.route('**/api/categories', route => route.fulfill({ json: { categories: [
+    { id: 1, code: 'animal', difficulty: 1, names: { mg: 'Biby', fr: 'Animal', en: 'Animal' } },
+    { id: 2, code: 'wheeled_object', difficulty: 3, names: { mg: 'Zavatra misy kodiarana', fr: 'Objet à roulettes ou à roues', en: 'Object with wheels' } },
+    { id: 3, code: 'family_activity', difficulty: 3, names: { mg: 'Zavatra atao miaraka amin’ny fianakaviana', fr: 'Activité à faire en famille', en: 'Family activity' } },
+    { id: 4, code: 'prickly_thing', difficulty: 3, names: { mg: 'Zavatra manindrona na masiaka', fr: 'Chose piquante', en: 'Something prickly or spicy' } },
+    { id: 5, code: 'tv_series', difficulty: 3, names: { mg: 'Anaran-tsarimihetsika mitohy', fr: 'Nom de série', en: 'TV series title' } },
+    { id: 6, code: 'tv_series_character', difficulty: 3, names: { mg: 'Olona ao anaty sarimihetsika mitohy', fr: 'Personnage de série', en: 'TV series character' } },
+    { id: 7, code: 'facebook_page', difficulty: 3, names: { mg: 'Anaran’ny pejy Facebook', fr: 'Nom de page Facebook', en: 'Facebook page name' } },
+  ] } }))
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Vie quotidienne', exact: true }).click()
+  await expect(page.locator('.category-item')).toHaveCount(3)
+  await expect(page.locator('.category-item').filter({ hasText: 'Chose piquante' })).toBeVisible()
+  await expect(page.locator('.category-item').filter({ hasText: 'Objet à roulettes ou à roues' })).toBeVisible()
+  await expect(page.locator('.category-item').filter({ hasText: 'Activité à faire en famille' })).toBeVisible()
+  await page.getByRole('button', { name: 'MG', exact: true }).click()
+  await expect(page.locator('.category-item').filter({ hasText: 'Zavatra misy kodiarana' })).toBeVisible()
+  await page.getByRole('button', { name: 'EN', exact: true }).click()
+  await expect(page.locator('.category-item').filter({ hasText: 'Family activity' })).toBeVisible()
+  await page.getByRole('button', { name: 'FR', exact: true }).click()
+  await page.getByRole('button', { name: 'Culture', exact: true }).click()
+  await expect(page.locator('.category-item')).toHaveCount(3)
+  await expect(page.locator('.category-item').filter({ hasText: 'Nom de page Facebook' })).toBeVisible()
+  await expect(page.locator('.category-item').filter({ hasText: 'Nom de série' })).toBeVisible()
+  await expect(page.locator('.category-item').filter({ hasText: 'Personnage de série' })).toBeVisible()
 })

@@ -93,17 +93,42 @@ const defaultCategories = [ { code: 'male_name', icon: UserRound, color: 'purple
   ...additionalCategories.map(({ code }, index) => ({ code, icon: Sparkles, color: ['green', 'blue', 'orange', 'purple', 'pink'][index % 5] }))
 ]
 const popularCategoryCodes = ['male_name', 'female_name', 'fruit', 'animal', 'malagasy_place', 'malagasy_artist']
+const newFunCategoryCodes = [
+  'snack_to_share', 'food_eaten_with_hands', 'messy_food', 'crunchy_food', 'clothing_stain_cause',
+  'food_burnt_in_kitchen', 'pet_mischief', 'pet_toy', 'funny_pet_name', 'unexpected_door_visitor',
+  'nap_interruption', 'morning_first_action', 'before_guests_arrive', 'power_cut_activity', 'rain_shelter',
+  'forgotten_in_pocket', 'suitcase_surprise', 'school_break_activity', 'queue_activity', 'dance_floor_item',
+  'birthday_wish', 'party_costume', 'pretend_microphone', 'improvised_drum', 'unusual_hat',
+  'superpower_wish', 'robot_chore', 'giant_object', 'miniature_object', 'imaginary_pet'
+]
 const catalogCodes = ref<string[] | null>(null)
+const entertainmentCategoryCodes = [
+  'tv_series', 'tv_show', 'tv_series_character', 'cartoon_character', 'movie_character',
+  'tv_presenter', 'radio_station', 'tv_channel', 'online_content_creator', 'fictional_place',
+  'facebook_page', 'facebook_group', 'youtube_channel',
+  'bald_actor', 'bearded_actor', 'actor_with_glasses', 'action_movie_actor', 'comedy_movie_actor',
+  'tattooed_actor', 'tattooed_artist', 'tattoo_artist'
+]
+const newStandardCategoryCodes = [
+  'communication_method', 'workplace', 'outdoor_game', 'wooden_object', 'plastic_object',
+  'paper_object', 'metal_object', 'waiting_place', 'eating_place', 'family_activity',
+  'borrowed_object', 'collectible_thing', 'repairable_thing', 'battery_powered_object', 'lockable_thing',
+  'inflatable_thing', 'melting_thing', 'wheeled_object', 'foldable_thing', 'hanging_thing',
+  'prickly_thing', 'sour_thing', 'bitter_thing', 'salty_thing', 'soft_thing',
+  'rough_thing', 'smooth_thing', 'sharp_thing', 'heavy_thing', 'lightweight_thing',
+  'slippery_thing', 'wet_thing', 'dry_thing', 'dusty_thing', 'foamy_thing',
+  'reflective_thing', 'striped_thing', 'spotted_thing', 'square_thing', 'triangular_thing'
+]
 const categories = computed(() => catalogCodes.value ? catalogCodes.value.map(code => defaultCategories.find(category => category.code === code) || { code, icon: Sparkles, color: 'green' }) : defaultCategories)
 const categoryGroups = [
   { id: 'names', codes: ['male_name', 'female_name'] },
   { id: 'places', codes: ['malagasy_place', 'international_place', 'country', 'capital_city', 'city', 'island', 'mountain', 'river', 'sea'] },
   { id: 'food', codes: ['fruit', 'vegetable', 'food', 'drink', 'sweet_thing', 'cold_thing', 'hot_thing', 'fragrant_thing'] },
   { id: 'nature', codes: ['plant', 'animal', 'bird', 'fish', 'sea_animal', 'domestic_animal', 'wild_animal'] },
-  { id: 'culture', codes: ['malagasy_artist', 'international_artist', 'movie', 'actor', 'singer', 'music_group', 'song', 'book', 'writer', 'cartoon'] },
+  { id: 'culture', codes: ['malagasy_artist', 'international_artist', 'movie', 'actor', 'singer', 'music_group', 'song', 'book', 'writer', 'cartoon', ...entertainmentCategoryCodes] },
   { id: 'things', codes: ['household_item', 'furniture', 'clothing', 'footwear', 'vehicle', 'car_brand', 'color', 'school_item', 'kitchen_item', 'bedroom_item', 'office_item', 'electronic_device', 'phone_brand', 'big_thing', 'small_thing', 'round_thing', 'street_thing', 'school_thing', 'market_thing', 'beach_thing'] },
-  { id: 'fun', codes: ['profession', 'sport', 'adjective', 'verb', 'gift_idea', ...additionalCategories.filter(category => category.group === 'fun').map(category => category.code)] },
-  ...['malagasyCulture', 'dailyLife', 'familyFriends', 'natureKnowledge'].map(id => ({ id, codes: additionalCategories.filter(category => category.group === id).map(category => category.code) }))
+  { id: 'fun', codes: ['profession', 'sport', 'adjective', 'verb', 'gift_idea', ...additionalCategories.filter(category => category.group === 'fun').map(category => category.code), ...newFunCategoryCodes] },
+  ...['malagasyCulture', 'dailyLife', 'familyFriends', 'natureKnowledge'].map(id => ({ id, codes: [...additionalCategories.filter(category => category.group === id).map(category => category.code), ...(id === 'dailyLife' ? newStandardCategoryCodes : [])] }))
 ]
 const visibleCategories = computed(() => {
   if (categoryView.value === 'all') return categories.value

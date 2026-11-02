@@ -11,11 +11,78 @@ class CategoryExpansionTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_standard_categories_are_available_at_level_three_in_all_languages(): void
+    {
+        $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
+        $start = DB::table('categories')->where('code', 'communication_method')->value('sort_order');
+        $end = DB::table('categories')->where('code', 'tattoo_artist')->value('sort_order');
+        $added = DB::table('categories')->whereBetween('sort_order', [$start, $end])->get();
+        $this->assertCount(61, $added);
+        foreach ($added as $category) {
+            $this->assertSame(3, $catalog[$category->code]['difficulty']);
+            foreach (['mg', 'fr', 'en'] as $locale) {
+                $this->assertNotEmpty($catalog[$category->code]['names'][$locale]);
+            }
+        }
+        $this->assertSame('Objet à roulettes ou à roues', $catalog['wheeled_object']['names']['fr']);
+        $this->assertSame('Zavatra vita amin’ny hazo', $catalog['wooden_object']['names']['mg']);
+        $this->assertSame('Family activity', $catalog['family_activity']['names']['en']);
+        $this->assertSame('Chose piquante', $catalog['prickly_thing']['names']['fr']);
+        $this->assertSame('Zavatra masira', $catalog['salty_thing']['names']['mg']);
+        $this->assertSame('Something slippery', $catalog['slippery_thing']['names']['en']);
+        $this->assertSame('Nom de série', $catalog['tv_series']['names']['fr']);
+        $this->assertSame('Anaran’ny onjam-peo', $catalog['radio_station']['names']['mg']);
+        $this->assertSame('TV series character', $catalog['tv_series_character']['names']['en']);
+        $this->assertSame('Nom de page Facebook', $catalog['facebook_page']['names']['fr']);
+        $this->assertSame('Anaran’ny fantsona YouTube', $catalog['youtube_channel']['names']['mg']);
+        $this->assertSame('YouTube channel name', $catalog['youtube_channel']['names']['en']);
+        $this->assertSame('Acteur chauve', $catalog['bald_actor']['names']['fr']);
+        $this->assertSame('Mpilalao sarimihetsika misy volombava', $catalog['bearded_actor']['names']['mg']);
+        $this->assertSame('Actor or actress with glasses', $catalog['actor_with_glasses']['names']['en']);
+        $this->assertSame('Acteur ou actrice avec des tatouages', $catalog['tattooed_actor']['names']['fr']);
+        $this->assertSame('Mpanakanto misy tombokavatsa', $catalog['tattooed_artist']['names']['mg']);
+        $this->assertSame('Tattoo artist', $catalog['tattoo_artist']['names']['en']);
+        $this->assertFalse($catalog->has('tiktok_account'));
+        $this->assertFalse($catalog->has('instagram_account'));
+        $this->assertSame(1, $catalog['nap_interruption']['difficulty']);
+        $this->assertSame(2, $catalog['robot_chore']['difficulty']);
+    }
+
+    public function test_standard_expansion_preserves_admin_edits_and_extends_open_rooms_once(): void
+    {
+        $id = DB::table('categories')->where('code', 'wooden_object')->value('id');
+        DB::table('categories')->where('id', $id)->update(['difficulty' => 2]);
+        DB::table('category_translations')->where('category_id', $id)->where('locale', 'fr')->update(['name' => 'Objet en bois personnalisé']);
+        $open = [];
+        foreach (['lobby', 'playing'] as $i => $status) {
+            $game = Game::create(['code' => 'STD00'.$i, 'name' => 'Open', 'status' => $status, 'used_categories' => [$id], 'used_letters' => ['A']]);
+            DB::table('game_categories')->insert(['game_id' => $game->id, 'category_id' => $id, 'position' => 4]);
+            $open[] = $game;
+        }
+        $finished = Game::create(['code' => 'STDDON', 'name' => 'Finished', 'status' => 'finished']);
+        $before = DB::table('categories')->count();
+        $migration = require database_path('migrations/2026_11_02_000003_add_standard_level_three_categories.php');
+        $migration->up();
+        $migration->up();
+        $this->assertSame($before, DB::table('categories')->count());
+        foreach ($open as $game) {
+            $this->assertSame(61, DB::table('game_categories')->where('game_id', $game->id)->count());
+            $this->assertSame(61, DB::table('game_categories')->where('game_id', $game->id)->distinct()->count('position'));
+            $this->assertSame([$id], $game->fresh()->used_categories);
+            $this->assertSame(['A'], $game->fresh()->used_letters);
+            $this->assertDatabaseHas('game_categories', ['game_id' => $game->id, 'category_id' => $id, 'position' => 4]);
+        }
+        $this->assertSame(0, DB::table('game_categories')->where('game_id', $finished->id)->count());
+        $this->assertDatabaseHas('categories', ['id' => $id, 'difficulty' => 2]);
+        $this->assertDatabaseHas('category_translations', ['category_id' => $id, 'locale' => 'fr', 'name' => 'Objet en bois personnalisé']);
+    }
+
     public function test_fun_everyday_categories_are_translated_and_accessible(): void
     {
         $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
         $start = DB::table('categories')->where('code', 'snack_to_share')->value('sort_order');
-        $added = DB::table('categories')->where('sort_order', '>=', $start)->get();
+        $end = DB::table('categories')->where('code', 'imaginary_pet')->value('sort_order');
+        $added = DB::table('categories')->whereBetween('sort_order', [$start, $end])->get();
         $this->assertCount(30, $added);
         foreach ($added as $category) {
             $this->assertContains($catalog[$category->code]['difficulty'], [1, 2]);

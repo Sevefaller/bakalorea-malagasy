@@ -46,11 +46,21 @@ class GameTest extends TestCase {
         $this->assertNotEmpty($retired);
         $this->assertSame(0, DB::table('game_categories')->where('game_id', $this->game->id)->whereIn('category_id', $retired)->count());
         $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
-        $this->assertCount(288, $catalog);
+        $this->assertCount(349, $catalog);
         $this->assertTrue($catalog->has('late_excuse'));
         $this->assertTrue($catalog->has('movie'));
         $this->assertTrue($catalog->has('pretend_microphone'));
         $this->assertDatabaseHas('game_categories', ['game_id' => $this->game->id, 'category_id' => $catalog['pretend_microphone']['id']]);
+        $this->assertSame(3, $catalog['wheeled_object']['difficulty']);
+        $this->assertDatabaseHas('game_categories', ['game_id' => $this->game->id, 'category_id' => $catalog['wheeled_object']['id']]);
+        $this->assertSame(3, $catalog['prickly_thing']['difficulty']);
+        $this->assertDatabaseHas('game_categories', ['game_id' => $this->game->id, 'category_id' => $catalog['prickly_thing']['id']]);
+        $this->assertSame(3, $catalog['tv_series']['difficulty']);
+        $this->assertDatabaseHas('game_categories', ['game_id' => $this->game->id, 'category_id' => $catalog['tv_series']['id']]);
+        $this->assertSame(3, $catalog['facebook_page']['difficulty']);
+        $this->assertDatabaseHas('game_categories', ['game_id' => $this->game->id, 'category_id' => $catalog['facebook_page']['id']]);
+        $this->assertSame(3, $catalog['bald_actor']['difficulty']);
+        $this->assertDatabaseHas('game_categories', ['game_id' => $this->game->id, 'category_id' => $catalog['bald_actor']['id']]);
 
         // An old room may still contain retired category IDs and a used-category cycle.
         $kept = DB::table('categories')->where('code', 'animal')->value('id');
