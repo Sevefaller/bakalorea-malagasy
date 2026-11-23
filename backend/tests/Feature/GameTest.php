@@ -41,7 +41,7 @@ class GameTest extends TestCase {
     }
     private function submit(Round $round,array $headers,string $text,int $revision=1) { return $this->patchJson('/api/rounds/'.$round->id.'/answer',['answer'=>$text,'revision'=>$revision],$headers); }
 
-    public function test_contest_is_shared_once_and_host_must_read_it_before_the_next_round(): void {
+    public function test_contest_is_shared_during_judging_and_host_must_read_it_before_scoring(): void {
         $round=$this->startRound();
         $this->submit($round,$this->guest,$round->letter.'ina')->assertOk();
         $url='/api/rounds/'.$round->id.'/contest';
@@ -49,7 +49,6 @@ class GameTest extends TestCase {
         $this->stopRound($round);
         $answer=$round->answers()->where('player_id','<>',$this->game->host_id)->firstOrFail();
         $this->postJson('/api/answers/'.$answer->id.'/votes',['vote'=>'invalid'],$this->host)->assertOk();
-        $this->postJson('/api/rounds/'.$round->id.'/finish-judging',[],$this->host)->assertOk();
         $this->postJson($url,['reason'=>'   '],$this->guest)->assertUnprocessable();
         $this->postJson($url,['reason'=>str_repeat('a',301)],$this->guest)->assertUnprocessable();
         $this->postJson($url,['reason'=>'Ce mot est correct.'],$this->guest)->assertOk();
@@ -63,7 +62,7 @@ class GameTest extends TestCase {
         // A busy chat must not hide the reason from the host's pending notice.
         for ($i=0; $i<101; $i++) DB::table('round_comments')->insert(['round_id'=>$round->id,'player_id'=>$this->game->host_id,'body'=>'Discussion '.$i,'created_at'=>now()]);
         $this->getJson('/api/games/'.$this->code,$this->host)->assertOk()->assertJsonPath('round.contests.0.reason','Ce mot est correct.');
-        $this->postJson('/api/games/'.$this->game->id.'/start',[],$this->host)->assertStatus(409)->assertJsonPath('message','contests_pending');
+        $this->postJson('/api/rounds/'.$round->id.'/finish-judging',[],$this->host)->assertStatus(409)->assertJsonPath('message','contests_pending');
         $ack='/api/rounds/'.$round->id.'/contests/'.$contest.'/acknowledge';
         $this->postJson($ack,[],$this->guest)->assertForbidden();
         $this->postJson($ack,[],$this->host)->assertOk();
@@ -72,6 +71,8 @@ class GameTest extends TestCase {
         $this->assertSame(0,$answer->fresh()->points_awarded);
         $this->assertSame(0,$this->game->players()->sum('score'));
         $this->postJson('/api/rounds/'.$round->id.'/comments',['body'=>'Nous avons lu le motif.'],$this->host)->assertCreated();
+        $this->postJson('/api/rounds/'.$round->id.'/finish-judging',[],$this->host)->assertOk();
+        $this->postJson($url,['reason'=>'Après les points.'],$this->guest)->assertStatus(409);
         $this->postJson('/api/games/'.$this->game->id.'/start',[],$this->host)->assertOk();
         $this->postJson($url,['reason'=>'Trop tard.'],$this->guest)->assertStatus(409);
         $this->postJson('/api/rounds/'.$round->id.'/comments',['body'=>'Ancienne manche'],$this->guest)->assertStatus(409);
@@ -85,7 +86,6 @@ class GameTest extends TestCase {
             $this->submit($round,$this->host,$round->letter.'ina')->assertOk();
             $this->submit($round,$this->guest,$round->letter.'ilo')->assertOk();
             $this->stopRound($round);
-            $round->update(['status'=>'finished']);
             $url='/api/rounds/'.$round->id.'/contest';
             if ($number<=5) {
                 $this->postJson($url,['reason'=>'Je conteste ce résultat.'],$this->guest)->assertOk();
@@ -104,6 +104,7 @@ class GameTest extends TestCase {
                 $this->postJson($url,['reason'=>'Ma première contestation.'],$this->host)->assertOk();
                 $this->getJson('/api/games/'.$this->code,$this->host)->assertOk()->assertJsonPath('contest_remaining',4);
             }
+            $round->update(['status'=>'finished']);
         }
         // Reclaiming the player's session must not reset the quota.
         $this->postJson('/api/session/claim',['session_id'=>$this->guest['X-Session-ID']],$this->guest)->assertOk();
@@ -114,7 +115,6 @@ class GameTest extends TestCase {
         $round=$this->startRound();
         $this->submit($round,$this->host,$round->letter.'ina')->assertOk();
         $this->stopRound($round);
-        $round->update(['status'=>'finished']);
         $url='/api/rounds/'.$round->id.'/contest';
         $this->postJson($url,['reason'=>'Une réponse vide'],$this->guest)->assertForbidden();
         $this->postJson($url,['reason'=>'Je demande une discussion.'],$this->host)->assertOk();
@@ -128,7 +128,6 @@ class GameTest extends TestCase {
         $round=$this->startRound();
         $this->submit($round,$this->host,$round->letter.'ina')->assertOk();
         $this->stopRound($round);
-        $round->update(['status'=>'finished']);
         $this->postJson('/api/rounds/'.$round->id.'/contest',['reason'=>'Motif de contestation'],$this->host)->assertOk();
         $contest=DB::table('round_contests')->value('id');
         $session=(string)Str::uuid();

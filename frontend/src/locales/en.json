@@ -1,5 +1,5 @@
 {
-  "contest": {"title":"Answer appeal","action":"Contest my answer","reason":"Why do you contest this result?","help":"Up to 5 appeals per player for the entire game, and one per round. Everyone can see your reason in the chat. This notice does not change the points.","submit":"Send appeal","sent":"Appeal sent to the game host.","acknowledged":"The game host has read your appeal.","pending":"Appeals to read","notice":"{name} contested the result of their answer.","chatNotice":"Appeal from {name} · Round {round}","wait":"The game host must read the appeals before the next round. Points remain unchanged.","acknowledge":"I have read this","remaining":"Appeals remaining in this game: {count}/{limit}.","exhausted":"You have used all {limit} appeals for this game."},
+  "contest": {"title":"Answer appeal","action":"Contest my answer","reason":"Why do you contest this result?","help":"Up to 5 appeals per player for the entire game, and one per round. Everyone can see your reason in the chat. This notice does not change the points.","submit":"Send appeal","sent":"Appeal sent to the game host.","acknowledged":"The game host has read your appeal.","pending":"Appeals to read","notice":"{name} contested the result of their answer.","chatNotice":"Appeal from {name} · Round {round}","wait":"The host must read the appeals before closing Mitsara. Votes can still be changed; appealing does not automatically award points.","acknowledge":"I have read this","remaining":"Appeals remaining in this game: {count}/{limit}.","exhausted":"You have used all {limit} appeals for this game."},
   "chatPhoto": {"add":"Add a photo","preview":"Photo preview","remove":"Remove photo","photo":"Photo shared in chat","open":"Open photo","retry":"Retry loading photo","invalid":"Choose a JPG, PNG, WebP or GIF image.","tooLarge":"The photo must be no larger than 1 MB."},
   "updates": {
     "title": "What’s new",
@@ -9,7 +9,7 @@
       "title": "Contest the result of your answer",
       "appeal": {
         "title": "An appeal everyone in the room can see",
-        "description": "On the results screen, press “Contest my answer” and explain your disagreement. Your name and reason appear in the chat. The host must acknowledge the appeal before starting the next round. Appeals do not change the points."
+        "description": "During Mitsara, “Contest my answer” appears directly on your own answer card. Explain your disagreement: your name and reason appear in the chat. All participants who answered can appeal, including the host. The host must read appeals before closing judging. Appealing does not automatically award points."
       },
       "limit": {
         "title": "Up to 5 appeals per player per game",
@@ -615,8 +615,8 @@
   },
   "error": {
     "contest_limit_reached": "You have reached the limit of 5 appeals for this game.",
-    "contests_pending": "The game host must read the appeals before continuing.",
-    "contest_closed": "Appeals are only open on the current round’s results.",
+    "contests_pending": "The host must read the appeals before closing Mitsara. Votes can still be changed; appealing does not automatically award points.",
+    "contest_closed": "You can only appeal during Mitsara, before points are awarded.",
     "discussion_closed": "This round’s discussion is closed.",
     "generic": "That didn’t work. Check the fields and try again.",
     "network": "Can’t reach the server. Check your connection.",

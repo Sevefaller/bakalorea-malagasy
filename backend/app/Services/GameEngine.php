@@ -191,7 +191,7 @@ class GameEngine {
     public function contest(Round $round, GamePlayer $player, string $reason): void {
         $created = $this->locked($round->game, function () use ($round,$player,$reason) {
             $round->refresh();
-            abort_unless($round->status === 'finished' && $this->isDiscussionOpen($round),409,'contest_closed');
+            abort_unless($round->status === 'judging' && $this->isDiscussionOpen($round),409,'contest_closed');
             abort_unless($round->answers()->where('player_id',$player->id)->where('answer','<>','')->exists(),403,'not_participant');
             // The room lock and unique key make retries safe, even after a lost response.
             if (DB::table('round_contests')->where('round_id',$round->id)->where('player_id',$player->id)->exists()) return false;
@@ -282,6 +282,7 @@ class GameEngine {
             $round->refresh();
             abort_unless($round->status === 'judging',409,'not_judging');
             abort_unless($this->ready($round),409,'votes_pending');
+            abort_if(DB::table('round_contests')->where('round_id',$round->id)->whereNull('acknowledged_at')->exists(),409,'contests_pending');
             $answers = $round->answers()->get();
             foreach ($answers as $a) {
                 $t = $this->tally($a);
