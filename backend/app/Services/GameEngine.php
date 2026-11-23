@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class GameEngine {
+    public const CONTEST_LIMIT = 5;
+
     public static function normalize(string $value): string { return mb_strtolower(preg_replace('/\s+/u', ' ', trim(Str::ascii($value)))); }
 
     public function locked(Game $game, callable $action): mixed {
@@ -50,6 +52,7 @@ class GameEngine {
             abort_unless(in_array($game->status,['lobby','playing']), 409, 'game_finished');
             $previous = $game->rounds()->latest('number')->first();
             abort_if($previous && $previous->status !== 'finished', 409, 'round_active');
+            abort_if($previous && DB::table('round_contests')->where('round_id',$previous->id)->whereNull('acknowledged_at')->exists(),409,'contests_pending');
             $players = $game->players()->whereNull('left_at')->where('last_seen_at','>=',now()->subSeconds(45))->get();
             abort_if($players->count() < 2, 422, 'need_players');
             $letters = array_values(array_unique(str_split($game->letters)));
@@ -160,7 +163,7 @@ class GameEngine {
                 $existing = DB::table('round_comments')->where('round_id',$round->id)->where('player_id',$player->id)->where('client_id',$clientId)->first();
                 if ($existing) return ['id'=>$existing->id,'created'=>false];
             }
-            abort_unless($round->status === 'judging',409,'not_judging');
+            abort_unless($this->isDiscussionOpen($round),409,'discussion_closed');
             $values = ['round_id'=>$round->id,'player_id'=>$player->id,'body'=>$body,'created_at'=>now()];
             if ($image) {
                 $values['image_data'] = base64_encode(file_get_contents($image->getRealPath()));
@@ -172,6 +175,42 @@ class GameEngine {
         });
         if ($result['created']) $this->notify($round->game,'CommentAdded');
         return $result;
+    }
+
+    private function isDiscussionOpen(Round $round): bool {
+        return in_array($round->status,['judging','finished'],true)
+            && $round->game->rounds()->latest('number')->value('id') === $round->id;
+    }
+
+    private function remainingContests(Game $game, GamePlayer $player): int {
+        $used = DB::table('round_contests')->join('rounds','rounds.id','=','round_contests.round_id')
+            ->where('rounds.game_id',$game->id)->where('round_contests.player_id',$player->id)->count();
+        return max(0, self::CONTEST_LIMIT - $used);
+    }
+
+    public function contest(Round $round, GamePlayer $player, string $reason): void {
+        $created = $this->locked($round->game, function () use ($round,$player,$reason) {
+            $round->refresh();
+            abort_unless($round->status === 'finished' && $this->isDiscussionOpen($round),409,'contest_closed');
+            abort_unless($round->answers()->where('player_id',$player->id)->where('answer','<>','')->exists(),403,'not_participant');
+            // The room lock and unique key make retries safe, even after a lost response.
+            if (DB::table('round_contests')->where('round_id',$round->id)->where('player_id',$player->id)->exists()) return false;
+            abort_if($this->remainingContests($round->game,$player) === 0,422,'contest_limit_reached');
+            $comment = DB::table('round_comments')->insertGetId(['round_id'=>$round->id,'player_id'=>$player->id,'body'=>$reason,'created_at'=>now()]);
+            DB::table('round_contests')->insert(['round_id'=>$round->id,'player_id'=>$player->id,'comment_id'=>$comment]);
+            return true;
+        });
+        if ($created) $this->notify($round->game,'AnswerContested');
+    }
+
+    public function acknowledgeContest(Round $round, GamePlayer $player, int $contest): void {
+        $this->locked($round->game, function (Game $game) use ($round,$player,$contest) {
+            abort_unless($game->host_id === $player->id,403,'host_only');
+            $row = DB::table('round_contests')->where('round_id',$round->id)->where('id',$contest)->first();
+            abort_unless($row,404);
+            if (!$row->acknowledged_at) DB::table('round_contests')->where('id',$row->id)->update(['acknowledged_by'=>$player->id,'acknowledged_at'=>now()]);
+        });
+        $this->notify($round->game,'ContestAcknowledged');
     }
 
     private function presentParticipants(Round $round): array {
@@ -289,13 +328,17 @@ class GameEngine {
             $players = $game->players()->orderBy('id')->get();
             $round = $game->rounds()->latest('number')->first();
             $data = ['id'=>$game->id,'code'=>$game->code,'name'=>$game->name,'status'=>$game->status,'host_id'=>$game->host_id,'winner_id'=>$game->winner_id,'target_score'=>$game->target_score,'answer_duration'=>$game->answer_duration,'anti_cheat_mode'=>$game->anti_cheat_mode,'unique_points'=>$game->unique_points,'duplicate_points'=>$game->duplicate_points,'letters'=>$game->letters,'no_repeat'=>$game->no_repeat,'me_id'=>$player->id,'server_now'=>now()->getTimestampMs(),'players'=>$players->map(fn ($p) => ['id'=>$p->id,'nickname'=>$p->nickname,'score'=>$p->score,'left'=>(bool)$p->left_at,'online'=>!$p->left_at && $p->last_seen_at?->gte(now()->subSeconds(45))])->values(),'round'=>null];
+            $data['contest_limit'] = self::CONTEST_LIMIT;
+            $data['contest_remaining'] = $this->remainingContests($game,$player);
             if ($round) {
                 $alerts = $game->anti_cheat_mode === 'soft' ? [] : DB::table('anti_cheat_events')->where('round_id',$round->id)->select('player_id','event_type')->selectRaw('COUNT(*) AS count')->groupBy('player_id','event_type')->get();
                 $data['anti_cheat_alerts'] = $alerts;
                 $own = $round->answers()->where('player_id',$player->id)->first();
                 $data['round'] = ['id'=>$round->id,'number'=>$round->number,'category'=>DB::table('categories')->where('id',$round->category_id)->value('code'),'letter'=>$round->letter,'status'=>$round->status,'started_at'=>$round->started_at->getTimestampMs(),'answer_deadline'=>$round->answer_deadline->getTimestampMs(),'own_answer'=>$own?->answer ?? '','own_revision'=>$own?->revision ?? 0,'participating'=>(bool)$own,'ready'=>$round->status === 'judging' && $this->ready($round)];
                 $data['round']['referee_id'] = $this->roundReferee($round);
-                if ($round->status === 'judging') {
+                if (in_array($round->status,['judging','finished'],true)) {
+                    $data['round']['contests'] = DB::table('round_contests')->join('round_comments','round_comments.id','=','round_contests.comment_id')
+                        ->where('round_contests.round_id',$round->id)->orderBy('round_contests.id')->get(['round_contests.*','round_comments.body as reason']);
                     $columns = ['id','player_id','body','created_at'];
                     $columns[] = DB::raw('CASE WHEN image_data IS NULL THEN 0 ELSE 1 END AS has_image');
                     $columns[] = Schema::hasColumn('round_comments', 'client_id') ? 'client_id' : DB::raw('NULL AS client_id');

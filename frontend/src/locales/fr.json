@@ -1,4 +1,5 @@
 {
+  "contest": {"title":"Contestation de réponse","action":"Contester ma réponse","reason":"Pourquoi contestes-tu ce résultat ?","help":"Maximum 5 contestations par joueur dans toute la partie, et une seule par manche. Ton motif sera visible par tous dans le chat. Ce signalement ne modifie pas les points.","submit":"Envoyer la contestation","sent":"Contestation envoyée au maître du jeu.","acknowledged":"Le maître du jeu a pris connaissance de ta contestation.","pending":"Contestations à lire","notice":"{name} a contesté le résultat de sa réponse.","chatNotice":"Contestation de {name} · Manche {round}","wait":"Le maître du jeu doit lire les contestations avant la manche suivante. Les points restent inchangés.","acknowledge":"J’ai pris connaissance","remaining":"Contestations restantes dans cette partie : {count}/{limit}.","exhausted":"Tu as utilisé tes {limit} contestations pour cette partie."},
   "chatPhoto": {"add":"Ajouter une photo","preview":"Aperçu de la photo","remove":"Retirer la photo","photo":"Photo partagée dans le chat","open":"Ouvrir la photo","retry":"Réessayer de charger la photo","invalid":"Choisis une image JPG, PNG, WebP ou GIF.","tooLarge":"La photo doit faire au maximum 1 Mo."},
   "updates": {
     "title": "Nouveautés",
@@ -602,6 +603,10 @@
     "invention": "Invention"
   },
   "error": {
+    "contest_limit_reached": "Tu as atteint la limite de 5 contestations pour cette partie.",
+    "contests_pending": "Le maître du jeu doit prendre connaissance des contestations avant de continuer.",
+    "contest_closed": "Les contestations sont ouvertes uniquement sur les résultats de la manche actuelle.",
+    "discussion_closed": "La discussion de cette manche est fermée.",
     "generic": "L’action n’a pas abouti. Vérifie les champs et réessaie.",
     "network": "Le serveur est injoignable. Vérifie ta connexion.",
     "not_found": "Cette salle n’existe pas. Vérifie le code.",

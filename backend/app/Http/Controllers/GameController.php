@@ -75,6 +75,17 @@ class GameController extends Controller {
         $result=$this->engine->comment($round,$p,$body,$v['client_id']??(string)Str::uuid(),$r->file('image'));
         return response()->json(['ok'=>true,'id'=>$result['id']],$result['created']?201:200);
     }
+    public function contest(Request $r, Round $round) {
+        $p=$this->member($r,$round->game);
+        if (is_string($r->input('reason'))) $r->merge(['reason'=>trim($r->input('reason'))]);
+        $v=$r->validate(['reason'=>'required|string|min:3|max:300']);
+        $this->engine->contest($round,$p,$v['reason']);
+        return response()->json(['ok'=>true]);
+    }
+    public function acknowledgeContest(Request $r, Round $round, int $contest) {
+        $this->engine->acknowledgeContest($round,$this->member($r,$round->game),$contest);
+        return response()->json(['ok'=>true]);
+    }
     public function commentImage(Request $r, int $comment) {
         $row=DB::table('round_comments')->where('id',$comment)->first();
         abort_unless($row && $row->image_data,404);

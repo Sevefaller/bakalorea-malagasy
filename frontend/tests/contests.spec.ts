@@ -1,0 +1,86 @@
+import { test, expect } from '@playwright/test'
+
+for (const mobile of [false, true]) {
+  test(`answer contest is shared and acknowledged ${mobile ? 'on mobile' : 'on desktop'}`, async ({ browser }) => {
+    const contexts = await Promise.all([browser.newContext({ viewport: mobile ? { width: 390, height: 844 } : { width: 1280, height: 800 } }), browser.newContext()])
+    const comments: Record<string, unknown>[] = [], contests: Record<string, unknown>[] = []
+    let posts = 0, failOnce = true, guestRemaining = 5, roundId = 7
+    const pages = await Promise.all(contexts.map(async (context, index) => {
+      const me = index === 0 ? 2 : 1
+      await context.addInitScript(() => {
+        localStorage.setItem('bakalorea.token', 'test-token')
+        localStorage.setItem('bakalorea.code', 'TEST12')
+        localStorage.setItem('bakalorea.locale', 'fr')
+        localStorage.setItem('bakalorea.updates.seen', '2026-11-02-random-referee')
+      })
+      await context.route('**/api/**', async route => {
+        const path = new URL(route.request().url()).pathname
+        if (path === '/api/session/claim') return route.fulfill({ json: { ok: true } })
+        if (path === '/api/config') return route.fulfill({ json: { realtime: false } })
+        if (path === '/api/games/TEST12') return route.fulfill({ json: {
+          id: 1, code: 'TEST12', name: 'Test', status: 'playing', host_id: 1, me_id: me,
+          contest_limit: 5, contest_remaining: me === 2 ? guestRemaining : 5,
+          target_score: 200, answer_duration: 15, anti_cheat_mode: 'normal', unique_points: 10, duplicate_points: 5,
+          letters: 'AB', no_repeat: true, server_now: Date.now(), history: [],
+          players: [{ id: 1, nickname: 'Lova', score: 10, online: true }, { id: 2, nickname: 'Mialy', score: 0, online: true }],
+          round: { id: roundId, number: roundId - 6, category: 'animal', letter: 'A', status: 'finished', started_at: Date.now() - 25000,
+            answer_deadline: Date.now() - 10000, own_answer: 'Antilope', own_revision: 1, participating: true, ready: false,
+            comments, contests, answers: [1, 2].map(id => ({ id, player_id: id, answer: id === 1 ? 'Aigle' : 'Antilope',
+              flagged: false, invalid_reason: null, verdict: id === 1, points: id === 1 ? 10 : 0, tie_decision: null,
+              referee_id: null, reactions: {}, votes: { valid: id === 1 ? 1 : 0, invalid: id === 2 ? 1 : 0, count: 1, tied: false }, my_vote: null })) },
+        } })
+        if (path === '/api/rounds/7/contest') {
+          posts++
+          if (failOnce) { failOnce = false; return route.fulfill({ status: 500, json: {} }) }
+          guestRemaining--
+          comments.push({ id: 1, player_id: 2, body: route.request().postDataJSON().reason, created_at: new Date().toISOString() })
+          contests.push({ id: 1, player_id: 2, comment_id: 1, acknowledged_at: null, acknowledged_by: null })
+          return route.fulfill({ json: { ok: true } })
+        }
+        if (path === '/api/rounds/7/contests/1/acknowledge') {
+          contests[0].acknowledged_at = new Date().toISOString(); contests[0].acknowledged_by = 1
+          return route.fulfill({ json: { ok: true } })
+        }
+        return route.fulfill({ status: 404, json: {} })
+      })
+      const page = await context.newPage()
+      await page.goto('/')
+      return page
+    }))
+    const [guest, host] = pages
+    await expect(guest.getByText('Contestations restantes dans cette partie : 5/5.')).toBeVisible()
+    await guest.getByRole('button', { name: 'Contester ma réponse' }).click()
+    const reason = guest.getByLabel('Pourquoi contestes-tu ce résultat ?')
+    await expect(reason).toBeFocused()
+    await reason.fill('Antilope est bien un animal.')
+    await guest.getByRole('button', { name: 'Envoyer la contestation' }).click()
+    await expect.poll(() => posts).toBe(1)
+    await expect(reason).toHaveValue('Antilope est bien un animal.')
+    await expect(guest.getByText('Contestations restantes dans cette partie : 5/5.')).toBeVisible()
+    await guest.getByRole('button', { name: 'Envoyer la contestation' }).click()
+    await expect(guest.getByText('Contestation envoyée au maître du jeu.', { exact: true })).toBeVisible()
+    await expect(guest.getByText('Contestations restantes dans cette partie : 4/5.')).toBeVisible()
+    await expect(guest.getByRole('button', { name: 'Contester ma réponse' })).toHaveCount(0)
+    await expect(guest.locator('.chat-messages').getByText('Contestation de Mialy · Manche 1')).toBeVisible()
+    await expect(host.getByText('Mialy a contesté le résultat de sa réponse.')).toBeVisible()
+    await expect(host.getByRole('button', { name: 'Manche suivante' })).toBeDisabled()
+    await guest.reload()
+    await expect(guest.getByRole('button', { name: 'Contester ma réponse' })).toHaveCount(0)
+    await expect(guest.locator('.chat-messages').getByText('Antilope est bien un animal.')).toBeVisible()
+    await expect(guest.getByText('Contestations restantes dans cette partie : 4/5.')).toBeVisible()
+    await guest.screenshot({ path: `../artifacts/contest-${mobile ? 'mobile' : 'desktop'}.png`, fullPage: true })
+    await host.getByRole('button', { name: 'J’ai pris connaissance' }).click()
+    await expect(host.getByRole('button', { name: 'Manche suivante' })).toBeEnabled()
+    await expect(guest.getByText('Le maître du jeu a pris connaissance de ta contestation.')).toBeVisible()
+    await expect(guest.locator('.chat-messages').getByText('Antilope est bien un animal.')).toBeVisible()
+    await expect.poll(() => posts).toBe(2)
+    // On a later round, the exhausted quota survives a reload and prevents opening the form.
+    guestRemaining = 0; roundId = 8; contests.splice(0); comments.splice(0)
+    await guest.reload()
+    await expect(guest.getByRole('button', { name: 'Contester ma réponse' })).toBeDisabled()
+    await expect(guest.getByText('Tu as utilisé tes 5 contestations pour cette partie.')).toBeVisible()
+    await expect(guest.locator('#contest-form')).toHaveCount(0)
+    await expect(host.getByText('Contestations restantes dans cette partie : 5/5.')).toBeVisible()
+    await Promise.all(contexts.map(context => context.close()))
+  })
+}

@@ -1,4 +1,5 @@
 {
+  "contest": {"title":"Fanoherana ny valiny","action":"Hanohitra ny valiko","reason":"Nahoana ianao no manohitra io vokatra io?","help":"Fanoherana 5 farafahabetsany isaky ny mpilalao mandritra ny lalao manontolo, ary iray isaky ny fihodinana. Hitan’ny rehetra ao amin’ny resaka ny antony. Tsy manova ny isa izany.","submit":"Alefa ny fanoherana","sent":"Nalefa tamin’ny mpitarika ny lalao ny fanoherana.","acknowledged":"Efa novakin’ny mpitarika ny lalao ny fanoheranao.","pending":"Fanoherana hovakina","notice":"Nanohitra ny vokatry ny valiny i {name}.","chatNotice":"Fanoheran’i {name} · Fihodinana {round}","wait":"Tsy maintsy mamaky ny fanoherana ny mpitarika alohan’ny fihodinana manaraka. Tsy miova ny isa.","acknowledge":"Efa novakiko","remaining":"Fanoherana mbola azo alefa amin’ity lalao ity: {count}/{limit}.","exhausted":"Efa nampiasainao avokoa ny fanoherana {limit} amin’ity lalao ity."},
   "chatPhoto": {"add":"Ampio sary","preview":"Topimaso ny sary","remove":"Esory ny sary","photo":"Sary nozaraina tao amin’ny resaka","open":"Sokafy ny sary","retry":"Andramo alaina indray ny sary","invalid":"Misafidiana sary JPG, PNG, WebP na GIF.","tooLarge":"Tsy tokony hihoatra ny 1 Mo ny sary."},
   "updates": {
     "title": "Vaovao",
@@ -602,6 +603,10 @@
     "invention": "Zavatra noforonina"
   },
   "error": {
+    "contest_limit_reached": "Efa tratra ny fetra fanoherana 5 amin’ity lalao ity.",
+    "contests_pending": "Tsy maintsy mamaky ny fanoherana ny mpitarika alohan’ny hanohizana.",
+    "contest_closed": "Azo alefa amin’ny vokatry ny fihodinana ankehitriny ihany ny fanoherana.",
+    "discussion_closed": "Mihidy ny resaka amin’ity fihodinana ity.",
     "generic": "Tsy tontosa. Hamarino ny saha dia andramo indray.",
     "network": "Tsy tratra ny mpizara. Hamarino ny fifandraisana.",
     "not_found": "Tsy misy io efitra io. Hamarino ny kaody.",

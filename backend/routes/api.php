@@ -37,6 +37,8 @@ Route::middleware(['auth:sanctum','throttle:game-requests'])->group(function () 
         Route::post('/answers/{answer}/reactions',[GameController::class,'react']);
         Route::post('/answers/{answer}/decision',[GameController::class,'decide']);
         Route::post('/rounds/{round}/comments',[GameController::class,'comment'])->middleware('throttle:round-comments');
+        Route::post('/rounds/{round}/contest',[GameController::class,'contest']);
+        Route::post('/rounds/{round}/contests/{contest}/acknowledge',[GameController::class,'acknowledgeContest'])->whereNumber('contest');
         Route::get('/comments/{comment}/image',[GameController::class,'commentImage']);
         Route::post('/rounds/{round}/finish-judging',[GameController::class,'finish']);
         Route::post('/anti-cheat/events',[GameController::class,'antiCheat']);

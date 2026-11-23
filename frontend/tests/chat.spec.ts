@@ -59,6 +59,7 @@ test('chat sends by button and Enter without crypto.randomUUID', async ({ page }
   await page.locator('#judging-comment').press('Enter')
   await expect.poll(() => posts).toBe(2)
   await expect(page.locator('.chat-messages').getByText('Manao ahoana')).toBeVisible()
+  await expect(page.locator('.chat-form button[title]')).toBeEnabled()
   await page.locator('.chat-form input[type="file"]').setInputFiles({
     name: 'photo.png', mimeType: 'image/png',
     buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=', 'base64'),
