@@ -4,7 +4,18 @@
   "updates": {
     "title": "Nouveautés",
     "unreadLabel": "Nouveautés : une mise à jour à découvrir",
-    "intro": "La nouveauté du jeu.",
+    "intro": "Les dernières nouveautés du jeu.",
+    "answerContests": {
+      "title": "Conteste le résultat de ta réponse",
+      "appeal": {
+        "title": "Une demande visible par toute la salle",
+        "description": "Sur les résultats, appuie sur « Contester ma réponse » et explique ton désaccord. Ton nom et ton motif apparaissent dans le chat. Le maître du jeu doit en prendre connaissance avant de lancer la manche suivante. La contestation ne modifie pas les points."
+      },
+      "limit": {
+        "title": "5 contestations maximum par joueur et par partie",
+        "description": "Chaque joueur peut contester une seule fois par manche, dans la limite de 5 contestations pour toute la partie. Le nombre restant est affiché. À zéro, le bouton est désactivé ; une reconnexion ne réinitialise pas le compteur."
+      }
+    },
     "randomReferee": {
       "title": "Un arbitre tiré au sort dans Mitsara",
       "draw": {

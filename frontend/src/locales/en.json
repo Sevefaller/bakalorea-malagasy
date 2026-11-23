@@ -4,7 +4,18 @@
   "updates": {
     "title": "What’s new",
     "unreadLabel": "What’s new: an update to discover",
-    "intro": "The latest game update.",
+    "intro": "The latest game updates.",
+    "answerContests": {
+      "title": "Contest the result of your answer",
+      "appeal": {
+        "title": "An appeal everyone in the room can see",
+        "description": "On the results screen, press “Contest my answer” and explain your disagreement. Your name and reason appear in the chat. The host must acknowledge the appeal before starting the next round. Appeals do not change the points."
+      },
+      "limit": {
+        "title": "Up to 5 appeals per player per game",
+        "description": "Each player can appeal once per round, up to 5 times for the entire game. The remaining allowance is displayed. At zero, the button is disabled; reconnecting does not reset the allowance."
+      }
+    },
     "randomReferee": {
       "title": "A randomly selected referee in Mitsara",
       "draw": {

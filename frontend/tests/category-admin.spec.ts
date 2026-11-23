@@ -83,7 +83,7 @@ test('custom catalogue names appear in all three game languages', async ({ page 
 test('new everyday categories appear in Fun with their catalogue translations', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('bakalorea.locale', 'fr')
-    localStorage.setItem('bakalorea.updates.seen', '2026-11-02-random-referee')
+    localStorage.setItem('bakalorea.updates.seen', '2026-11-23-answer-contests')
   })
   await page.route('**/api/categories', route => route.fulfill({ json: { categories: [
     { id: 1, code: 'animal', difficulty: 1, names: { mg: 'Biby', fr: 'Animal', en: 'Animal' } },
@@ -110,7 +110,7 @@ test('new everyday categories appear in Fun with their catalogue translations', 
 test('standard level-three categories appear under daily life', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('bakalorea.locale', 'fr')
-    localStorage.setItem('bakalorea.updates.seen', '2026-11-02-random-referee')
+    localStorage.setItem('bakalorea.updates.seen', '2026-11-23-answer-contests')
   })
   await page.route('**/api/categories', route => route.fulfill({ json: { categories: [
     { id: 1, code: 'animal', difficulty: 1, names: { mg: 'Biby', fr: 'Animal', en: 'Animal' } },

@@ -7,6 +7,7 @@ const { t, locale } = useI18n()
 const props = withDefaults(defineProps<{ autoOpen?: boolean }>(), { autoOpen: true })
 // Add future updates first, with a unique ID, an ISO date and translated content.
 const releases = [
+  { id: '2026-11-23-answer-contests', date: '2026-11-23', key: 'answerContests', features: ['appeal', 'limit'] },
   { id: '2026-11-02-random-referee', date: '2026-11-02', key: 'randomReferee', features: ['draw'] }
 ]
 const storageKey = 'bakalorea.updates.seen'

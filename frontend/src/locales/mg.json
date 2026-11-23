@@ -5,6 +5,17 @@
     "title": "Vaovao",
     "unreadLabel": "Vaovao: misy fanavaozana hojerena",
     "intro": "Ny fanavaozana farany amin’ny lalao.",
+    "answerContests": {
+      "title": "Azonao toherina ny vokatry ny valinao",
+      "appeal": {
+        "title": "Fanoherana hitan’ny rehetra ao amin’ny efitra",
+        "description": "Eo amin’ny vokatra, tsindrio « Hanohitra ny valiko » ary hazavao ny antony. Hita ao amin’ny resaka ny anaranao sy ny antony. Tsy maintsy mamaky izany ny mpitarika alohan’ny hanombohana ny fihodinana manaraka. Tsy manova ny isa ny fanoherana."
+      },
+      "limit": {
+        "title": "Fanoherana 5 farafahabetsany isaky ny mpilalao sy isaky ny lalao",
+        "description": "Afaka manohitra indray mandeha isaky ny fihodinana ny mpilalao, fa tsy mihoatra ny in-5 mandritra ny lalao manontolo. Aseho ny isan’ny fanoherana mbola azo alefa. Rehefa lany izany dia tsy azo tsindriana intsony ny bokotra. Tsy miverina amin’ny aotra ny fanisana rehefa mifandray indray."
+      }
+    },
     "randomReferee": {
       "title": "Mpitsara fidina antsapaka ao amin’ny Mitsara",
       "draw": {

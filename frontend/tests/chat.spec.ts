@@ -8,7 +8,7 @@ test('chat sends by button and Enter without crypto.randomUUID', async ({ page }
   await page.addInitScript(() => {
     localStorage.setItem('bakalorea.token', 'test-token')
     localStorage.setItem('bakalorea.code', 'TEST12')
-    localStorage.setItem('bakalorea.updates.seen', '2026-11-02-random-referee')
+    localStorage.setItem('bakalorea.updates.seen', '2026-11-23-answer-contests')
     Object.defineProperty(window.crypto, 'randomUUID', { value: undefined })
   })
   await page.route('**/api/**', async route => {
