@@ -48,7 +48,7 @@ flowchart LR
 
 ## Exemples du catalogue
 
-- Les 473 catégories intégrées actives disposent d’un exemple en malgache, français et anglais, consultable sur l’accueil. Les exemples illustrent la catégorie sans constituer une liste exhaustive de réponses acceptées. Ils ne sont pas affichés sur la carte de la manche.
+- Les 482 catégories intégrées actives disposent d’un exemple en malgache, français et anglais, consultable sur l’accueil. Les exemples illustrent la catégorie sans constituer une liste exhaustive de réponses acceptées. Ils ne sont pas affichés sur la carte de la manche.
 - L’administration permet de modifier les exemples, et d’en fournir lors de la création ou de l’import JSON d’une catégorie. Le format CSV existant reste compatible.
 
 Quelques noms propres ont été vérifiés auprès de sources publiques : [Karaoke Kan](https://karaokekan.jp/en), [Home Sakalava — Office du tourisme de Nosy Be](https://nosybe-tourisme.com/it/obt_heb/home-sakalava-3/), [Nosy — Syndicat des industries de Madagascar](https://simmadagascar.mg/malagasy-ny-antsika/produits-malagasy-ny-antsika/produit-11/) et [Malok’ila — JICA](https://www.jica.go.jp/madagascar/french/office/others/pdf/publications01_03.pdf).
@@ -56,3 +56,5 @@ Quelques noms propres ont été vérifiés auprès de sources publiques : [Karao
 - Culture générale : ajout de 14 catégories avec exemples dans les trois langues. Les thèmes « animal qui mange des plantes » et « arbre fruitier » sont réutilisés pour éviter les doublons. Les thèmes auteur de bande dessinée, peintre, compositeur classique et instrument à percussion ne sont pas ajoutés.
 
 - Ajout complémentaire de 12 thèmes de culture générale : pays d’Europe et d’Amérique, pays enclavés, villes côtières de Madagascar, organisations internationales, sports individuels et sur neige, athlétisme, sports avec filet, animaux migrateurs et du désert, légumineuses. Les capitales africaines, pays lusophones et agrumes ne sont pas ajoutés.
+
+- Dernière sélection : îles de l’océan Indien, pays méditerranéens, oiseaux aquatiques, animaux venimeux, légumes-racines, fruits à coque, métiers du bâtiment et de la justice, transports ferroviaires. Neuf catégories ajoutées avec leurs exemples dans les trois langues.

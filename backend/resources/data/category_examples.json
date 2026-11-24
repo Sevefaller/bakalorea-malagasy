@@ -2363,5 +2363,50 @@
     "mg": "Tsaramaso",
     "fr": "Haricot",
     "en": "Bean"
+  },
+  "indian_ocean_island": {
+    "mg": "Maorisy",
+    "fr": "Maurice",
+    "en": "Mauritius"
+  },
+  "mediterranean_country": {
+    "mg": "Italia",
+    "fr": "Italie",
+    "en": "Italy"
+  },
+  "aquatic_bird": {
+    "mg": "Gana",
+    "fr": "Canard",
+    "en": "Duck"
+  },
+  "venomous_animal": {
+    "mg": "Kobra",
+    "fr": "Cobra",
+    "en": "Cobra"
+  },
+  "root_vegetable": {
+    "mg": "Karaoty",
+    "fr": "Carotte",
+    "en": "Carrot"
+  },
+  "edible_nut": {
+    "mg": "Voan’amandy",
+    "fr": "Amande",
+    "en": "Almond"
+  },
+  "construction_trade": {
+    "mg": "Mpanao biriky",
+    "fr": "Maçon",
+    "en": "Mason"
+  },
+  "legal_profession": {
+    "mg": "Mpisolovava",
+    "fr": "Avocat",
+    "en": "Lawyer"
+  },
+  "rail_transport": {
+    "mg": "Tramway",
+    "fr": "Tramway",
+    "en": "Tram"
   }
 }

@@ -1,0 +1,11 @@
+[
+  ["indian_ocean_island",2,"Île de l’océan Indien","Nosy ao amin’ny Ranomasimbe Indiana","Island in the Indian Ocean","Maurice","Maorisy","Mauritius"],
+  ["mediterranean_country",2,"Pays bordé par la mer Méditerranée","Firenena amoron’ny Ranomasina Mediteranea","Country bordering the Mediterranean Sea","Italie","Italia","Italy"],
+  ["aquatic_bird",1,"Oiseau aquatique","Vorona miaina eny amin’ny rano","Aquatic bird","Canard","Gana","Duck"],
+  ["venomous_animal",2,"Animal venimeux","Biby misy poizina amin’ny kaikitry ny vavany na fanindronany","Venomous animal","Cobra","Kobra","Cobra"],
+  ["root_vegetable",1,"Légume-racine","Legioma fihinam-paka","Root vegetable","Carotte","Karaoty","Carrot"],
+  ["edible_nut",2,"Fruit à coque","Voankazo misy akorany mafy sy voa azo hanina","Edible nut","Amande","Voan’amandy","Almond"],
+  ["construction_trade",1,"Métier du bâtiment","Asa amin’ny fanorenana trano","Building trade","Maçon","Mpanao biriky","Mason"],
+  ["legal_profession",2,"Métier de la justice","Asa eo amin’ny sehatry ny fitsarana","Legal profession","Avocat","Mpisolovava","Lawyer"],
+  ["rail_transport",2,"Moyen de transport ferroviaire","Fitaterana mandeha amin’ny lalamby","Rail transport","Tramway","Tramway","Tram"]
+]
