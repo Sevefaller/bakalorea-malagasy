@@ -11,7 +11,7 @@ class CategoryExamplesTest extends TestCase {
 
     public function test_all_active_categories_have_an_example_in_each_language(): void {
         $catalog = $this->getJson('/api/categories')->assertOk()->json('categories');
-        $this->assertCount(461,$catalog);
+        $this->assertCount(473,$catalog);
         foreach ($catalog as $category) {
             foreach (['mg','fr','en'] as $locale) {
                 $this->assertNotEmpty(trim($category['examples'][$locale] ?? ''), $category['code'].':'.$locale);
@@ -48,6 +48,35 @@ class CategoryExamplesTest extends TestCase {
         $this->assertSame(['A'],$open->fresh()->used_letters);
         $this->assertDatabaseHas('category_translations',['category_id'=>$id,'locale'=>'fr','name'=>'Objet personnalisé','example'=>'Exemple personnalisé']);
         $this->assertDatabaseHas('categories',['id'=>$id,'difficulty'=>3]);
+    }
+
+    public function test_extra_knowledge_selection_has_twelve_translated_topics_without_excluded_categories(): void {
+        $rows = json_decode(file_get_contents(resource_path('data/knowledge_categories_extra_2026_11_24.json')),true);
+        $this->assertCount(12,$rows);
+        $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
+        foreach ($rows as [$code,$difficulty,$fr,$mg,$en,$exFr,$exMg,$exEn]) {
+            $this->assertSame(['fr'=>$fr,'mg'=>$mg,'en'=>$en],$catalog[$code]['names']);
+            $this->assertSame(['fr'=>$exFr,'mg'=>$exMg,'en'=>$exEn],$catalog[$code]['examples']);
+            $this->assertSame($difficulty,$catalog[$code]['difficulty']);
+        }
+        foreach (['Capitale africaine','Pays où le portugais est une langue officielle','Agrume'] as $name) {
+            $this->assertFalse($catalog->contains(fn ($row) => $row['names']['fr'] === $name));
+        }
+        $id = $catalog['european_country']['id'];
+        $game = Game::create(['code'=>'EXTRA1','name'=>'Open','status'=>'playing','used_categories'=>[$id],'used_letters'=>['B']]);
+        $finished = Game::create(['code'=>'EXTRA2','name'=>'Finished','status'=>'finished']);
+        DB::table('game_categories')->insert(['game_id'=>$game->id,'category_id'=>$id,'position'=>4]);
+        DB::table('category_translations')->where('category_id',$id)->where('locale','fr')->update(['name'=>'Personnalisé','example'=>'Italie']);
+        $before = DB::table('categories')->count();
+        $migration = require database_path('migrations/2026_11_24_000003_add_more_knowledge_categories.php');
+        $migration->up(); $migration->up();
+        $this->assertSame($before,DB::table('categories')->count());
+        $this->assertSame(12,DB::table('game_categories')->where('game_id',$game->id)->count());
+        $this->assertSame(12,DB::table('game_categories')->where('game_id',$game->id)->distinct()->count('position'));
+        $this->assertSame(0,DB::table('game_categories')->where('game_id',$finished->id)->count());
+        $this->assertSame([$id],$game->fresh()->used_categories);
+        $this->assertSame(['B'],$game->fresh()->used_letters);
+        $this->assertDatabaseHas('category_translations',['category_id'=>$id,'locale'=>'fr','name'=>'Personnalisé','example'=>'Italie']);
     }
 
     public function test_selected_knowledge_categories_extend_rooms_once_and_exclude_unselected_topics(): void {

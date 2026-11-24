@@ -12,7 +12,7 @@ for (const mobile of [false, true]) {
         localStorage.setItem('bakalorea.token', 'test-token')
         localStorage.setItem('bakalorea.code', 'TEST12')
         localStorage.setItem('bakalorea.locale', 'fr')
-        localStorage.setItem('bakalorea.updates.seen', '2026-11-24-general-knowledge')
+        localStorage.setItem('bakalorea.updates.seen', '2026-11-24-more-knowledge')
       })
       await context.route('**/api/**', async route => {
         const path = new URL(route.request().url()).pathname

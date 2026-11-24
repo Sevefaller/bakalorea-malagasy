@@ -1,0 +1,14 @@
+[
+  ["european_country",1,"Pays d’Europe","Firenena any Eoropa","European country","Portugal","Portiogaly","Portugal"],
+  ["american_country",1,"Pays d’Amérique","Firenena any Amerika","Country in the Americas","Brésil","Brezila","Brazil"],
+  ["landlocked_country",3,"Pays sans accès à la mer","Firenena tsy manana morontsiraka","Landlocked country","Niger","Niger","Niger"],
+  ["madagascar_coastal_city",2,"Ville côtière de Madagascar","Tanàna amoron-dranomasina eto Madagasikara","Coastal city in Madagascar","Toamasina","Toamasina","Toamasina"],
+  ["international_organization",2,"Organisation internationale","Fikambanana iraisam-pirenena","International organization","UNESCO","UNESCO","UNESCO"],
+  ["individual_sport",1,"Sport individuel","Fanatanjahantena isam-batan’olona","Individual sport","Boxe","Ady totohondry","Boxing"],
+  ["snow_sport",2,"Sport pratiqué sur la neige","Fanatanjahantena atao eny ambony lanezy","Snow sport","Ski","Ski","Skiing"],
+  ["athletics_event",2,"Épreuve d’athlétisme","Taranja atletisma","Athletics event","Marathon","Maratona","Marathon"],
+  ["net_sport",1,"Sport qui utilise un filet","Fanatanjahantena mampiasa harato","Sport that uses a net","Volley-ball","Volley-ball","Volleyball"],
+  ["migratory_animal",2,"Animal migrateur","Biby mifindra monina arakaraka ny vanim-potoana","Migratory animal","Hirondelle","Sidintsidina","Swallow"],
+  ["desert_animal",2,"Animal qui vit dans le désert","Biby miaina any an-tany efitra","Desert animal","Dromadaire","Rameva","Dromedary"],
+  ["legume",2,"Légumineuse","Zavamaniry toy ny tsaramaso sy voanjo","Legume","Haricot","Tsaramaso","Bean"]
+]

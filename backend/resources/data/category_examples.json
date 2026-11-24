@@ -2303,5 +2303,65 @@
     "mg": "Liona",
     "fr": "Lion",
     "en": "Lion"
+  },
+  "european_country": {
+    "mg": "Portiogaly",
+    "fr": "Portugal",
+    "en": "Portugal"
+  },
+  "american_country": {
+    "mg": "Brezila",
+    "fr": "Brésil",
+    "en": "Brazil"
+  },
+  "landlocked_country": {
+    "mg": "Niger",
+    "fr": "Niger",
+    "en": "Niger"
+  },
+  "madagascar_coastal_city": {
+    "mg": "Toamasina",
+    "fr": "Toamasina",
+    "en": "Toamasina"
+  },
+  "international_organization": {
+    "mg": "UNESCO",
+    "fr": "UNESCO",
+    "en": "UNESCO"
+  },
+  "individual_sport": {
+    "mg": "Ady totohondry",
+    "fr": "Boxe",
+    "en": "Boxing"
+  },
+  "snow_sport": {
+    "mg": "Ski",
+    "fr": "Ski",
+    "en": "Skiing"
+  },
+  "athletics_event": {
+    "mg": "Maratona",
+    "fr": "Marathon",
+    "en": "Marathon"
+  },
+  "net_sport": {
+    "mg": "Volley-ball",
+    "fr": "Volley-ball",
+    "en": "Volleyball"
+  },
+  "migratory_animal": {
+    "mg": "Sidintsidina",
+    "fr": "Hirondelle",
+    "en": "Swallow"
+  },
+  "desert_animal": {
+    "mg": "Rameva",
+    "fr": "Dromadaire",
+    "en": "Dromedary"
+  },
+  "legume": {
+    "mg": "Tsaramaso",
+    "fr": "Haricot",
+    "en": "Bean"
   }
 }
