@@ -2233,5 +2233,75 @@
     "mg": "Voankazo",
     "fr": "Fruit",
     "en": "Fruit"
+  },
+  "african_country": {
+    "mg": "Senegaly",
+    "fr": "Sénégal",
+    "en": "Senegal"
+  },
+  "asian_country": {
+    "mg": "Japana",
+    "fr": "Japon",
+    "en": "Japan"
+  },
+  "madagascar_city": {
+    "mg": "Mahajanga",
+    "fr": "Mahajanga",
+    "en": "Mahajanga"
+  },
+  "island_country": {
+    "mg": "Madagasikara",
+    "fr": "Madagascar",
+    "en": "Madagascar"
+  },
+  "equator_country": {
+    "mg": "Kenya",
+    "fr": "Kenya",
+    "en": "Kenya"
+  },
+  "olympic_host_city": {
+    "mg": "Atena",
+    "fr": "Athènes",
+    "en": "Athens"
+  },
+  "african_language": {
+    "mg": "Soahily",
+    "fr": "Swahili",
+    "en": "Swahili"
+  },
+  "african_writer": {
+    "mg": "Chinua Achebe",
+    "fr": "Chinua Achebe",
+    "en": "Chinua Achebe"
+  },
+  "string_instrument": {
+    "mg": "Valiha",
+    "fr": "Violon",
+    "en": "Violin"
+  },
+  "olympic_sport": {
+    "mg": "Judo",
+    "fr": "Judo",
+    "en": "Judo"
+  },
+  "racket_sport": {
+    "mg": "Tenisy",
+    "fr": "Tennis",
+    "en": "Tennis"
+  },
+  "football_player": {
+    "mg": "Lionel Messi",
+    "fr": "Lionel Messi",
+    "en": "Lionel Messi"
+  },
+  "football_position": {
+    "mg": "Mpiandry tsatokazo",
+    "fr": "Gardien",
+    "en": "Goalkeeper"
+  },
+  "carnivorous_animal": {
+    "mg": "Liona",
+    "fr": "Lion",
+    "en": "Lion"
   }
 }

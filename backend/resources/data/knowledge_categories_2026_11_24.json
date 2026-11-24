@@ -1,0 +1,16 @@
+[
+  ["african_country",1,"Pays d’Afrique","Firenena any Afrika","African country","Sénégal","Senegaly","Senegal"],
+  ["asian_country",1,"Pays d’Asie","Firenena any Azia","Asian country","Japon","Japana","Japan"],
+  ["madagascar_city",1,"Ville de Madagascar","Tanàna eto Madagasikara","City in Madagascar","Mahajanga","Mahajanga","Mahajanga"],
+  ["island_country",2,"Pays insulaire","Firenena nosy","Island country","Madagascar","Madagasikara","Madagascar"],
+  ["equator_country",3,"Pays traversé par l’équateur","Firenena andalovan’ny ekoatera","Country crossed by the equator","Kenya","Kenya","Kenya"],
+  ["olympic_host_city",3,"Ville qui a accueilli les Jeux olympiques","Tanàna efa nampiantrano ny Lalao Olaimpika","City that has hosted the Olympic Games","Athènes","Atena","Athens"],
+  ["african_language",2,"Langue parlée en Afrique","Fiteny ampiasaina any Afrika","Language spoken in Africa","Swahili","Soahily","Swahili"],
+  ["african_writer",3,"Écrivain africain","Mpanoratra afrikanina","African writer","Chinua Achebe","Chinua Achebe","Chinua Achebe"],
+  ["string_instrument",2,"Instrument à cordes","Zavamaneno misy tadiny","String instrument","Violon","Valiha","Violin"],
+  ["olympic_sport",2,"Sport olympique","Fanatanjahantena olaimpika","Olympic sport","Judo","Judo","Judo"],
+  ["racket_sport",2,"Sport qui se pratique avec une raquette","Fanatanjahantena mampiasa rakety","Racket sport","Tennis","Tenisy","Tennis"],
+  ["football_player",2,"Footballeur ou footballeuse","Mpilalao baolina kitra","Football player","Lionel Messi","Lionel Messi","Lionel Messi"],
+  ["football_position",2,"Poste au football","Toeran’ny mpilalao amin’ny baolina kitra","Football position","Gardien","Mpiandry tsatokazo","Goalkeeper"],
+  ["carnivorous_animal",2,"Animal carnivore","Biby mpihinan-kena","Carnivorous animal","Lion","Liona","Lion"]
+]

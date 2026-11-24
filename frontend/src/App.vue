@@ -122,14 +122,14 @@ const newStandardCategoryCodes = [
 ]
 const categories = computed(() => catalogCodes.value ? catalogCodes.value.map(code => defaultCategories.find(category => category.code === code) || { code, icon: Sparkles, color: 'green' }) : defaultCategories)
 const challengeCategoryGroups: Record<string, string[]> = {
-  fun: ['food_preparation_job', 'repair_job', 'animal_related_job', 'making_job', 'uniform_profession', 'ball_sport', 'five_letter_french_word', 'adjective_french', 'adjective_malagasy', 'adjective_english', 'night_job', 'helping_profession', 'five_letter_malagasy_word', 'five_letter_english_word', 'travel_job', 'outdoor_job', 'gloved_job', 'sports_club', 'four_letter_french_word'],
-  nature: ['crawling_animal', 'long_tailed_animal', 'plant_eating_animal', 'shelter_building_animal', 'falling_from_tree_thing', 'egg_laying_animal', 'horned_animal', 'social_animal', 'jumping_animal', 'legless_animal', 'shelled_animal', 'burrowing_animal', 'big_eared_animal'],
+  fun: ['olympic_sport', 'racket_sport', 'football_player', 'football_position', 'food_preparation_job', 'repair_job', 'animal_related_job', 'making_job', 'uniform_profession', 'ball_sport', 'five_letter_french_word', 'adjective_french', 'adjective_malagasy', 'adjective_english', 'night_job', 'helping_profession', 'five_letter_malagasy_word', 'five_letter_english_word', 'travel_job', 'outdoor_job', 'gloved_job', 'sports_club', 'four_letter_french_word'],
+  nature: ['carnivorous_animal', 'crawling_animal', 'long_tailed_animal', 'plant_eating_animal', 'shelter_building_animal', 'falling_from_tree_thing', 'egg_laying_animal', 'horned_animal', 'social_animal', 'jumping_animal', 'legless_animal', 'shelled_animal', 'burrowing_animal', 'big_eared_animal'],
   food: ['peel_before_cooking_food', 'flour_based_food', 'bagged_food', 'bread_accompaniment', 'salad_ingredient', 'raw_food', 'peelable_fruit', 'hot_food', 'spoon_food', 'canned_food', 'rice_dish', 'steamed_food', 'stone_fruit', 'sandwich_ingredient', 'pizza_topping', 'frozen_food'],
   things: ['handled_object', 'lidded_object', 'fastening_object', 'protective_object', 'spinning_thing', 'water_absorbing_thing', 'car_interior_item', 'cleaning_item', 'pocket_item', 'measuring_object', 'screen_object', 'scissors_cut_thing', 'hair_accessory', 'rechargeable_object', 'zippered_object', 'toothed_object', 'bicycle_accessory', 'writing_object', 'sun_protection_item', 'pocketed_clothing'],
   dailyLife: ['hair_salon_item', 'train_station_item', 'construction_site_item', 'performance_venue_item', 'farm_item', 'before_leaving_home_check', 'bedtime_activity', 'welcoming_guest_action', 'library_forbidden_action', 'traffic_obstruction', 'pharmacy_item', 'beach_packing_item', 'hotel_item', 'bakery_item', 'public_transport'],
-  places: ['quiet_place'],
+  places: ['african_country', 'asian_country', 'madagascar_city', 'island_country', 'equator_country', 'olympic_host_city', 'quiet_place'],
   familyFriends: ['child_gift'],
-  culture: ['masked_character', 'horror_movie', 'dance_song', 'powered_character', 'singer_instrumentalist', 'flying_character', 'singer_stage_name', 'video_game_character', 'newspaper_magazine', 'fairy_tale_character']
+  culture: ['african_language', 'african_writer', 'string_instrument', 'masked_character', 'horror_movie', 'dance_song', 'powered_character', 'singer_instrumentalist', 'flying_character', 'singer_stage_name', 'video_game_character', 'newspaper_magazine', 'fairy_tale_character']
 }
 const categoryGroups = [
   { id: 'names', codes: ['male_name', 'female_name'] },
