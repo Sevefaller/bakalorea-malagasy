@@ -1,5 +1,12 @@
 import { test, expect } from '@playwright/test'
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('bakalorea.locale', 'fr')
+    localStorage.setItem('bakalorea.updates.seen', '2026-11-24-category-examples')
+  })
+})
+
 test('admin edits difficulty, creates categories and previews imports on desktop and mobile', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
@@ -32,11 +39,13 @@ test('admin edits difficulty, creates categories and previews imports on desktop
   await page.goto('/admin')
   await expect(page.getByRole('heading', { name: 'Catégories et difficulté' })).toBeVisible()
   await page.getByRole('button', { name: 'Modifier Épice', exact: true }).click()
-  await page.getByLabel('Difficulté', { exact: true }).selectOption('3')
+  await page.getByRole('combobox', { name: 'Difficulté', exact: true }).selectOption('3')
   await page.getByLabel('Nom en français').fill('Épices du monde')
+  await page.getByLabel('Exemple en français').fill('Cannelle')
   await page.getByRole('button', { name: 'Enregistrer la catégorie', exact: true }).click()
   await expect(page.getByText('Épices du monde', { exact: true })).toBeVisible()
   expect(rows[1].difficulty).toBe(3)
+  await expect(page.getByText('Exemple : Cannelle', { exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Ajouter une catégorie', exact: true }).click()
   await page.getByLabel('Code unique').fill('musical_instrument')
   await page.getByLabel('Nom en malgache').fill('Zavamaneno')
@@ -83,7 +92,7 @@ test('custom catalogue names appear in all three game languages', async ({ page 
 test('new everyday categories appear in Fun with their catalogue translations', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('bakalorea.locale', 'fr')
-    localStorage.setItem('bakalorea.updates.seen', '2026-11-23-answer-contests')
+    localStorage.setItem('bakalorea.updates.seen', '2026-11-24-category-examples')
   })
   await page.route('**/api/categories', route => route.fulfill({ json: { categories: [
     { id: 1, code: 'animal', difficulty: 1, names: { mg: 'Biby', fr: 'Animal', en: 'Animal' } },
@@ -110,7 +119,7 @@ test('new everyday categories appear in Fun with their catalogue translations', 
 test('standard level-three categories appear under daily life', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('bakalorea.locale', 'fr')
-    localStorage.setItem('bakalorea.updates.seen', '2026-11-23-answer-contests')
+    localStorage.setItem('bakalorea.updates.seen', '2026-11-24-category-examples')
   })
   await page.route('**/api/categories', route => route.fulfill({ json: { categories: [
     { id: 1, code: 'animal', difficulty: 1, names: { mg: 'Biby', fr: 'Animal', en: 'Animal' } },

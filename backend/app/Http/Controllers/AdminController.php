@@ -151,6 +151,8 @@ class AdminController extends Controller {
             'categories.*.names.mg' => 'required|string|max:255',
             'categories.*.names.fr' => 'required|string|max:255',
             'categories.*.names.en' => 'required|string|max:255',
+            'categories.*.examples' => 'sometimes|array:mg,fr,en',
+            'categories.*.examples.*' => 'nullable|string|max:255',
         ];
         if ($creating) $rules['categories.*.code'] = ['required', 'string', 'max:80', 'regex:/^[a-z][a-z0-9_]*$/', 'distinct', 'unique:categories,code'];
         return Validator::make(['categories' => $rows], $rules, [
@@ -165,14 +167,14 @@ class AdminController extends Controller {
 
     public function createCategory(Request $request, CategoryCatalog $catalog) {
         $this->authorizeWrite($request);
-        $rows = $this->validateCategories([$request->only(['code', 'difficulty', 'names'])]);
+        $rows = $this->validateCategories([$request->only(['code', 'difficulty', 'names', 'examples'])]);
         $ids = $catalog->create($rows);
         return response()->json(['created' => count($ids)], 201)->header('Cache-Control', 'no-store');
     }
 
     public function updateCategory(Request $request, int $category, CategoryCatalog $catalog) {
         $this->authorizeWrite($request);
-        $rows = $this->validateCategories([$request->only(['difficulty', 'names'])], false);
+        $rows = $this->validateCategories([$request->only(['difficulty', 'names', 'examples'])], false);
         $catalog->update($category, $rows[0]);
         return response()->json(['ok' => true])->header('Cache-Control', 'no-store');
     }

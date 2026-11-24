@@ -1,0 +1,2237 @@
+{
+  "male_name": {
+    "mg": "Andry",
+    "fr": "Andry",
+    "en": "Andry"
+  },
+  "female_name": {
+    "mg": "Mialy",
+    "fr": "Mialy",
+    "en": "Mialy"
+  },
+  "plant": {
+    "mg": "Raozy",
+    "fr": "Rose",
+    "en": "Rose"
+  },
+  "flower": {
+    "mg": "Raozy",
+    "fr": "Rose",
+    "en": "Rose"
+  },
+  "fragrant_thing": {
+    "mg": "Raozy",
+    "fr": "Rose",
+    "en": "Rose"
+  },
+  "fruit": {
+    "mg": "Akondro",
+    "fr": "Banane",
+    "en": "Banana"
+  },
+  "peelable_fruit": {
+    "mg": "Akondro",
+    "fr": "Banane",
+    "en": "Banana"
+  },
+  "malagasy_artist": {
+    "mg": "Mahaleo",
+    "fr": "Mahaleo",
+    "en": "Mahaleo"
+  },
+  "malagasy_music_group": {
+    "mg": "Mahaleo",
+    "fr": "Mahaleo",
+    "en": "Mahaleo"
+  },
+  "music_group": {
+    "mg": "Mahaleo",
+    "fr": "Mahaleo",
+    "en": "Mahaleo"
+  },
+  "international_artist": {
+    "mg": "Alicia Keys",
+    "fr": "Alicia Keys",
+    "en": "Alicia Keys"
+  },
+  "singer": {
+    "mg": "Alicia Keys",
+    "fr": "Alicia Keys",
+    "en": "Alicia Keys"
+  },
+  "singer_instrumentalist": {
+    "mg": "Alicia Keys",
+    "fr": "Alicia Keys",
+    "en": "Alicia Keys"
+  },
+  "malagasy_place": {
+    "mg": "Antananarivo",
+    "fr": "Antananarivo",
+    "en": "Antananarivo"
+  },
+  "city": {
+    "mg": "Antananarivo",
+    "fr": "Antananarivo",
+    "en": "Antananarivo"
+  },
+  "international_place": {
+    "mg": "Paris",
+    "fr": "Paris",
+    "en": "Paris"
+  },
+  "animal": {
+    "mg": "Saka",
+    "fr": "Chat",
+    "en": "Cat"
+  },
+  "domestic_animal": {
+    "mg": "Saka",
+    "fr": "Chat",
+    "en": "Cat"
+  },
+  "paired_thing": {
+    "mg": "Kiraro",
+    "fr": "Chaussures",
+    "en": "Shoes"
+  },
+  "bird": {
+    "mg": "Akoho",
+    "fr": "Poule",
+    "en": "Hen"
+  },
+  "egg_laying_animal": {
+    "mg": "Akoho",
+    "fr": "Poule",
+    "en": "Hen"
+  },
+  "fish": {
+    "mg": "Tilapia",
+    "fr": "Tilapia",
+    "en": "Tilapia"
+  },
+  "freshwater_animal": {
+    "mg": "Tilapia",
+    "fr": "Tilapia",
+    "en": "Tilapia"
+  },
+  "vegetable": {
+    "mg": "Karaoty",
+    "fr": "Carotte",
+    "en": "Carrot"
+  },
+  "food": {
+    "mg": "Romazava",
+    "fr": "Romazava",
+    "en": "Romazava"
+  },
+  "malagasy_dish": {
+    "mg": "Romazava",
+    "fr": "Romazava",
+    "en": "Romazava"
+  },
+  "traditional_malagasy_food": {
+    "mg": "Romazava",
+    "fr": "Romazava",
+    "en": "Romazava"
+  },
+  "hot_food": {
+    "mg": "Romazava",
+    "fr": "Romazava",
+    "en": "Romazava"
+  },
+  "drink": {
+    "mg": "Rano mangatsiaka",
+    "fr": "Eau fraîche",
+    "en": "Cold water"
+  },
+  "cold_thing": {
+    "mg": "Rano mangatsiaka",
+    "fr": "Eau fraîche",
+    "en": "Cold water"
+  },
+  "household_item": {
+    "mg": "Seza",
+    "fr": "Chaise",
+    "en": "Chair"
+  },
+  "furniture": {
+    "mg": "Seza",
+    "fr": "Chaise",
+    "en": "Chair"
+  },
+  "wooden_object": {
+    "mg": "Seza",
+    "fr": "Chaise",
+    "en": "Chair"
+  },
+  "clothing": {
+    "mg": "Pataloha",
+    "fr": "Pantalon",
+    "en": "Trousers"
+  },
+  "pocketed_clothing": {
+    "mg": "Pataloha",
+    "fr": "Pantalon",
+    "en": "Trousers"
+  },
+  "footwear": {
+    "mg": "Kapa",
+    "fr": "Sandale",
+    "en": "Sandal"
+  },
+  "profession": {
+    "mg": "Mpahandro",
+    "fr": "Cuisinier",
+    "en": "Cook"
+  },
+  "food_preparation_job": {
+    "mg": "Mpahandro",
+    "fr": "Cuisinier",
+    "en": "Cook"
+  },
+  "sport": {
+    "mg": "Baolina kitra",
+    "fr": "Football",
+    "en": "Football"
+  },
+  "team_sport": {
+    "mg": "Baolina kitra",
+    "fr": "Football",
+    "en": "Football"
+  },
+  "ball_sport": {
+    "mg": "Baolina kitra",
+    "fr": "Football",
+    "en": "Football"
+  },
+  "vehicle": {
+    "mg": "Fiara",
+    "fr": "Voiture",
+    "en": "Car"
+  },
+  "breakdown_thing": {
+    "mg": "Fiara",
+    "fr": "Voiture",
+    "en": "Car"
+  },
+  "wheeled_object": {
+    "mg": "Fiara",
+    "fr": "Voiture",
+    "en": "Car"
+  },
+  "car_brand": {
+    "mg": "Toyota",
+    "fr": "Toyota",
+    "en": "Toyota"
+  },
+  "country": {
+    "mg": "Madagasikara",
+    "fr": "Madagascar",
+    "en": "Madagascar"
+  },
+  "capital_city": {
+    "mg": "Antananarivo",
+    "fr": "Antananarivo",
+    "en": "Antananarivo"
+  },
+  "island": {
+    "mg": "Nosy Be",
+    "fr": "Nosy Be",
+    "en": "Nosy Be"
+  },
+  "mountain": {
+    "mg": "Tsaratanana",
+    "fr": "Tsaratanana",
+    "en": "Tsaratanana"
+  },
+  "river": {
+    "mg": "Betsiboka",
+    "fr": "Betsiboka",
+    "en": "Betsiboka"
+  },
+  "sea": {
+    "mg": "Ranomasimbe Indiana",
+    "fr": "Océan Indien",
+    "en": "Indian Ocean"
+  },
+  "color": {
+    "mg": "Mena",
+    "fr": "Rouge",
+    "en": "Red"
+  },
+  "school_item": {
+    "mg": "Penina",
+    "fr": "Stylo",
+    "en": "Pen"
+  },
+  "writing_object": {
+    "mg": "Penina",
+    "fr": "Stylo",
+    "en": "Pen"
+  },
+  "kitchen_item": {
+    "mg": "Vilany",
+    "fr": "Marmite",
+    "en": "Cooking pot"
+  },
+  "lidded_object": {
+    "mg": "Vilany",
+    "fr": "Marmite",
+    "en": "Cooking pot"
+  },
+  "bedroom_item": {
+    "mg": "Ondana",
+    "fr": "Oreiller",
+    "en": "Pillow"
+  },
+  "soft_thing": {
+    "mg": "Ondana",
+    "fr": "Oreiller",
+    "en": "Pillow"
+  },
+  "office_item": {
+    "mg": "Agrafeuse",
+    "fr": "Agrafeuse",
+    "en": "Stapler"
+  },
+  "electronic_device": {
+    "mg": "Finday",
+    "fr": "Téléphone portable",
+    "en": "Mobile phone"
+  },
+  "screen_object": {
+    "mg": "Finday",
+    "fr": "Téléphone portable",
+    "en": "Mobile phone"
+  },
+  "rechargeable_object": {
+    "mg": "Finday",
+    "fr": "Téléphone portable",
+    "en": "Mobile phone"
+  },
+  "phone_brand": {
+    "mg": "Samsung",
+    "fr": "Samsung",
+    "en": "Samsung"
+  },
+  "movie": {
+    "mg": "Titanic",
+    "fr": "Titanic",
+    "en": "Titanic"
+  },
+  "actor": {
+    "mg": "Jackie Chan",
+    "fr": "Jackie Chan",
+    "en": "Jackie Chan"
+  },
+  "action_movie_actor": {
+    "mg": "Jackie Chan",
+    "fr": "Jackie Chan",
+    "en": "Jackie Chan"
+  },
+  "song": {
+    "mg": "Imagine",
+    "fr": "Imagine",
+    "en": "Imagine"
+  },
+  "book": {
+    "mg": "Le Petit Prince",
+    "fr": "Le Petit Prince",
+    "en": "The Little Prince"
+  },
+  "writer": {
+    "mg": "Victor Hugo",
+    "fr": "Victor Hugo",
+    "en": "Victor Hugo"
+  },
+  "cartoon": {
+    "mg": "Tom et Jerry",
+    "fr": "Tom et Jerry",
+    "en": "Tom and Jerry"
+  },
+  "adjective": {
+    "mg": "Tsara",
+    "fr": "Tsara",
+    "en": "Tsara"
+  },
+  "adjective_malagasy": {
+    "mg": "Tsara",
+    "fr": "Tsara",
+    "en": "Tsara"
+  },
+  "verb": {
+    "mg": "Mihinana",
+    "fr": "Mihinana",
+    "en": "Mihinana"
+  },
+  "verb_malagasy": {
+    "mg": "Mihinana",
+    "fr": "Mihinana",
+    "en": "Mihinana"
+  },
+  "round_thing": {
+    "mg": "Baolina",
+    "fr": "Ballon",
+    "en": "Ball"
+  },
+  "big_thing": {
+    "mg": "Elefanta",
+    "fr": "Éléphant",
+    "en": "Elephant"
+  },
+  "heavy_thing": {
+    "mg": "Elefanta",
+    "fr": "Éléphant",
+    "en": "Elephant"
+  },
+  "small_thing": {
+    "mg": "Vitsika",
+    "fr": "Fourmi",
+    "en": "Ant"
+  },
+  "insect": {
+    "mg": "Vitsika",
+    "fr": "Fourmi",
+    "en": "Ant"
+  },
+  "street_thing": {
+    "mg": "Jiro eny an-dalana",
+    "fr": "Lampadaire",
+    "en": "Street lamp"
+  },
+  "school_thing": {
+    "mg": "Solaitrabe",
+    "fr": "Tableau",
+    "en": "Blackboard"
+  },
+  "market_thing": {
+    "mg": "Harona",
+    "fr": "Panier",
+    "en": "Basket"
+  },
+  "beach_thing": {
+    "mg": "Fasika",
+    "fr": "Sable",
+    "en": "Sand"
+  },
+  "sea_animal": {
+    "mg": "Antsantsa",
+    "fr": "Requin",
+    "en": "Shark"
+  },
+  "wild_animal": {
+    "mg": "Liona",
+    "fr": "Lion",
+    "en": "Lion"
+  },
+  "sweet_thing": {
+    "mg": "Vatomamy",
+    "fr": "Bonbon",
+    "en": "Sweet"
+  },
+  "hot_thing": {
+    "mg": "Afo",
+    "fr": "Feu",
+    "en": "Fire"
+  },
+  "gift_idea": {
+    "mg": "Boky",
+    "fr": "Livre",
+    "en": "Book"
+  },
+  "malagasy_dessert": {
+    "mg": "Koba",
+    "fr": "Koba",
+    "en": "Koba"
+  },
+  "malagasy_monarch": {
+    "mg": "Ranavalona III",
+    "fr": "Ranavalona III",
+    "en": "Ranavalona III"
+  },
+  "malagasy_historical_figure": {
+    "mg": "Ranavalona III",
+    "fr": "Ranavalona III",
+    "en": "Ranavalona III"
+  },
+  "madagascar_region": {
+    "mg": "Analamanga",
+    "fr": "Analamanga",
+    "en": "Analamanga"
+  },
+  "madagascar_district": {
+    "mg": "Antsirabe I",
+    "fr": "Antsirabe I",
+    "en": "Antsirabe I"
+  },
+  "madagascar_commune": {
+    "mg": "Talatamaty",
+    "fr": "Talatamaty",
+    "en": "Talatamaty"
+  },
+  "madagascar_national_park": {
+    "mg": "Andasibe-Mantadia",
+    "fr": "Andasibe-Mantadia",
+    "en": "Andasibe-Mantadia"
+  },
+  "malagasy_monument": {
+    "mg": "Rovan’i Manjakamiadana",
+    "fr": "Rova de Manjakamiadana",
+    "en": "Rova of Manjakamiadana"
+  },
+  "malagasy_company": {
+    "mg": "Telma",
+    "fr": "Telma",
+    "en": "Telma"
+  },
+  "malagasy_brand": {
+    "mg": "Savony Nosy",
+    "fr": "Savon Nosy",
+    "en": "Nosy soap"
+  },
+  "malagasy_proverb": {
+    "mg": "Ny firaisankina no hery",
+    "fr": "Ny firaisankina no hery",
+    "en": "Ny firaisankina no hery"
+  },
+  "malagasy_expression": {
+    "mg": "Manao ahoana",
+    "fr": "Manao ahoana",
+    "en": "Manao ahoana"
+  },
+  "traditional_malagasy_game": {
+    "mg": "Fanorona",
+    "fr": "Fanorona",
+    "en": "Fanorona"
+  },
+  "traditional_malagasy_instrument": {
+    "mg": "Valiha",
+    "fr": "Valiha",
+    "en": "Valiha"
+  },
+  "malagasy_custom": {
+    "mg": "Famadihana",
+    "fr": "Famadihana",
+    "en": "Famadihana"
+  },
+  "traditional_malagasy_festival": {
+    "mg": "Alahamady",
+    "fr": "Alahamady",
+    "en": "Alahamady"
+  },
+  "traditional_malagasy_object": {
+    "mg": "Lambamena",
+    "fr": "Lambamena",
+    "en": "Lambamena"
+  },
+  "malagasy_historical_site": {
+    "mg": "Ambohimanga",
+    "fr": "Ambohimanga",
+    "en": "Ambohimanga"
+  },
+  "malagasy_song": {
+    "mg": "Ry Tanindrazanay malala ô",
+    "fr": "Ry Tanindrazanay malala ô",
+    "en": "Ry Tanindrazanay malala ô"
+  },
+  "malagasy_movie": {
+    "mg": "Malok’ila",
+    "fr": "Malok’ila",
+    "en": "Malok’ila"
+  },
+  "malagasy_actor": {
+    "mg": "Francis Turbo",
+    "fr": "Francis Turbo",
+    "en": "Francis Turbo"
+  },
+  "malagasy_comedian": {
+    "mg": "Francis Turbo",
+    "fr": "Francis Turbo",
+    "en": "Francis Turbo"
+  },
+  "malagasy_writer": {
+    "mg": "Jean-Joseph Rabearivelo",
+    "fr": "Jean-Joseph Rabearivelo",
+    "en": "Jean-Joseph Rabearivelo"
+  },
+  "traditional_malagasy_sport": {
+    "mg": "Moraingy",
+    "fr": "Moraingy",
+    "en": "Moraingy"
+  },
+  "madagascar_ethnic_group": {
+    "mg": "Betsileo",
+    "fr": "Betsileo",
+    "en": "Betsileo"
+  },
+  "malagasy_dance": {
+    "mg": "Afindrafindrao",
+    "fr": "Afindrafindrao",
+    "en": "Afindrafindrao"
+  },
+  "malagasy_handicraft": {
+    "mg": "Rary",
+    "fr": "Vannerie",
+    "en": "Basket weaving"
+  },
+  "scary_thing": {
+    "mg": "Maizina",
+    "fr": "Obscurité",
+    "en": "Darkness"
+  },
+  "funny_thing": {
+    "mg": "Vazivazy",
+    "fr": "Blague",
+    "en": "Joke"
+  },
+  "embarrassing_thing": {
+    "mg": "Fahalavoana imasom-bahoaka",
+    "fr": "Chute en public",
+    "en": "Falling in public"
+  },
+  "annoying_thing": {
+    "mg": "Moka",
+    "fr": "Moustique",
+    "en": "Mosquito"
+  },
+  "smelly_thing": {
+    "mg": "Fako",
+    "fr": "Poubelle",
+    "en": "Rubbish bin"
+  },
+  "weird_thing": {
+    "mg": "Ovy miendrika fo",
+    "fr": "Pomme de terre en forme de cœur",
+    "en": "Heart-shaped potato"
+  },
+  "happy_thing": {
+    "mg": "Fanomezana",
+    "fr": "Cadeau",
+    "en": "Gift"
+  },
+  "sleepy_thing": {
+    "mg": "Hira fampatoriana",
+    "fr": "Berceuse",
+    "en": "Lullaby"
+  },
+  "wake_up_thing": {
+    "mg": "Famantaranandro fanairana",
+    "fr": "Réveil",
+    "en": "Alarm clock"
+  },
+  "argument_cause": {
+    "mg": "Lainga",
+    "fr": "Mensonge",
+    "en": "Lie"
+  },
+  "forgotten_thing": {
+    "mg": "Lakile",
+    "fr": "Clés",
+    "en": "Keys"
+  },
+  "lost_thing": {
+    "mg": "Lakile",
+    "fr": "Clés",
+    "en": "Keys"
+  },
+  "pocket_item": {
+    "mg": "Lakile",
+    "fr": "Clés",
+    "en": "Keys"
+  },
+  "secret_activity": {
+    "mg": "Mihinana vatomamy",
+    "fr": "Manger des bonbons",
+    "en": "Eating sweets"
+  },
+  "alone_activity": {
+    "mg": "Mamaky boky",
+    "fr": "Lire un livre",
+    "en": "Reading a book"
+  },
+  "bored_activity": {
+    "mg": "Manao kisarisary",
+    "fr": "Gribouiller",
+    "en": "Doodling"
+  },
+  "angry_activity": {
+    "mg": "Mikiakiaka",
+    "fr": "Crier",
+    "en": "Shouting"
+  },
+  "happy_activity": {
+    "mg": "Mihira",
+    "fr": "Chanter",
+    "en": "Singing"
+  },
+  "never_lent_thing": {
+    "mg": "Borosy nify",
+    "fr": "Brosse à dents",
+    "en": "Toothbrush"
+  },
+  "thing_to_keep": {
+    "mg": "Kara-panondro",
+    "fr": "Carte d’identité",
+    "en": "Identity card"
+  },
+  "unnecessary_purchase": {
+    "mg": "Gadget tsy ampiasaina",
+    "fr": "Gadget jamais utilisé",
+    "en": "Unused gadget"
+  },
+  "inedible_thing": {
+    "mg": "Vato",
+    "fr": "Caillou",
+    "en": "Pebble"
+  },
+  "fridge_thing": {
+    "mg": "Yaourt",
+    "fr": "Yaourt",
+    "en": "Yoghurt"
+  },
+  "dairy_brand": {
+    "mg": "Danone",
+    "fr": "Danone",
+    "en": "Danone"
+  },
+  "under_bed_thing": {
+    "mg": "Vovoka",
+    "fr": "Poussière",
+    "en": "Dust"
+  },
+  "bag_thing": {
+    "mg": "Kitapom-bola",
+    "fr": "Portefeuille",
+    "en": "Wallet"
+  },
+  "travel_item": {
+    "mg": "Kitapom-bola",
+    "fr": "Portefeuille",
+    "en": "Wallet"
+  },
+  "wedding_thing": {
+    "mg": "Peratra mariazy",
+    "fr": "Alliance",
+    "en": "Wedding ring"
+  },
+  "church_thing": {
+    "mg": "Alitara",
+    "fr": "Autel",
+    "en": "Altar"
+  },
+  "hospital_thing": {
+    "mg": "Fandriana",
+    "fr": "Lit",
+    "en": "Bed"
+  },
+  "garage_thing": {
+    "mg": "Martoa",
+    "fr": "Marteau",
+    "en": "Hammer"
+  },
+  "hand_tool": {
+    "mg": "Martoa",
+    "fr": "Marteau",
+    "en": "Hammer"
+  },
+  "workplace_thing": {
+    "mg": "Solosaina",
+    "fr": "Ordinateur",
+    "en": "Computer"
+  },
+  "rain_item": {
+    "mg": "Elo",
+    "fr": "Parapluie",
+    "en": "Umbrella"
+  },
+  "darkness_item": {
+    "mg": "Jiro paosy",
+    "fr": "Lampe torche",
+    "en": "Torch"
+  },
+  "camping_item": {
+    "mg": "Jiro paosy",
+    "fr": "Lampe torche",
+    "en": "Torch"
+  },
+  "weekend_activity": {
+    "mg": "Mitsangantsangana",
+    "fr": "Se promener",
+    "en": "Going for a walk"
+  },
+  "breakable_thing": {
+    "mg": "Vera",
+    "fr": "Verre",
+    "en": "Glass"
+  },
+  "transparent_thing": {
+    "mg": "Vera",
+    "fr": "Verre",
+    "en": "Glass"
+  },
+  "late_excuse": {
+    "mg": "Fitohanana",
+    "fr": "Embouteillage",
+    "en": "Traffic jam"
+  },
+  "school_absence_excuse": {
+    "mg": "Aretin-kibo",
+    "fr": "Mal au ventre",
+    "en": "Stomach ache"
+  },
+  "work_absence_excuse": {
+    "mg": "Tazo",
+    "fr": "Fièvre",
+    "en": "Fever"
+  },
+  "parents_annoyance": {
+    "mg": "Efitra mikorontana",
+    "fr": "Chambre en désordre",
+    "en": "Messy bedroom"
+  },
+  "hidden_from_parents": {
+    "mg": "Naoty ratsy",
+    "fr": "Mauvaise note",
+    "en": "Bad grade"
+  },
+  "baby_laugh_thing": {
+    "mg": "Fanaovana tarehy mampihomehy",
+    "fr": "Grimace",
+    "en": "Funny face"
+  },
+  "forbidden_at_school": {
+    "mg": "Mifamely",
+    "fr": "Se battre",
+    "en": "Fighting"
+  },
+  "not_said_to_teacher": {
+    "mg": "Tsy te hianatra aho",
+    "fr": "Je ne veux pas travailler",
+    "en": "I do not want to work"
+  },
+  "unwanted_gift": {
+    "mg": "Kiraro diso habe",
+    "fr": "Chaussures à la mauvaise taille",
+    "en": "Wrong-sized shoes"
+  },
+  "vacation_spoiler": {
+    "mg": "Orana tsy mitsahatra",
+    "fr": "Pluie incessante",
+    "en": "Nonstop rain"
+  },
+  "offline_activity": {
+    "mg": "Manao sary",
+    "fr": "Dessiner",
+    "en": "Drawing"
+  },
+  "sibling_argument": {
+    "mg": "Kilalao iray ifanolanana",
+    "fr": "Jouet à partager",
+    "en": "Shared toy"
+  },
+  "not_said_at_wedding": {
+    "mg": "Tsy tiako ny mofomamy",
+    "fr": "Je n’aime pas le gâteau",
+    "en": "I do not like the cake"
+  },
+  "cry_thing": {
+    "mg": "Tongolo",
+    "fr": "Oignon",
+    "en": "Onion"
+  },
+  "job_loss_cause": {
+    "mg": "Fangalarana",
+    "fr": "Vol",
+    "en": "Theft"
+  },
+  "reptile": {
+    "mg": "Voay",
+    "fr": "Crocodile",
+    "en": "Crocodile"
+  },
+  "tree": {
+    "mg": "Baobaba",
+    "fr": "Baobab",
+    "en": "Baobab"
+  },
+  "fruit_tree": {
+    "mg": "Hazo manga",
+    "fr": "Manguier",
+    "en": "Mango tree"
+  },
+  "spice": {
+    "mg": "Sakamalaho",
+    "fr": "Gingembre",
+    "en": "Ginger"
+  },
+  "lake": {
+    "mg": "Alaotra",
+    "fr": "Alaotra",
+    "en": "Alaotra"
+  },
+  "waterfall": {
+    "mg": "Chutes du Niagara",
+    "fr": "Chutes du Niagara",
+    "en": "Niagara Falls"
+  },
+  "desert": {
+    "mg": "Sahara",
+    "fr": "Sahara",
+    "en": "Sahara"
+  },
+  "forest": {
+    "mg": "Ala Amazonia",
+    "fr": "Forêt amazonienne",
+    "en": "Amazon rainforest"
+  },
+  "volcano": {
+    "mg": "Etna",
+    "fr": "Etna",
+    "en": "Etna"
+  },
+  "tourist_attraction": {
+    "mg": "Allée des Baobabs",
+    "fr": "Allée des Baobabs",
+    "en": "Avenue of the Baobabs"
+  },
+  "famous_monument": {
+    "mg": "Tour Eiffel",
+    "fr": "Tour Eiffel",
+    "en": "Eiffel Tower"
+  },
+  "world_language": {
+    "mg": "Malagasy",
+    "fr": "Malgache",
+    "en": "Malagasy"
+  },
+  "invention": {
+    "mg": "Kodiarana",
+    "fr": "Roue",
+    "en": "Wheel"
+  },
+  "school_subject": {
+    "mg": "Matematika",
+    "fr": "Mathématiques",
+    "en": "Mathematics"
+  },
+  "body_part": {
+    "mg": "Tanana",
+    "fr": "Main",
+    "en": "Hand"
+  },
+  "jewelry": {
+    "mg": "Rojo",
+    "fr": "Collier",
+    "en": "Necklace"
+  },
+  "clothing_accessory": {
+    "mg": "Fehikibo",
+    "fr": "Ceinture",
+    "en": "Belt"
+  },
+  "dessert": {
+    "mg": "Salady voankazo",
+    "fr": "Salade de fruits",
+    "en": "Fruit salad"
+  },
+  "breakfast_food": {
+    "mg": "Mofo",
+    "fr": "Pain",
+    "en": "Bread"
+  },
+  "sauce": {
+    "mg": "Saosy voatabia",
+    "fr": "Sauce tomate",
+    "en": "Tomato sauce"
+  },
+  "cereal_grain": {
+    "mg": "Vary",
+    "fr": "Riz",
+    "en": "Rice"
+  },
+  "sports_equipment": {
+    "mg": "Raquette",
+    "fr": "Raquette",
+    "en": "Racket"
+  },
+  "board_game": {
+    "mg": "Échecs",
+    "fr": "Échecs",
+    "en": "Chess"
+  },
+  "video_game": {
+    "mg": "Minecraft",
+    "fr": "Minecraft",
+    "en": "Minecraft"
+  },
+  "fictional_character": {
+    "mg": "Harry Potter",
+    "fr": "Harry Potter",
+    "en": "Harry Potter"
+  },
+  "movie_character": {
+    "mg": "Harry Potter",
+    "fr": "Harry Potter",
+    "en": "Harry Potter"
+  },
+  "superhero": {
+    "mg": "Spider-Man",
+    "fr": "Spider-Man",
+    "en": "Spider-Man"
+  },
+  "powered_character": {
+    "mg": "Spider-Man",
+    "fr": "Spider-Man",
+    "en": "Spider-Man"
+  },
+  "masked_character": {
+    "mg": "Spider-Man",
+    "fr": "Spider-Man",
+    "en": "Spider-Man"
+  },
+  "dance_style": {
+    "mg": "Salsa",
+    "fr": "Salsa",
+    "en": "Salsa"
+  },
+  "garden_item": {
+    "mg": "Fitaovana fanondrahana",
+    "fr": "Arrosoir",
+    "en": "Watering can"
+  },
+  "airport_thing": {
+    "mg": "Valizy",
+    "fr": "Valise",
+    "en": "Suitcase"
+  },
+  "handled_object": {
+    "mg": "Valizy",
+    "fr": "Valise",
+    "en": "Suitcase"
+  },
+  "bathroom_item": {
+    "mg": "Savony",
+    "fr": "Savon",
+    "en": "Soap"
+  },
+  "personal_care_item": {
+    "mg": "Savony",
+    "fr": "Savon",
+    "en": "Soap"
+  },
+  "floating_thing": {
+    "mg": "Bouchon",
+    "fr": "Bouchon",
+    "en": "Cork"
+  },
+  "sticky_thing": {
+    "mg": "Dity",
+    "fr": "Colle",
+    "en": "Glue"
+  },
+  "noisy_thing": {
+    "mg": "Anjomara",
+    "fr": "Klaxon",
+    "en": "Car horn"
+  },
+  "recyclable_thing": {
+    "mg": "Taratasy",
+    "fr": "Papier",
+    "en": "Paper"
+  },
+  "childhood_memory": {
+    "mg": "Kilalao malefaka",
+    "fr": "Peluche",
+    "en": "Soft toy"
+  },
+  "rainy_day_activity": {
+    "mg": "Manao puzzle",
+    "fr": "Faire un puzzle",
+    "en": "Doing a puzzle"
+  },
+  "metal": {
+    "mg": "Vy",
+    "fr": "Fer",
+    "en": "Iron"
+  },
+  "pastry": {
+    "mg": "Croissant",
+    "fr": "Croissant",
+    "en": "Croissant"
+  },
+  "soup": {
+    "mg": "Lasopy legioma",
+    "fr": "Soupe de légumes",
+    "en": "Vegetable soup"
+  },
+  "cheese": {
+    "mg": "Camembert",
+    "fr": "Camembert",
+    "en": "Camembert"
+  },
+  "aromatic_herb": {
+    "mg": "Persily",
+    "fr": "Persil",
+    "en": "Parsley"
+  },
+  "seafood": {
+    "mg": "Makamba",
+    "fr": "Crevette",
+    "en": "Prawn"
+  },
+  "cooking_method": {
+    "mg": "Manendy",
+    "fr": "Frire",
+    "en": "Frying"
+  },
+  "fabric": {
+    "mg": "Landihazo",
+    "fr": "Coton",
+    "en": "Cotton"
+  },
+  "building_material": {
+    "mg": "Biriky",
+    "fr": "Brique",
+    "en": "Brick"
+  },
+  "container": {
+    "mg": "Tavoahangy",
+    "fr": "Bouteille",
+    "en": "Bottle"
+  },
+  "cleaning_product": {
+    "mg": "Rano fanasan-damba",
+    "fr": "Lessive",
+    "en": "Laundry detergent"
+  },
+  "shop_type": {
+    "mg": "Fivarotam-mofo",
+    "fr": "Boulangerie",
+    "en": "Bakery"
+  },
+  "public_building": {
+    "mg": "Lapan’ny tanàna",
+    "fr": "Mairie",
+    "en": "Town hall"
+  },
+  "emergency_item": {
+    "mg": "Vata misy fitaovam-pitsaboana",
+    "fr": "Trousse de secours",
+    "en": "First aid kit"
+  },
+  "farm_tool": {
+    "mg": "Angady",
+    "fr": "Bêche",
+    "en": "Spade"
+  },
+  "farm_product": {
+    "mg": "Atody",
+    "fr": "Œuf",
+    "en": "Egg"
+  },
+  "weather_phenomenon": {
+    "mg": "Orana",
+    "fr": "Pluie",
+    "en": "Rain"
+  },
+  "natural_landscape": {
+    "mg": "Lohasaha",
+    "fr": "Vallée",
+    "en": "Valley"
+  },
+  "energy_source": {
+    "mg": "Masoandro",
+    "fr": "Soleil",
+    "en": "Sun"
+  },
+  "geometric_shape": {
+    "mg": "Telozoro",
+    "fr": "Triangle",
+    "en": "Triangle"
+  },
+  "triangular_thing": {
+    "mg": "Telozoro",
+    "fr": "Triangle",
+    "en": "Triangle"
+  },
+  "mammal": {
+    "mg": "Alika",
+    "fr": "Chien",
+    "en": "Dog"
+  },
+  "nocturnal_animal": {
+    "mg": "Ramanavy",
+    "fr": "Chauve-souris",
+    "en": "Bat"
+  },
+  "climbing_plant": {
+    "mg": "Voaloboka",
+    "fr": "Vigne",
+    "en": "Grapevine"
+  },
+  "water_sport": {
+    "mg": "Milomano",
+    "fr": "Natation",
+    "en": "Swimming"
+  },
+  "combat_sport": {
+    "mg": "Judo",
+    "fr": "Judo",
+    "en": "Judo"
+  },
+  "magic_item": {
+    "mg": "Tsorakazo mahagaga",
+    "fr": "Baguette magique",
+    "en": "Magic wand"
+  },
+  "fairy_tale": {
+    "mg": "Cendrillon",
+    "fr": "Cendrillon",
+    "en": "Cinderella"
+  },
+  "fictional_villain": {
+    "mg": "Voldemort",
+    "fr": "Voldemort",
+    "en": "Voldemort"
+  },
+  "comic_book": {
+    "mg": "Astérix",
+    "fr": "Astérix",
+    "en": "Asterix"
+  },
+  "party_game": {
+    "mg": "Jeu des mimes",
+    "fr": "Jeu des mimes",
+    "en": "Charades"
+  },
+  "picnic_item": {
+    "mg": "Lamba fipetrahana",
+    "fr": "Nappe",
+    "en": "Picnic blanket"
+  },
+  "glowing_thing": {
+    "mg": "Afo manjelatra",
+    "fr": "Braise",
+    "en": "Glowing ember"
+  },
+  "flying_thing": {
+    "mg": "Fiaramanidina",
+    "fr": "Avion",
+    "en": "Aeroplane"
+  },
+  "stretchy_thing": {
+    "mg": "Élastique",
+    "fr": "Élastique",
+    "en": "Elastic band"
+  },
+  "lucky_charm": {
+    "mg": "Trèfle à quatre feuilles",
+    "fr": "Trèfle à quatre feuilles",
+    "en": "Four-leaf clover"
+  },
+  "celebration_decoration": {
+    "mg": "Guirlande",
+    "fr": "Guirlande",
+    "en": "Garland"
+  },
+  "clothing_brand": {
+    "mg": "Adidas",
+    "fr": "Adidas",
+    "en": "Adidas"
+  },
+  "sports_brand": {
+    "mg": "Adidas",
+    "fr": "Adidas",
+    "en": "Adidas"
+  },
+  "shoe_brand": {
+    "mg": "Bata",
+    "fr": "Bata",
+    "en": "Bata"
+  },
+  "perfume_brand": {
+    "mg": "Guerlain",
+    "fr": "Guerlain",
+    "en": "Guerlain"
+  },
+  "cosmetics_brand": {
+    "mg": "Maybelline",
+    "fr": "Maybelline",
+    "en": "Maybelline"
+  },
+  "skincare_brand": {
+    "mg": "Nivea",
+    "fr": "Nivea",
+    "en": "Nivea"
+  },
+  "haircare_brand": {
+    "mg": "Garnier",
+    "fr": "Garnier",
+    "en": "Garnier"
+  },
+  "electronics_brand": {
+    "mg": "Sony",
+    "fr": "Sony",
+    "en": "Sony"
+  },
+  "computer_brand": {
+    "mg": "Lenovo",
+    "fr": "Lenovo",
+    "en": "Lenovo"
+  },
+  "home_appliance_brand": {
+    "mg": "Bosch",
+    "fr": "Bosch",
+    "en": "Bosch"
+  },
+  "motorcycle_brand": {
+    "mg": "Yamaha",
+    "fr": "Yamaha",
+    "en": "Yamaha"
+  },
+  "food_brand": {
+    "mg": "Maggi",
+    "fr": "Maggi",
+    "en": "Maggi"
+  },
+  "drink_brand": {
+    "mg": "Coca-Cola",
+    "fr": "Coca-Cola",
+    "en": "Coca-Cola"
+  },
+  "chocolate_brand": {
+    "mg": "Chocolaterie Robert",
+    "fr": "Chocolaterie Robert",
+    "en": "Chocolaterie Robert"
+  },
+  "bottled_water_brand": {
+    "mg": "Eau Vive",
+    "fr": "Eau Vive",
+    "en": "Eau Vive"
+  },
+  "stationery_brand": {
+    "mg": "Bic",
+    "fr": "Bic",
+    "en": "Bic"
+  },
+  "toy_brand": {
+    "mg": "Lego",
+    "fr": "Lego",
+    "en": "Lego"
+  },
+  "cleaning_brand": {
+    "mg": "Ajax",
+    "fr": "Ajax",
+    "en": "Ajax"
+  },
+  "coffee_brand": {
+    "mg": "Nescafé",
+    "fr": "Nescafé",
+    "en": "Nescafé"
+  },
+  "restaurant_name": {
+    "mg": "La Tour d’Argent",
+    "fr": "La Tour d’Argent",
+    "en": "La Tour d’Argent"
+  },
+  "karaoke_venue_name": {
+    "mg": "Karaoke Kan",
+    "fr": "Karaoke Kan",
+    "en": "Karaoke Kan"
+  },
+  "bar_name": {
+    "mg": "Harry’s New York Bar",
+    "fr": "Harry’s New York Bar",
+    "en": "Harry’s New York Bar"
+  },
+  "cafe_name": {
+    "mg": "Café de Flore",
+    "fr": "Café de Flore",
+    "en": "Café de Flore"
+  },
+  "hotel_name": {
+    "mg": "Hôtel Colbert",
+    "fr": "Hôtel Colbert",
+    "en": "Hôtel Colbert"
+  },
+  "pizzeria_name": {
+    "mg": "Pizza Hut",
+    "fr": "Pizza Hut",
+    "en": "Pizza Hut"
+  },
+  "bakery_name": {
+    "mg": "Paul",
+    "fr": "Paul",
+    "en": "Paul"
+  },
+  "fast_food_restaurant_name": {
+    "mg": "McDonald’s",
+    "fr": "McDonald’s",
+    "en": "McDonald’s"
+  },
+  "supermarket_name": {
+    "mg": "Jumbo Score",
+    "fr": "Jumbo Score",
+    "en": "Jumbo Score"
+  },
+  "shopping_mall_name": {
+    "mg": "La City Ivandry",
+    "fr": "La City Ivandry",
+    "en": "La City Ivandry"
+  },
+  "nightclub_name": {
+    "mg": "Rex Club",
+    "fr": "Rex Club",
+    "en": "Rex Club"
+  },
+  "cinema_name": {
+    "mg": "Le Grand Rex",
+    "fr": "Le Grand Rex",
+    "en": "Le Grand Rex"
+  },
+  "gym_name": {
+    "mg": "Basic-Fit",
+    "fr": "Basic-Fit",
+    "en": "Basic-Fit"
+  },
+  "guesthouse_name": {
+    "mg": "Home Sakalava",
+    "fr": "Home Sakalava",
+    "en": "Home Sakalava"
+  },
+  "ice_cream_shop_name": {
+    "mg": "Amorino",
+    "fr": "Amorino",
+    "en": "Amorino"
+  },
+  "food_truck_name": {
+    "mg": "Le Camion qui fume",
+    "fr": "Le Camion qui fume",
+    "en": "Le Camion qui fume"
+  },
+  "snack_to_share": {
+    "mg": "Chips",
+    "fr": "Chips",
+    "en": "Crisps"
+  },
+  "crunchy_food": {
+    "mg": "Chips",
+    "fr": "Chips",
+    "en": "Crisps"
+  },
+  "bagged_food": {
+    "mg": "Chips",
+    "fr": "Chips",
+    "en": "Crisps"
+  },
+  "food_eaten_with_hands": {
+    "mg": "Sambos",
+    "fr": "Sambos",
+    "en": "Samosa"
+  },
+  "messy_food": {
+    "mg": "Spaghetti misy saosy",
+    "fr": "Spaghettis en sauce",
+    "en": "Spaghetti with sauce"
+  },
+  "clothing_stain_cause": {
+    "mg": "Ranomainty",
+    "fr": "Encre",
+    "en": "Ink"
+  },
+  "food_burnt_in_kitchen": {
+    "mg": "Mofo voatono",
+    "fr": "Pain grillé",
+    "en": "Toast"
+  },
+  "pet_mischief": {
+    "mg": "Mitsako kiraro",
+    "fr": "Mâcher une chaussure",
+    "en": "Chewing a shoe"
+  },
+  "pet_toy": {
+    "mg": "Baolina",
+    "fr": "Balle",
+    "en": "Ball"
+  },
+  "funny_pet_name": {
+    "mg": "Biscotte",
+    "fr": "Biscotte",
+    "en": "Biscuit"
+  },
+  "unexpected_door_visitor": {
+    "mg": "Mpitondra entana",
+    "fr": "Livreur",
+    "en": "Delivery person"
+  },
+  "nap_interruption": {
+    "mg": "Antso an-telefaonina",
+    "fr": "Appel téléphonique",
+    "en": "Phone call"
+  },
+  "morning_first_action": {
+    "mg": "Manasa tarehy",
+    "fr": "Se laver le visage",
+    "en": "Washing your face"
+  },
+  "before_guests_arrive": {
+    "mg": "Manadio trano",
+    "fr": "Nettoyer la maison",
+    "en": "Cleaning the house"
+  },
+  "power_cut_activity": {
+    "mg": "Miresaka",
+    "fr": "Discuter",
+    "en": "Talking"
+  },
+  "rain_shelter": {
+    "mg": "Fialofana fiandrasana fiara fitaterana",
+    "fr": "Abribus",
+    "en": "Bus shelter"
+  },
+  "forgotten_in_pocket": {
+    "mg": "Taratasy kely",
+    "fr": "Petit papier",
+    "en": "Note"
+  },
+  "suitcase_surprise": {
+    "mg": "Kilalao miafina",
+    "fr": "Jouet caché",
+    "en": "Hidden toy"
+  },
+  "school_break_activity": {
+    "mg": "Lalao fanenjika",
+    "fr": "Jeu du chat",
+    "en": "Tag"
+  },
+  "outdoor_game": {
+    "mg": "Lalao fanenjika",
+    "fr": "Jeu du chat",
+    "en": "Tag"
+  },
+  "queue_activity": {
+    "mg": "Mamaky hafatra",
+    "fr": "Lire des messages",
+    "en": "Reading messages"
+  },
+  "dance_floor_item": {
+    "mg": "Mikrô",
+    "fr": "Micro",
+    "en": "Microphone"
+  },
+  "performance_venue_item": {
+    "mg": "Mikrô",
+    "fr": "Micro",
+    "en": "Microphone"
+  },
+  "birthday_wish": {
+    "mg": "Fahasalamana",
+    "fr": "Bonne santé",
+    "en": "Good health"
+  },
+  "party_costume": {
+    "mg": "Piraty",
+    "fr": "Pirate",
+    "en": "Pirate"
+  },
+  "pretend_microphone": {
+    "mg": "Borosy volo",
+    "fr": "Brosse à cheveux",
+    "en": "Hairbrush"
+  },
+  "improvised_drum": {
+    "mg": "Siny",
+    "fr": "Seau",
+    "en": "Bucket"
+  },
+  "unusual_hat": {
+    "mg": "Passoire",
+    "fr": "Passoire",
+    "en": "Colander"
+  },
+  "superpower_wish": {
+    "mg": "Tsy hita maso",
+    "fr": "Invisibilité",
+    "en": "Invisibility"
+  },
+  "robot_chore": {
+    "mg": "Manasa vilia",
+    "fr": "Faire la vaisselle",
+    "en": "Washing dishes"
+  },
+  "giant_object": {
+    "mg": "Sotro",
+    "fr": "Cuillère",
+    "en": "Spoon"
+  },
+  "miniature_object": {
+    "mg": "Fiarabe",
+    "fr": "Camion",
+    "en": "Truck"
+  },
+  "imaginary_pet": {
+    "mg": "Dragona kely",
+    "fr": "Petit dragon",
+    "en": "Baby dragon"
+  },
+  "communication_method": {
+    "mg": "Taratasy alefa",
+    "fr": "Lettre",
+    "en": "Letter"
+  },
+  "workplace": {
+    "mg": "Birao",
+    "fr": "Bureau",
+    "en": "Office"
+  },
+  "plastic_object": {
+    "mg": "Règle plastika",
+    "fr": "Règle en plastique",
+    "en": "Plastic ruler"
+  },
+  "paper_object": {
+    "mg": "Gazety",
+    "fr": "Journal",
+    "en": "Newspaper"
+  },
+  "metal_object": {
+    "mg": "Fantsika",
+    "fr": "Clou",
+    "en": "Nail"
+  },
+  "waiting_place": {
+    "mg": "Gara",
+    "fr": "Gare",
+    "en": "Train station"
+  },
+  "eating_place": {
+    "mg": "Trano fisakafoana",
+    "fr": "Restaurant",
+    "en": "Restaurant"
+  },
+  "family_activity": {
+    "mg": "Miara-mahandro",
+    "fr": "Cuisiner ensemble",
+    "en": "Cooking together"
+  },
+  "borrowed_object": {
+    "mg": "Boky",
+    "fr": "Livre",
+    "en": "Book"
+  },
+  "collectible_thing": {
+    "mg": "Hajia",
+    "fr": "Timbre",
+    "en": "Stamp"
+  },
+  "repairable_thing": {
+    "mg": "Bisikileta",
+    "fr": "Vélo",
+    "en": "Bicycle"
+  },
+  "battery_powered_object": {
+    "mg": "Télécommande",
+    "fr": "Télécommande",
+    "en": "Remote control"
+  },
+  "lockable_thing": {
+    "mg": "Varavarana",
+    "fr": "Porte",
+    "en": "Door"
+  },
+  "inflatable_thing": {
+    "mg": "Baolina",
+    "fr": "Ballon",
+    "en": "Balloon"
+  },
+  "melting_thing": {
+    "mg": "Dibera",
+    "fr": "Beurre",
+    "en": "Butter"
+  },
+  "foldable_thing": {
+    "mg": "Taratasy",
+    "fr": "Feuille de papier",
+    "en": "Sheet of paper"
+  },
+  "hanging_thing": {
+    "mg": "Sary",
+    "fr": "Tableau",
+    "en": "Painting"
+  },
+  "prickly_thing": {
+    "mg": "Tsilo",
+    "fr": "Épine",
+    "en": "Thorn"
+  },
+  "sour_thing": {
+    "mg": "Voasarimakirana",
+    "fr": "Citron",
+    "en": "Lemon"
+  },
+  "bitter_thing": {
+    "mg": "Kafe tsy misy siramamy",
+    "fr": "Café sans sucre",
+    "en": "Unsweetened coffee"
+  },
+  "salty_thing": {
+    "mg": "Sira",
+    "fr": "Sel",
+    "en": "Salt"
+  },
+  "rough_thing": {
+    "mg": "Taratasy fasika",
+    "fr": "Papier de verre",
+    "en": "Sandpaper"
+  },
+  "smooth_thing": {
+    "mg": "Marbra voakosoka",
+    "fr": "Marbre poli",
+    "en": "Polished marble"
+  },
+  "sharp_thing": {
+    "mg": "Antsy",
+    "fr": "Couteau",
+    "en": "Knife"
+  },
+  "lightweight_thing": {
+    "mg": "Volom-borona",
+    "fr": "Plume",
+    "en": "Feather"
+  },
+  "slippery_thing": {
+    "mg": "Hoditr’akondro",
+    "fr": "Peau de banane",
+    "en": "Banana peel"
+  },
+  "wet_thing": {
+    "mg": "Lamba lena",
+    "fr": "Linge mouillé",
+    "en": "Wet cloth"
+  },
+  "dry_thing": {
+    "mg": "Mofo maina",
+    "fr": "Biscotte",
+    "en": "Rusk"
+  },
+  "dusty_thing": {
+    "mg": "Boky tranainy",
+    "fr": "Vieux livre",
+    "en": "Old book"
+  },
+  "foamy_thing": {
+    "mg": "Savony",
+    "fr": "Savon",
+    "en": "Soap"
+  },
+  "reflective_thing": {
+    "mg": "Fitaratra",
+    "fr": "Miroir",
+    "en": "Mirror"
+  },
+  "striped_thing": {
+    "mg": "Zebra",
+    "fr": "Zèbre",
+    "en": "Zebra"
+  },
+  "spotted_thing": {
+    "mg": "Pantera",
+    "fr": "Léopard",
+    "en": "Leopard"
+  },
+  "square_thing": {
+    "mg": "Taila efamira",
+    "fr": "Carreau carré",
+    "en": "Square tile"
+  },
+  "tv_series": {
+    "mg": "Friends",
+    "fr": "Friends",
+    "en": "Friends"
+  },
+  "tv_show": {
+    "mg": "Questions pour un champion",
+    "fr": "Questions pour un champion",
+    "en": "Questions pour un champion"
+  },
+  "tv_series_character": {
+    "mg": "Mr Bean",
+    "fr": "Mr Bean",
+    "en": "Mr Bean"
+  },
+  "cartoon_character": {
+    "mg": "Mickey Mouse",
+    "fr": "Mickey Mouse",
+    "en": "Mickey Mouse"
+  },
+  "tv_presenter": {
+    "mg": "Julien Lepers",
+    "fr": "Julien Lepers",
+    "en": "Julien Lepers"
+  },
+  "radio_station": {
+    "mg": "Radio Don Bosco",
+    "fr": "Radio Don Bosco",
+    "en": "Radio Don Bosco"
+  },
+  "tv_channel": {
+    "mg": "TVM",
+    "fr": "TVM",
+    "en": "TVM"
+  },
+  "online_content_creator": {
+    "mg": "Squeezie",
+    "fr": "Squeezie",
+    "en": "Squeezie"
+  },
+  "youtube_channel": {
+    "mg": "Squeezie",
+    "fr": "Squeezie",
+    "en": "Squeezie"
+  },
+  "fictional_place": {
+    "mg": "Narnia",
+    "fr": "Narnia",
+    "en": "Narnia"
+  },
+  "facebook_page": {
+    "mg": "UNICEF Madagascar",
+    "fr": "UNICEF Madagascar",
+    "en": "UNICEF Madagascar"
+  },
+  "facebook_group": {
+    "mg": "FIRST LEGO League Share and Learn",
+    "fr": "FIRST LEGO League Share and Learn",
+    "en": "FIRST LEGO League Share and Learn"
+  },
+  "bald_actor": {
+    "mg": "Dwayne Johnson",
+    "fr": "Dwayne Johnson",
+    "en": "Dwayne Johnson"
+  },
+  "bearded_actor": {
+    "mg": "Jason Momoa",
+    "fr": "Jason Momoa",
+    "en": "Jason Momoa"
+  },
+  "actor_with_glasses": {
+    "mg": "Woody Allen",
+    "fr": "Woody Allen",
+    "en": "Woody Allen"
+  },
+  "comedy_movie_actor": {
+    "mg": "Louis de Funès",
+    "fr": "Louis de Funès",
+    "en": "Louis de Funès"
+  },
+  "tattooed_actor": {
+    "mg": "Jason Momoa",
+    "fr": "Jason Momoa",
+    "en": "Jason Momoa"
+  },
+  "tattooed_artist": {
+    "mg": "Rihanna",
+    "fr": "Rihanna",
+    "en": "Rihanna"
+  },
+  "tattoo_artist": {
+    "mg": "Kat Von D",
+    "fr": "Kat Von D",
+    "en": "Kat Von D"
+  },
+  "verb_french": {
+    "mg": "Manger",
+    "fr": "Manger",
+    "en": "Manger"
+  },
+  "verb_english": {
+    "mg": "Eat",
+    "fr": "Eat",
+    "en": "Eat"
+  },
+  "uniform_profession": {
+    "mg": "Mpitandro filaminana",
+    "fr": "Policier",
+    "en": "Police officer"
+  },
+  "raw_food": {
+    "mg": "Kôkômbra",
+    "fr": "Concombre",
+    "en": "Cucumber"
+  },
+  "car_interior_item": {
+    "mg": "Volant",
+    "fr": "Volant",
+    "en": "Steering wheel"
+  },
+  "pharmacy_item": {
+    "mg": "Pansement",
+    "fr": "Pansement",
+    "en": "Plaster"
+  },
+  "horror_movie": {
+    "mg": "Dracula",
+    "fr": "Dracula",
+    "en": "Dracula"
+  },
+  "dance_song": {
+    "mg": "Waka Waka",
+    "fr": "Waka Waka",
+    "en": "Waka Waka"
+  },
+  "cleaning_item": {
+    "mg": "Kifafa",
+    "fr": "Balai",
+    "en": "Broom"
+  },
+  "five_letter_french_word": {
+    "mg": "Table",
+    "fr": "Table",
+    "en": "Table"
+  },
+  "adjective_french": {
+    "mg": "Grand",
+    "fr": "Grand",
+    "en": "Grand"
+  },
+  "adjective_english": {
+    "mg": "Happy",
+    "fr": "Happy",
+    "en": "Happy"
+  },
+  "horned_animal": {
+    "mg": "Omby",
+    "fr": "Zébu",
+    "en": "Zebu"
+  },
+  "plant_eating_animal": {
+    "mg": "Omby",
+    "fr": "Zébu",
+    "en": "Zebu"
+  },
+  "social_animal": {
+    "mg": "Amboadia",
+    "fr": "Loup",
+    "en": "Wolf"
+  },
+  "measuring_object": {
+    "mg": "Mètre",
+    "fr": "Mètre",
+    "en": "Tape measure"
+  },
+  "beach_packing_item": {
+    "mg": "Servieta",
+    "fr": "Serviette",
+    "en": "Towel"
+  },
+  "night_job": {
+    "mg": "Mpiambina alina",
+    "fr": "Gardien de nuit",
+    "en": "Night guard"
+  },
+  "helping_profession": {
+    "mg": "Mpitsabo mpanampy",
+    "fr": "Infirmier",
+    "en": "Nurse"
+  },
+  "child_gift": {
+    "mg": "Kilalao",
+    "fr": "Jouet",
+    "en": "Toy"
+  },
+  "hotel_item": {
+    "mg": "Lamba firakotra",
+    "fr": "Drap",
+    "en": "Bedsheet"
+  },
+  "five_letter_malagasy_word": {
+    "mg": "Trano",
+    "fr": "Trano",
+    "en": "Trano"
+  },
+  "five_letter_english_word": {
+    "mg": "Apple",
+    "fr": "Apple",
+    "en": "Apple"
+  },
+  "jumping_animal": {
+    "mg": "Bitro",
+    "fr": "Lapin",
+    "en": "Rabbit"
+  },
+  "legless_animal": {
+    "mg": "Bibilava",
+    "fr": "Serpent",
+    "en": "Snake"
+  },
+  "crawling_animal": {
+    "mg": "Bibilava",
+    "fr": "Serpent",
+    "en": "Snake"
+  },
+  "spoon_food": {
+    "mg": "Lasopy",
+    "fr": "Soupe",
+    "en": "Soup"
+  },
+  "canned_food": {
+    "mg": "Sardine",
+    "fr": "Sardines",
+    "en": "Sardines"
+  },
+  "rice_dish": {
+    "mg": "Vary amin’anana",
+    "fr": "Vary amin’anana",
+    "en": "Vary amin’anana"
+  },
+  "scissors_cut_thing": {
+    "mg": "Taratasy",
+    "fr": "Papier",
+    "en": "Paper"
+  },
+  "hair_accessory": {
+    "mg": "Fatoram-bolo",
+    "fr": "Élastique à cheveux",
+    "en": "Hair tie"
+  },
+  "travel_job": {
+    "mg": "Mpanamory fiaramanidina",
+    "fr": "Pilote d’avion",
+    "en": "Pilot"
+  },
+  "bakery_item": {
+    "mg": "Lafaoro",
+    "fr": "Four",
+    "en": "Oven"
+  },
+  "flying_character": {
+    "mg": "Superman",
+    "fr": "Superman",
+    "en": "Superman"
+  },
+  "singer_stage_name": {
+    "mg": "Lady Gaga",
+    "fr": "Lady Gaga",
+    "en": "Lady Gaga"
+  },
+  "shelled_animal": {
+    "mg": "Sokatra",
+    "fr": "Tortue",
+    "en": "Tortoise"
+  },
+  "burrowing_animal": {
+    "mg": "Bitro",
+    "fr": "Lapin",
+    "en": "Rabbit"
+  },
+  "steamed_food": {
+    "mg": "Raviolis masaka amin’ny etona",
+    "fr": "Raviolis vapeur",
+    "en": "Steamed dumplings"
+  },
+  "zippered_object": {
+    "mg": "Kitapo",
+    "fr": "Sac",
+    "en": "Bag"
+  },
+  "toothed_object": {
+    "mg": "Fihogo",
+    "fr": "Peigne",
+    "en": "Comb"
+  },
+  "hair_salon_item": {
+    "mg": "Fihogo",
+    "fr": "Peigne",
+    "en": "Comb"
+  },
+  "outdoor_job": {
+    "mg": "Mpamboly",
+    "fr": "Agriculteur",
+    "en": "Farmer"
+  },
+  "gloved_job": {
+    "mg": "Mpandidy",
+    "fr": "Chirurgien",
+    "en": "Surgeon"
+  },
+  "video_game_character": {
+    "mg": "Mario",
+    "fr": "Mario",
+    "en": "Mario"
+  },
+  "sports_club": {
+    "mg": "FC Barcelona",
+    "fr": "FC Barcelone",
+    "en": "FC Barcelona"
+  },
+  "bicycle_accessory": {
+    "mg": "Fanairana bisikileta",
+    "fr": "Sonnette",
+    "en": "Bicycle bell"
+  },
+  "four_letter_french_word": {
+    "mg": "Chat",
+    "fr": "Chat",
+    "en": "Chat"
+  },
+  "big_eared_animal": {
+    "mg": "Elefanta",
+    "fr": "Éléphant",
+    "en": "Elephant"
+  },
+  "stone_fruit": {
+    "mg": "Paiso",
+    "fr": "Pêche",
+    "en": "Peach"
+  },
+  "sandwich_ingredient": {
+    "mg": "Fromazy",
+    "fr": "Fromage",
+    "en": "Cheese"
+  },
+  "pizza_topping": {
+    "mg": "Oliva",
+    "fr": "Olive",
+    "en": "Olive"
+  },
+  "frozen_food": {
+    "mg": "Gilasy",
+    "fr": "Crème glacée",
+    "en": "Ice cream"
+  },
+  "sun_protection_item": {
+    "mg": "Satroka",
+    "fr": "Chapeau",
+    "en": "Hat"
+  },
+  "public_transport": {
+    "mg": "Fiara fitateram-bahoaka",
+    "fr": "Bus",
+    "en": "Bus"
+  },
+  "quiet_place": {
+    "mg": "Tranomboky",
+    "fr": "Bibliothèque",
+    "en": "Library"
+  },
+  "newspaper_magazine": {
+    "mg": "L’Express de Madagascar",
+    "fr": "L’Express de Madagascar",
+    "en": "L’Express de Madagascar"
+  },
+  "fairy_tale_character": {
+    "mg": "Cendrillon",
+    "fr": "Cendrillon",
+    "en": "Cinderella"
+  },
+  "fastening_object": {
+    "mg": "Tady",
+    "fr": "Corde",
+    "en": "Rope"
+  },
+  "protective_object": {
+    "mg": "Fiarovan-doha",
+    "fr": "Casque",
+    "en": "Helmet"
+  },
+  "spinning_thing": {
+    "mg": "Toupie",
+    "fr": "Toupie",
+    "en": "Spinning top"
+  },
+  "water_absorbing_thing": {
+    "mg": "Sponjy",
+    "fr": "Éponge",
+    "en": "Sponge"
+  },
+  "long_tailed_animal": {
+    "mg": "Gidro",
+    "fr": "Lémurien",
+    "en": "Lemur"
+  },
+  "shelter_building_animal": {
+    "mg": "Vorona",
+    "fr": "Oiseau",
+    "en": "Bird"
+  },
+  "peel_before_cooking_food": {
+    "mg": "Ovy",
+    "fr": "Pomme de terre",
+    "en": "Potato"
+  },
+  "flour_based_food": {
+    "mg": "Mofo",
+    "fr": "Pain",
+    "en": "Bread"
+  },
+  "bread_accompaniment": {
+    "mg": "Kaonfitira",
+    "fr": "Confiture",
+    "en": "Jam"
+  },
+  "salad_ingredient": {
+    "mg": "Voatabia",
+    "fr": "Tomate",
+    "en": "Tomato"
+  },
+  "train_station_item": {
+    "mg": "Dabilio",
+    "fr": "Banc",
+    "en": "Bench"
+  },
+  "construction_site_item": {
+    "mg": "Brouette",
+    "fr": "Brouette",
+    "en": "Wheelbarrow"
+  },
+  "farm_item": {
+    "mg": "Traktera",
+    "fr": "Tracteur",
+    "en": "Tractor"
+  },
+  "repair_job": {
+    "mg": "Mekanika",
+    "fr": "Mécanicien",
+    "en": "Mechanic"
+  },
+  "animal_related_job": {
+    "mg": "Mpitsabo biby",
+    "fr": "Vétérinaire",
+    "en": "Vet"
+  },
+  "making_job": {
+    "mg": "Mpandrafitra",
+    "fr": "Menuisier",
+    "en": "Carpenter"
+  },
+  "before_leaving_home_check": {
+    "mg": "Varavarana",
+    "fr": "Porte",
+    "en": "Door"
+  },
+  "bedtime_activity": {
+    "mg": "Mamaky boky",
+    "fr": "Lire un livre",
+    "en": "Reading a book"
+  },
+  "welcoming_guest_action": {
+    "mg": "Miarahaba",
+    "fr": "Saluer",
+    "en": "Greeting"
+  },
+  "library_forbidden_action": {
+    "mg": "Mikiakiaka",
+    "fr": "Crier",
+    "en": "Shouting"
+  },
+  "traffic_obstruction": {
+    "mg": "Lozam-pifamoivoizana",
+    "fr": "Accident",
+    "en": "Accident"
+  },
+  "falling_from_tree_thing": {
+    "mg": "Voankazo",
+    "fr": "Fruit",
+    "en": "Fruit"
+  }
+}

@@ -29,6 +29,25 @@ class CategoryAdminTest extends TestCase {
         return ['code' => $code, 'difficulty' => 2, 'names' => ['mg' => 'Zavamaneno', 'fr' => 'Instrument de musique', 'en' => 'Musical instrument']];
     }
 
+    public function test_examples_can_be_created_updated_and_imported_without_erasing_omitted_languages(): void {
+        $this->login();
+        $row = [...$this->category(), 'examples'=>['mg'=>'Valiha','fr'=>'Violon','en'=>'Violin']];
+        $this->postJson('/api/admin/categories',$row)->assertCreated();
+        $id = DB::table('categories')->where('code',$row['code'])->value('id');
+        $row['examples'] = ['fr'=>'Piano'];
+        $this->putJson('/api/admin/categories/'.$id,$row)->assertOk();
+        $catalog = collect($this->getJson('/api/categories')->assertOk()->json('categories'))->keyBy('code');
+        $this->assertSame(['mg'=>'Valiha','fr'=>'Piano','en'=>'Violin'],$catalog[$row['code']]['examples']);
+        unset($row['examples']);
+        $this->putJson('/api/admin/categories/'.$id,$row)->assertOk();
+        $this->assertDatabaseHas('category_translations',['category_id'=>$id,'locale'=>'fr','example'=>'Piano']);
+        $this->putJson('/api/admin/categories/'.$id,[...$row,'examples'=>['fr'=>str_repeat('x',256)]])->assertUnprocessable();
+        $this->putJson('/api/admin/categories/'.$id,[...$row,'examples'=>['fr'=>['invalid']]])->assertUnprocessable();
+        $this->upload(json_encode([[...$this->category('musical_instrument_two'),'examples'=>['fr'=>'Guitare']]]),'categories.json',false)->assertCreated();
+        $newId = DB::table('categories')->where('code','musical_instrument_two')->value('id');
+        $this->assertDatabaseHas('category_translations',['category_id'=>$newId,'locale'=>'fr','example'=>'Guitare']);
+    }
+
     private function upload(string $body, string $name = 'categories.json', bool $preview = true) {
         return $this->post('/api/admin/categories/import', [
             'file' => UploadedFile::fake()->createWithContent($name, $body), 'preview' => $preview ? '1' : '0',

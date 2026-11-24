@@ -245,3 +245,5 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline-color:#65a99b
 .reaction-people strong { color: var(--accent); }
 @media (pointer: coarse) { .reaction-count-button { min-width: 40px; min-height: 40px; } }
 @media (pointer: coarse) { .reaction-button { min-width: 40px; min-height: 40px; } }
+
+.category-copy{display:flex;flex-direction:column;gap:4px;min-width:0}.category-example{font-size:.7rem;font-weight:400;line-height:1.4;color:var(--muted);overflow-wrap:anywhere}.category-item{align-items:flex-start}.category-item .category-icon{flex-shrink:0}

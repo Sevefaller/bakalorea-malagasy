@@ -4,7 +4,7 @@
 
 - 2 à 12 joueurs actifs. On peut rejoindre une partie en cours et participer à partir de la manche suivante. Quitter marque la place comme absente ; le joueur peut revenir sur le même appareil avec son jeton local et conserver son score, tant qu'une place est disponible.
 - 200 points, 15 secondes, 10 points pour une bonne réponse unique et 5 pour un doublon par défaut. Tous ces paramètres se règlent à la création, dans les limites affichées.
-- Le serveur tire une catégorie au hasard à chaque manche parmi les 61 catégories. Une catégorie ne revient qu’après épuisement du cycle. Parmi les couples catégorie-lettre possibles, il privilégie ceux absents des 100 dernières manches de toutes les parties, puis les moins récents si tous ont déjà servi.
+- Le serveur tire une catégorie au hasard à chaque manche parmi les catégories actives du catalogue. Une catégorie ne revient qu’après épuisement du cycle. Parmi les couples catégorie-lettre possibles, il privilégie ceux absents des 100 dernières manches de toutes les parties, puis les moins récents si tous ont déjà servi.
 - Trois secondes d’animation précèdent la fenêtre de réponse. Le serveur refuse les envois avant son début et à partir de son échéance.
 - Les lettres sont choisies par le serveur. En mode sans répétition, le jeu épuise le jeu de lettres avant de recommencer un cycle.
 
@@ -45,3 +45,10 @@ flowchart LR
   G --> C
   G --> H[Victoire]
 ```
+
+## Exemples du catalogue
+
+- Les 447 catégories intégrées actives disposent d’un exemple en malgache, français et anglais, consultable sur l’accueil. Les exemples illustrent la catégorie sans constituer une liste exhaustive de réponses acceptées. Ils ne sont pas affichés sur la carte de la manche.
+- L’administration permet de modifier les exemples, et d’en fournir lors de la création ou de l’import JSON d’une catégorie. Le format CSV existant reste compatible.
+
+Quelques noms propres ont été vérifiés auprès de sources publiques : [Karaoke Kan](https://karaokekan.jp/en), [Home Sakalava — Office du tourisme de Nosy Be](https://nosybe-tourisme.com/it/obt_heb/home-sakalava-3/), [Nosy — Syndicat des industries de Madagascar](https://simmadagascar.mg/malagasy-ny-antsika/produits-malagasy-ny-antsika/produit-11/) et [Malok’ila — JICA](https://www.jica.go.jp/madagascar/french/office/others/pdf/publications01_03.pdf).

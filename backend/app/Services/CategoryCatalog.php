@@ -12,6 +12,7 @@ class CategoryCatalog {
             'code' => $category->code,
             'difficulty' => (int) $category->difficulty,
             'names' => ($translations->get($category->id) ?? collect())->pluck('name', 'locale')->all(),
+            'examples' => ($translations->get($category->id) ?? collect())->pluck('example', 'locale')->all(),
         ])->all();
     }
 
@@ -24,7 +25,7 @@ class CategoryCatalog {
             $ids = [];
             foreach ($rows as $row) {
                 $id = DB::table('categories')->insertGetId(['code' => $row['code'], 'sort_order' => $position++, 'difficulty' => $row['difficulty']]);
-                $this->saveNames($id, $row['names']);
+                $this->saveNames($id, $row['names'], $row['examples'] ?? null);
                 $ids[] = $id;
             }
             DB::table('games')->whereIn('status', ['lobby', 'playing'])->orderBy('id')->chunkById(100, function ($games) use ($ids) {
@@ -45,13 +46,15 @@ class CategoryCatalog {
         DB::transaction(function () use ($id, $row) {
             abort_unless(DB::table('categories')->where('id', $id)->lockForUpdate()->first(), 404);
             DB::table('categories')->where('id', $id)->update(['difficulty' => $row['difficulty']]);
-            $this->saveNames($id, $row['names']);
+            $this->saveNames($id, $row['names'], $row['examples'] ?? null);
         });
     }
 
-    private function saveNames(int $id, array $names): void {
+    private function saveNames(int $id, array $names, ?array $examples = null): void {
         foreach (['mg', 'fr', 'en'] as $locale) {
-            DB::table('category_translations')->updateOrInsert(['category_id' => $id, 'locale' => $locale], ['name' => $names[$locale]]);
+            $values = ['name'=>$names[$locale]];
+            if ($examples !== null && array_key_exists($locale,$examples)) $values['example'] = $examples[$locale] === null ? null : trim($examples[$locale]);
+            DB::table('category_translations')->updateOrInsert(['category_id' => $id, 'locale' => $locale], $values);
         }
     }
 }
