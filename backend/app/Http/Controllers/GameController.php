@@ -77,9 +77,7 @@ class GameController extends Controller {
     }
     public function contest(Request $r, Round $round) {
         $p=$this->member($r,$round->game);
-        if (is_string($r->input('reason'))) $r->merge(['reason'=>trim($r->input('reason'))]);
-        $v=$r->validate(['reason'=>'required|string|min:3|max:300']);
-        $this->engine->contest($round,$p,$v['reason']);
+        $this->engine->contest($round,$p);
         return response()->json(['ok'=>true]);
     }
     public function acknowledgeContest(Request $r, Round $round, int $contest) {

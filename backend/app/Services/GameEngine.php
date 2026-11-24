@@ -188,15 +188,16 @@ class GameEngine {
         return max(0, self::CONTEST_LIMIT - $used);
     }
 
-    public function contest(Round $round, GamePlayer $player, string $reason): void {
-        $created = $this->locked($round->game, function () use ($round,$player,$reason) {
+    public function contest(Round $round, GamePlayer $player): void {
+        $created = $this->locked($round->game, function () use ($round,$player) {
             $round->refresh();
             abort_unless($round->status === 'judging' && $this->isDiscussionOpen($round),409,'contest_closed');
             abort_unless($round->answers()->where('player_id',$player->id)->where('answer','<>','')->exists(),403,'not_participant');
             // The room lock and unique key make retries safe, even after a lost response.
             if (DB::table('round_contests')->where('round_id',$round->id)->where('player_id',$player->id)->exists()) return false;
             abort_if($this->remainingContests($round->game,$player) === 0,422,'contest_limit_reached');
-            $comment = DB::table('round_comments')->insertGetId(['round_id'=>$round->id,'player_id'=>$player->id,'body'=>$reason,'created_at'=>now()]);
+            // The linked contest identifies this notification; each client translates it.
+            $comment = DB::table('round_comments')->insertGetId(['round_id'=>$round->id,'player_id'=>$player->id,'body'=>'','created_at'=>now()]);
             DB::table('round_contests')->insert(['round_id'=>$round->id,'player_id'=>$player->id,'comment_id'=>$comment]);
             return true;
         });
